@@ -375,7 +375,7 @@ const collectionToEntryMap = createCollectionToGlobResultMap({
 });
 
 let lookupMap = {};
-lookupMap = {"posts":{"type":"content","entries":{"movetoitu":"/src/content/posts/movetoitu.md","gotphd":"/src/content/posts/gotphd.md"}}};
+lookupMap = {"posts":{"type":"content","entries":{"gotphd":"/src/content/posts/gotphd.md","movetoitu":"/src/content/posts/movetoitu.md"}}};
 
 const collectionNames = new Set(Object.keys(lookupMap));
 

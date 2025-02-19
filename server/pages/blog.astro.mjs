@@ -4,7 +4,7 @@ import 'kleur/colors';
 import '@astrojs/internal-helpers/path';
 import { $ as $$Image } from '../chunks/_astro_assets_yyG3Vpem.mjs';
 import { c as blogPageContent, b as $$Layout } from '../chunks/Layout_BjBFPX6w.mjs';
-import { a as getCollection } from '../chunks/_astro_content_OlyiFXJ9.mjs';
+import { a as getCollection } from '../chunks/_astro_content_CZ9GtwFT.mjs';
 export { renderers } from '../renderers.mjs';
 
 const $$Index = createComponent(async ($$result, $$props, $$slots) => {
