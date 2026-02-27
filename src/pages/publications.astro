@@ -1,0 +1,39 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PublicationCard from '../components/PublicationCard.astro';
+import { getPublicationsByYear } from '../lib/publications.js';
+
+const publicationsByYear = await getPublicationsByYear();
+const totalCount = publicationsByYear.reduce((sum, group) => sum + group.publications.length, 0);
+---
+
+<Layout 
+  title="Publications" 
+  description="Research publications on AI, Design, and Human-Computer Interaction by Willem van der Maden"
+>
+  <section class="container-content py-12 md:py-16">
+    <h1 class="mb-10" data-scroll-reveal>Publications</h1>
+    
+    {publicationsByYear.map(({ year, publications }) => (
+      <div class="mb-12" data-scroll-reveal>
+        <h2 class="text-xl font-heading font-semibold text-terracotta mb-4 pb-2 border-b border-border">
+          {year}
+        </h2>
+        <div class="space-y-2">
+          {publications.map(pub => (
+            <PublicationCard 
+              title={pub.title}
+              year={pub.year}
+              authors={pub.authors}
+              venue={pub.venue}
+              type={pub.type}
+              link={pub.link}
+              thumbnail={pub.thumbnail}
+              badges={pub.badges}
+            />
+          ))}
+        </div>
+      </div>
+    ))}
+  </section>
+</Layout>

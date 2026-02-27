@@ -1,0 +1,174 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const scheduleItems = [
+  {
+    time: "09:30 - 09:45",
+    title: "Arrival & Coffee",
+    description: ["Welcome participants", "Morning refreshments"]
+  },
+  {
+    time: "09:45 - 10:00",
+    title: "Welcome & Brief Overview",
+    description: ["Introduction to workshop goals and approach", "Overview of Semantic Stopsigns concept"]
+  },
+  {
+    time: "10:00 - 10:15",
+    title: "Ice-breaker",
+    description: ["Interactive activity to help participants connect"]
+  },
+  {
+    time: "10:15 - 10:45",
+    title: "Keynote + Q&A",
+    description: ["Featured keynote presentation (speaker to be announced soon)", "Interactive Q&A session"]
+  },
+  {
+    time: "10:45 - 11:15",
+    title: "Coffee Break",
+    description: ["Networking and refreshments"]
+  },
+  {
+    time: "11:15 - 12:15",
+    title: "Presentations",
+    description: ["Participant presentations of submitted cases and research"]
+  },
+  {
+    time: "12:15 - 12:45",
+    title: "Group Activity 1",
+    description: ["Collaborative work in small groups"]
+  },
+  {
+    time: "12:45 - 14:00",
+    title: "Lunch",
+    description: ["Lunch break with informal discussions"]
+  },
+  {
+    time: "14:00 - 14:15",
+    title: "Post-lunch Activation",
+    description: ["Brief energizing activity"]
+  },
+  {
+    time: "14:15 - 15:15",
+    title: "Discussion",
+    description: ["Group dialogue and reflection on workshop topics"]
+  },
+  {
+    time: "15:15 - 15:45",
+    title: "Coffee Break",
+    description: ["Afternoon refreshments"]
+  },
+  {
+    time: "15:45 - 16:45",
+    title: "Group Activity 2",
+    description: ["Advanced collaborative work building on morning sessions"]
+  },
+  {
+    time: "16:45 - 17:00",
+    title: "Wrap-up & Close",
+    description: ["Summary of key insights", "Next steps and future collaborations"]
+  },
+  {
+    time: "17:00 onwards",
+    title: "Informal Group Dinner",
+    description: ["Continued discussions and networking (optional)"]
+  }
+];
+---
+
+<Layout title="Workshop Agenda | DIS Workshop 2025" description="Agenda for the DIS 2025 workshop on GenAI and Design Research.">
+  <section class="mt-10 max-w-2xl mx-auto px-6">
+    <div class="mb-10">
+      <a href="/DISworkshop2025" class="flex items-center gap-1 text-sm opacity-60 hover:opacity-100 transition-opacity">
+        ← Back to Workshop Home
+      </a>
+    </div>
+    
+    <h1 class="font-bold text-3xl mb-8">Workshop Agenda</h1>
+    
+    <div class="prose prose-invert prose-p:opacity-80 max-w-none">
+      <p>Our one-day workshop will combine presentations, group discussions, and hands-on activities to explore and address the semantic and practical stopsigns in GenAI and design research.</p>
+      
+      <h2>Workshop Schedule</h2>
+      <p>Below is the preliminary agenda for our workshop on 6th July 2025:</p>
+      
+      <div class="my-6 border-l-2 border-gray-700 pl-4">
+        {scheduleItems.map((item) => (
+          <div class="mt-6 first:mt-0">
+            <h3 class="text-lg font-medium">{item.time} | {item.title}</h3>
+            <p class="ml-4">
+              {item.description.map((desc, index) => (
+                <>
+                  • {desc}
+                  {index < item.description.length - 1 && <br />}
+                </>
+              ))}
+            </p>
+          </div>
+        ))}
+      </div>
+      
+      <h2>Post-Workshop Plans</h2>
+      <p>Following the workshop, we plan to:</p>
+      <ul>
+        <li>Create a collective document synthesizing the workshop discussions and outcomes</li>
+        <li>Develop a research agenda for addressing stopsigns in GenAI and design research</li>
+        <li>Explore opportunities for a special issue or collaborative publication</li>
+      </ul>
+      
+      <p class="italic">Note: This agenda is subject to adjustment based on the number of accepted submissions and specific interests of participants.</p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .prose h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .prose h3 {
+    font-size: 1.125rem;
+    font-weight: 500;
+  }
+  
+  .prose ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .prose li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .border-l-2 {
+    border-left-width: 2px;
+  }
+  
+  .border-gray-700 {
+    border-color: #374151;
+  }
+  
+  .first\:mt-0:first-child {
+    margin-top: 0;
+  }
+  
+  .prose-p\:opacity-80 p {
+    opacity: 0.8;
+  }
+  
+  .max-w-none {
+    max-width: none;
+  }
+  
+  .my-6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .ml-4 {
+    margin-left: 1rem;
+  }
+</style>

@@ -1,0 +1,95 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const publications = [
+  {
+    title: "The Centers and Margins of Modeling Humans in Well-being Technologies",
+    year: 2025,
+    authors: "Zhu, Jichen, Sanches, Pedro, Tsaknaki, Vasiliki, van der Maden, Willem, Kaklopoulou, Irene",
+    journal: "CHI '25: Proceedings of the 2025 CHI Conference on Human Factors in Computing Systems",
+    description: "This paper critically examines how machine learning models humans in three case studies of well-being technologies, surfaces the assumptions that center normative bodies and marginalize complexities, and uses agential realism to propose more inclusive, posthuman-centered ML modeling approaches.",
+    link: "https://doi.org/10.1145/3706598.3713940",
+    image: "/images/publications/chi2025.png"
+  },
+  {
+    title: "When Discourse Stalls: Moving Past Five Semantic Stopsigns about Generative AI in Design Research",
+    year: 2025,
+    authors: "van der Maden, Willem, van der Burg, Vera, Halperin, Brett A., Jääskeläinen, Petra, Lindley, Joseph, Lomas, Derek, Merritt, Timothy",
+    journal: "arXiv",
+    description: "This essay analyzes how Generative AI is reshaping design practice and identifies five common \"semantic stopsigns\" — reductive framings that stall deeper inquiry. Drawing on two expert ACM‑conference workshops and interviews with design practitioners, it reframes these stopsigns into nuanced perspectives that help researchers and designers engage more productively with emerging GenAI tools.",
+    link: "https://doi.org/10.48550/arXiv.2503.08565",
+    image: "/images/publications/positive-ai-key-challenges-for-designing-wellbeing-aligned-artificial-intelligence.png"
+  },
+  {
+    title: "Developing and evaluating a design method for positive artificial intelligence",
+    year: 2024,
+    authors: "van der Maden, Willem, Lomas, Derek, Hekkert, Paul",
+    journal: "Artificial Intelligence for Engineering Design, Analysis and Manufacturing",
+    description: "In an era where artificial intelligence (AI) permeates every facet of our lives, this article presents and evaluates the positive AI design method aimed at supporting wellbeing in AI development.",
+    link: "https://doi.org/10.1017/S0890060424000155",
+    image: "/images/publications/developing-and-evaluating-a-design-method-for-positive-artificial-intelligence.jpg"
+  },
+  {
+    title: "Trustworthy Embodied Conversational Agents for Healthcare: A Design Exploration of Embodied Conversational Agents for the Perioperative Care Setting",
+    year: 2024,
+    authors: "Saccomanno, Sophia, van der Maden, Willem, Spahn, Andreas, Funk, Mathias",
+    journal: "International Journal of Human–Computer Interaction",
+    description: "This paper explores the design of trustworthy embodied conversational agents for healthcare settings through a user-centered design approach.",
+    link: "https://doi.org/10.1080/10447318.2024.2337118",
+    image: "/images/publications/trustworthy-embodied-conversational-agents-for-healthcare-a-design-exploration-of-embodied-conversat.jpg"
+  },
+  {
+    title: "Positive AI: Key Challenges for Designing Wellbeing-aligned Artificial Intelligence",
+    year: 2023,
+    authors: "van der Maden, Willem, Lomas, Derek, Hekkert, Paul",
+    journal: "Digital Society",
+    description: "This paper identifies key challenges in designing AI systems that actively promote human wellbeing and flourishing.",
+    link: "https://doi.org/10.1007/s44206-023-00041-7",
+    image: "/images/publications/positive-ai-key-challenges-for-designing-wellbeing-aligned-artificial-intelligence.png"
+  }
+];
+---
+
+<Layout title="Publications" description="Research publications on AI, Design, and Human-Computer Interaction">
+  <section class="mt-10 max-w-2xl mx-auto px-6">
+    <h1 class="font-bold text-3xl mb-1">Publications</h1>
+    <p class="opacity-60 mb-14">My research contributions to AI, Design, and Human Wellbeing</p>
+    
+    <div class="grid grid-cols-1 gap-6">
+      {publications.map((pub) => (
+        <article class="block p-6 hover:bg-gray-800/50 rounded-lg transition-colors">
+          <a href={pub.link} target="_blank" class="flex gap-6">
+            <div class="w-48 flex-shrink-0">
+              <div class="bg-gray-700 rounded-lg aspect-video">
+                <img 
+                  src={pub.image} 
+                  alt={pub.title} 
+                  class="w-full h-full object-cover rounded-lg" 
+                  width="1920" 
+                  height="1080" 
+                  loading="lazy" 
+                  decoding="async"
+                />
+              </div>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-baseline justify-between gap-2 mb-2">
+                <h2 class="font-medium text-lg text-white">{pub.title}</h2>
+                <span class="text-gray-400 whitespace-nowrap">{pub.year}</span>
+              </div>
+              <div class="text-gray-300 text-sm mb-1">
+                {pub.authors}
+              </div>
+              <div class="text-gray-400 text-sm italic">
+                {pub.journal}
+              </div>
+              <div class="mt-2 text-gray-400 text-sm">
+                <p>{pub.description}</p>
+              </div>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+  </section>
+</Layout>

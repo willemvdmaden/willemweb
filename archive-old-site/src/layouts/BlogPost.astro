@@ -1,0 +1,108 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Layout from './Layout.astro';
+
+type Props = CollectionEntry<'blog'>['data'];
+
+const { title, description, pubDate, heroImage } = Astro.props;
+
+const formattedDate = pubDate.toLocaleDateString('en-us', {
+	year: 'numeric',
+	month: 'short',
+	day: 'numeric',
+});
+---
+
+<Layout title={title} description={description} ogImage={heroImage}>
+	<section class="mt-10 max-w-2xl mx-auto px-6">
+		<h1 class="font-heading font-bold text-3xl mb-4 text-ink">{title}</h1>
+		<p class="text-ink-muted text-lg mb-6 leading-relaxed">
+			{description}
+		</p>
+		
+		<div class="flex items-center gap-4 mb-8 pb-8 border-b border-border">
+			<img 
+				src="/willem-logo.webp" 
+				alt="Willem van der Maden" 
+				class="w-10 h-10 object-cover rounded-full" 
+				width="40" 
+				height="40" 
+				loading="lazy" 
+				decoding="async"
+			/>
+			<div>
+				<p class="font-medium text-ink">Willem van der Maden</p>
+				<p class="text-ink-muted text-sm">
+					{formattedDate}
+				</p>
+			</div>
+		</div>
+
+		{heroImage && (
+			<img 
+				src={heroImage} 
+				alt="" 
+				class="w-full aspect-video object-cover rounded-xl mb-10 bg-cream-dark"
+                transition:name={`hero-${title}`}
+			/>
+		)}
+		
+		<article class="prose prose-lg prose-ink max-w-none">
+			<slot />
+		</article>
+	</section>
+</Layout>
+
+<style is:global>
+	/* Custom prose styles to match design system */
+	.prose {
+		color: hsl(var(--color-ink) / 0.8);
+	}
+	
+	.prose h1, .prose h2, .prose h3, .prose h4 {
+		color: hsl(var(--color-ink));
+		font-family: var(--font-heading);
+		font-weight: 600;
+		margin-top: 2em;
+		margin-bottom: 0.5em;
+	}
+	
+	.prose p {
+		margin-bottom: 1.5em;
+		line-height: 1.75;
+	}
+	
+	.prose a {
+		color: hsl(var(--color-cobalt));
+		text-decoration-line: underline;
+		text-underline-offset: 4px;
+		transition: color 0.2s ease;
+	}
+	
+	.prose a:hover {
+		color: hsl(var(--color-terracotta));
+	}
+	
+	.prose strong {
+		color: hsl(var(--color-ink));
+		font-weight: 600;
+	}
+	
+	.prose ul {
+		list-style-type: disc;
+		padding-left: 1.5em;
+		margin-bottom: 1.5em;
+	}
+	
+	.prose li {
+		margin-bottom: 0.5em;
+	}
+    
+    .prose img {
+        border-radius: 0.75rem;
+    }
+/* 
+    .prose blockquote {
+        @apply border-l-4 border-cobalt pl-4 italic text-ink-muted my-6;
+    } */
+</style>

@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Grain texture overlay */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* Hero cursor glow */
+.hero-glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(26, 61, 107, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 0;
+}
+
+/* Base styles */
+@layer base {
+  html {
+    @apply bg-cream text-ink font-body leading-relaxed-lg;
+    /* scroll-behavior handled by Lenis */
+  }
+
+  body {
+    @apply min-h-screen;
+  }
+
+  /* Typography */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading font-semibold text-ink tracking-[-0.02em];
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl leading-tight;
+  }
+
+  h2 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  h3 {
+    @apply text-xl md:text-2xl;
+  }
+
+  p {
+    @apply leading-relaxed-lg max-w-[65ch];
+  }
+
+  /* Links */
+  a {
+    @apply text-cobalt transition-colors duration-200;
+  }
+
+  a:hover {
+    @apply underline decoration-1 underline-offset-4;
+  }
+}
+
+/* Component styles */
+@layer components {
+
+  /* Primary button */
+  .btn-primary {
+    @apply bg-cobalt text-cream px-6 py-3 rounded-md font-heading font-medium;
+    @apply hover:bg-cobalt-dark hover:-translate-y-[1px] hover:shadow-soft transition-all duration-200 ease-in-out;
+    @apply inline-block text-center no-underline;
+  }
+
+  /* Secondary button */
+  .btn-secondary {
+    @apply border border-terracotta text-terracotta px-6 py-3 rounded-md font-heading font-medium;
+    @apply hover:bg-terracotta hover:text-cream hover:-translate-y-[1px] hover:shadow-soft transition-all duration-200 ease-in-out;
+    @apply inline-block text-center no-underline;
+  }
+
+  /* Section with terracotta accent */
+  .section-accent {
+    @apply border-l-4 border-terracotta pl-6;
+  }
+
+  /* Container */
+  .container {
+    @apply max-w-site mx-auto px-6;
+  }
+
+  /* Content container (narrower for text) */
+  .container-content {
+    @apply max-w-content mx-auto px-6;
+  }
+
+  /* Publication card */
+  .publication-card {
+    @apply flex flex-col sm:flex-row gap-4 sm:gap-6 p-4 sm:p-6 rounded-md;
+    @apply border border-transparent hover:border-terracotta hover:-translate-y-[2px] hover:shadow-soft hover:bg-cream-dark transition-all duration-200 ease-in-out;
+  }
+
+  .publication-card .thumbnail {
+    @apply w-full sm:w-48 flex-shrink-0;
+  }
+
+  .publication-card .thumbnail img {
+    @apply w-full h-auto aspect-video object-cover rounded-md;
+  }
+
+  .publication-card .thumbnail-placeholder {
+    @apply w-full aspect-video rounded-md flex items-center justify-center;
+    @apply bg-gradient-to-br from-terracotta to-cobalt text-cream text-3xl font-heading font-bold;
+  }
+
+  /* Year badge */
+  .badge-year {
+    @apply inline-block px-2 py-1 text-xs font-heading font-bold tracking-[0.05em] rounded-sm;
+    @apply bg-terracotta text-cream;
+  }
+
+  /* Note badge (awards, status) */
+  .badge-note {
+    @apply inline-block px-2 py-1 text-xs font-heading font-bold tracking-[0.05em] rounded-sm;
+    @apply bg-cobalt text-cream;
+  }
+
+  /* Nav link */
+  .nav-link {
+    @apply px-4 py-2 rounded-md font-heading text-ink-muted no-underline tracking-[0.05em] uppercase text-sm font-semibold;
+    @apply hover:bg-cream-dark hover:text-ink transition-all duration-200 ease-in-out;
+  }
+
+  .nav-link.active {
+    @apply text-cobalt;
+  }
+
+  /* Social link */
+  .social-link {
+    @apply flex items-center gap-3 text-ink-muted no-underline;
+    @apply hover:text-cobalt transition-colors duration-200;
+  }
+}

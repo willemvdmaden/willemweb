@@ -1,0 +1,178 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Layout from './Layout.astro';
+
+type Props = CollectionEntry<'blog'>['data'];
+
+const { title, description, pubDate, heroImage } = Astro.props;
+
+const formattedDate = pubDate.toLocaleDateString('en-us', {
+	year: 'numeric',
+	month: 'short',
+	day: 'numeric',
+});
+---
+
+<Layout title={title} description={description} ogImage={heroImage}>
+	<script type="application/ld+json" set:html={JSON.stringify({
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"headline": title,
+		"description": description,
+		"datePublished": pubDate.toISOString(),
+		"author": {
+			"@type": "Person",
+			"name": "Willem van der Maden",
+			"url": "https://willemvandermaden.com"
+		},
+		...(heroImage ? { "image": `https://willemvandermaden.com${heroImage}` } : {})
+	})} />
+	<section class="mt-10 max-w-2xl mx-auto px-6">
+		<h1 class="font-heading font-bold text-3xl mb-4 text-ink">{title}</h1>
+		<p class="text-ink-muted text-lg mb-6 leading-relaxed">
+			{description}
+		</p>
+		
+		<div class="flex items-center gap-4 mb-8 pb-8 border-b border-border">
+			<img 
+				src="/willem-logo.webp" 
+				alt="Willem van der Maden" 
+				class="w-10 h-10 object-cover rounded-full" 
+				width="40" 
+				height="40" 
+				loading="lazy" 
+				decoding="async"
+			/>
+			<div>
+				<p class="font-medium text-ink">Willem van der Maden</p>
+				<p class="text-ink-muted text-sm">
+					{formattedDate}
+				</p>
+			</div>
+		</div>
+
+		{heroImage && (
+			<img 
+				src={heroImage} 
+				alt="" 
+				class="w-full aspect-video object-cover rounded-xl mb-10 bg-cream-dark"
+                transition:name={`hero-${title}`}
+			/>
+		)}
+		
+		<article class="prose prose-lg prose-ink max-w-none">
+			<slot />
+		</article>
+	</section>
+</Layout>
+
+<style is:global>
+	/* Custom prose styles to match design system */
+	.prose {
+		color: #2D2A26;
+	}
+	
+	.prose h1, .prose h2, .prose h3, .prose h4 {
+		color: #2D2A26;
+		font-family: 'Sora', sans-serif;
+		font-weight: 600;
+		margin-top: 2em;
+		margin-bottom: 0.5em;
+	}
+	
+	.prose h2 {
+		font-size: 1.5rem;
+		padding-bottom: 0.5rem;
+		border-bottom: 1px solid #E8E0D5;
+	}
+
+	.prose h3 {
+		font-size: 1.25rem;
+	}
+	
+	.prose p {
+		margin-bottom: 1.5em;
+		line-height: 1.75;
+	}
+	
+	.prose a {
+		color: #0047AB;
+		text-decoration-line: underline;
+		text-underline-offset: 4px;
+		transition: color 0.2s ease;
+	}
+	
+	.prose a:hover {
+		color: #C4674A;
+	}
+	
+	.prose strong {
+		color: #2D2A26;
+		font-weight: 600;
+	}
+	
+	.prose ul {
+		list-style-type: disc;
+		padding-left: 1.5em;
+		margin-bottom: 1.5em;
+	}
+
+	.prose ol {
+		list-style-type: decimal;
+		padding-left: 1.5em;
+		margin-bottom: 1.5em;
+	}
+	
+	.prose li {
+		margin-bottom: 0.5em;
+	}
+    
+	.prose img {
+		border-radius: 0.75rem;
+		max-width: 100%;
+		height: auto;
+	}
+
+	.prose blockquote {
+		border-left: 4px solid #0047AB;
+		padding-left: 1rem;
+		font-style: italic;
+		color: #6B6560;
+		margin: 1.5rem 0;
+	}
+
+	.prose blockquote p {
+		margin-bottom: 0.5em;
+	}
+
+	.prose code {
+		background: #F0EBE3;
+		color: #C4674A;
+		padding: 0.15em 0.4em;
+		border-radius: 0.25rem;
+		font-size: 0.875em;
+	}
+
+	.prose pre {
+		background: #2D2A26;
+		color: #FAF7F2;
+		padding: 1.25rem;
+		border-radius: 0.5rem;
+		overflow-x: auto;
+		margin: 1.5rem 0;
+	}
+
+	.prose pre code {
+		background: none;
+		color: inherit;
+		padding: 0;
+		border-radius: 0;
+		font-size: 0.875em;
+	}
+
+	.prose hr {
+		border: none;
+		border-top: 1px solid #E8E0D5;
+		margin: 2rem 0;
+	}
+</style>

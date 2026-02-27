@@ -1,0 +1,98 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PublicationCard from '../components/PublicationCard.astro';
+import { getFeaturedPublications } from '../lib/publications.js';
+const featuredPubs = await getFeaturedPublications(4);
+---
+
+<Layout title="Willem van der Maden">
+  <!-- Hero Section -->
+  <section class="container-content py-12 md:py-20" data-hero>
+    <!-- Asymmetric layout: profile left, content right on desktop -->
+    <div class="flex flex-col md:flex-row md:items-start gap-8 md:gap-12 mb-10">
+      <!-- Profile image -->
+      <div class="flex-shrink-0" data-profile>
+        <img 
+          src="/willem-logo.webp" 
+          alt="Willem van der Maden" 
+          class="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full object-cover ring-2 ring-terracotta/20 ring-offset-4 ring-offset-cream"
+          width="128"
+          height="128"
+        />
+      </div>
+
+      <!-- Text content -->
+      <div class="flex-1">
+        <!-- Name -->
+        <h1 class="text-cobalt mb-2" data-name>
+          <span class="inline-block">Willem</span> <span class="inline-block">van&nbsp;der&nbsp;Maden</span>
+        </h1>
+        <p class="text-ink-muted text-lg mb-6 font-heading tracking-wide" data-subtitle>Postdoctoral Researcher</p>
+        
+        <!-- Bio with word-by-word reveal -->
+        <p class="text-lg leading-relaxed mb-6 max-w-xl" data-bio>
+          I'm a researcher and lecturer at the IT University of Copenhagen, exploring <span class="marker-highlight">how people interact with AI</span> to design systems that <span class="marker-highlight">enhance wellbeing</span> and improve user experiences.
+        </p>
+
+        <!-- Social links -->
+        <div class="flex flex-wrap gap-4 mb-6" data-social>
+          <a href="https://www.linkedin.com/in/wlavandermaden/" target="_blank" rel="noopener noreferrer" class="social-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93zM6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37z"/>
+            </svg>
+            <span>LinkedIn</span>
+          </a>
+          <a href="https://scholar.google.com/citations?user=_9ZGOcAAAAAJ&hl=da" target="_blank" rel="noopener noreferrer" class="social-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 3L1 9l11 6l9-4.91V17h2V9M5 13.18v4L12 21l7-3.82v-4L12 17z"/>
+            </svg>
+            <span>Scholar</span>
+          </a>
+          <a href="mailto:willem.maden@gmail.com" class="social-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="m20 8l-8 5l-8-5V6l8 5l8-5m0-2H4c-1.11 0-2 .89-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2"/>
+            </svg>
+            <span>Email</span>
+          </a>
+        </div>
+        
+        <!-- CTAs -->
+        <div class="flex flex-wrap gap-4" data-ctas>
+          <a href="/publications" class="btn-primary magnetic-btn">
+            View Publications
+          </a>
+          <a href="/about" class="btn-secondary magnetic-btn">
+            About Me
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </section>
+  
+  <!-- Featured Publications Section -->
+  <section class="container-content py-12 md:py-16 border-t border-border">
+    <h2 class="mb-8" data-scroll-reveal>Featured Publications</h2>
+    
+    <div class="space-y-2">
+      {featuredPubs.map(pub => (
+        <PublicationCard 
+          title={pub.title}
+          year={pub.year}
+          authors={pub.authors}
+          venue={pub.venue}
+          type={pub.type}
+          link={pub.link}
+          thumbnail={pub.thumbnail}
+          badges={pub.badges}
+        />
+      ))}
+    </div>
+    
+    <div class="mt-8 text-center">
+      <a href="/publications" class="text-cobalt hover:underline font-heading">
+        View all publications →
+      </a>
+    </div>
+  </section>
+</Layout>
