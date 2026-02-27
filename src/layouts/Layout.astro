@@ -79,6 +79,7 @@ import '../styles/global.css';
     <ViewTransitions />
   </head>
   <body class="flex flex-col min-h-screen">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-cobalt focus:text-white focus:px-4 focus:py-2 focus:rounded-md">Skip to main content</a>
     <!-- Scroll progress indicator -->
     <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
 
@@ -86,7 +87,7 @@ import '../styles/global.css';
     <div class="grain-overlay" aria-hidden="true"></div>
     
     <Header />
-    <main class="flex-grow mb-16 md:mb-24" transition:animate="fade">
+    <main id="main-content" class="flex-grow mb-16 md:mb-24" transition:animate="fade">
       <slot />
     </main>
     <Footer />
