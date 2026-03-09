@@ -5,7 +5,7 @@ pubDate: "2026-02-11"
 heroImage: "/images/publications/heal-chi26.jpg"
 ---
 
-Our paper **"Results-Actionability Gap: Understanding How Practitioners Evaluate LLM Products"** has been accepted at [CHI 2026](https://chi2026.acm.org/) in Barcelona. Written with [Malak Sadek](https://scholar.google.com/citations?user=mfzas2), [Ziang Xiao](https://www.zianxiao.com/), [Aske Mottelson](https://askemottelson.com/), [Q. Vera Liao](https://www.qveraliao.com/), and [Jichen Zhu](https://pure.itu.dk/en/persons/jichen-zhu), this work investigates the messy reality of how product teams evaluate LLM-powered systems in production.
+Our paper **"Results-Actionability Gap: Understanding How Practitioners Evaluate LLM Products in the Wild"** has been accepted at [CHI 2026](https://chi2026.acm.org/) in Barcelona. Written with [Malak Sadek](https://scholar.google.com/citations?user=mfzas2), [Ziang Xiao](https://www.zianxiao.com/), [Aske Mottelson](https://askemottelson.com/), [Q. Vera Liao](https://www.qveraliao.com/), and [Jichen Zhu](https://pure.itu.dk/en/persons/jichen-zhu), this work investigates the messy reality of how product teams evaluate LLM-powered systems in production.
 
 ## The gap between gathering data and knowing what to do with it
 
