@@ -1,39 +1,71 @@
-name: Deploy to GitHub Pages
+name: Publish site to public Pages repo
+
+# This repository is PRIVATE. GitHub Pages will not serve a public site from a
+# private repo on the Free plan, so instead of deploying Pages here, this
+# workflow pushes the committed static site to a separate PUBLIC repository
+# that serves it via GitHub Pages. Only the rendered site is published — this
+# repo's source and history stay private.
+#
+# ── One-time setup (see .github/DEPLOYMENT.md for full details) ──────────────
+#   1. Create the public repo named in PUBLIC_REPO below.
+#   2. Generate an SSH deploy key. Add the PUBLIC key (with write access) to the
+#      public repo (Settings → Deploy keys), and add the PRIVATE key as the
+#      ACTIONS_DEPLOY_KEY secret on THIS repo (Settings → Secrets → Actions).
+#   3. In the public repo: Settings → Pages → "Deploy from a branch" →
+#      gh-pages / (root), then set the custom domain to willemvandermaden.com.
+#   4. In THIS repo: Settings → Pages → disable Pages (releases the domain).
 
 on:
   push:
     branches: [gh-pages]
+  workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: "pages"
+  group: "publish"
   cancel-in-progress: false
 
+env:
+  # The public repo that serves the site. Change this if you name it
+  # differently — with the custom domain set, any repo name works.
+  PUBLIC_REPO: willemvdmaden/willemvdmaden.github.io
+  PUBLISH_BRANCH: gh-pages
+
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      # The site is committed pre-built (static HTML at the repo root), so
-      # there is nothing to compile here. Upload the repo contents directly.
-      # actions/upload-pages-artifact already excludes .git and .github.
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Stage site files
+        run: |
+          rsync -a --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.vscode' \
+            --exclude='.gitignore' \
+            ./ "${RUNNER_TEMP}/site/"
+
+      - name: Push to public repo
+        env:
+          DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        run: |
+          if [ -z "$DEPLOY_KEY" ]; then
+            echo "::error::ACTIONS_DEPLOY_KEY secret is not set. See .github/DEPLOYMENT.md."
+            exit 1
+          fi
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new"
+          cd "${RUNNER_TEMP}/site"
+          git init -q
+          git checkout -q -b "${PUBLISH_BRANCH}"
+          git add -A
+          git -c user.name='github-actions[bot]' \
+              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit -q -m "Deploy ${GITHUB_REPOSITORY}@${GITHUB_SHA}"
+          git push -f "git@github.com:${PUBLIC_REPO}.git" "${PUBLISH_BRANCH}"
