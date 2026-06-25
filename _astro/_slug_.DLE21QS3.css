@@ -2,4 +2,4 @@
 
 /* fix: keep the global a:hover underline off structural links (nav links + publication cards); the nav bar and group-hover blue title remain */
 .nav-link:hover,.nav-link.active{text-decoration-line:none}
-.publication-card a:hover,.publication-card a:focus{text-decoration-line:none}
+a.no-underline:hover,a.no-underline:focus{text-decoration-line:none}
