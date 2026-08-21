@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI4D — Matcher (instructor)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+</head>
+<body>
+
+<!-- ======================= service key gate ======================= -->
+<div id="gate" class="gate">
+  <div class="card">
+    <h1>Matcher</h1>
+    <p class="muted">Instructor view. Paste the <strong>secret key</strong> (<code>sb_secret_…</code>, called <em>service_role</em> on older dashboards) from Supabase → Project Settings → API keys. It stays in this tab's sessionStorage and nowhere else.</p>
+    <input type="password" id="gate-key" placeholder="sb_secret_… / service_role key" autocomplete="off">
+    <p class="field-error" id="gate-error">That key was rejected. Copy the secret key (sb_secret_…, not the publishable one) and try again.</p>
+    <div style="margin-top:14px;">
+      <button class="btn" id="gate-btn">Unlock →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= app ======================= -->
+<div id="app" class="wrap wrap-wide hidden">
+
+  <div class="board-header no-print">
+    <h1><em>Matcher</em> — AI for Designers</h1>
+    <div>
+      <span id="lock-indicator" class="status-pill no">not locked</span>
+      <button class="btn btn-secondary btn-small" id="forget-key">Forget key</button>
+    </div>
+  </div>
+
+  <nav class="tabs no-print">
+    <button class="tab-btn active" data-tab="status">Status</button>
+    <button class="tab-btn" data-tab="match">Match</button>
+    <button class="tab-btn" data-tab="cards">Cards</button>
+    <button class="tab-btn" data-tab="data">Data</button>
+  </nav>
+
+  <!-- ======================= STATUS ======================= -->
+  <section class="tab-panel" id="panel-status">
+    <div class="card no-print">
+      <h2>Submissions: <span id="st-count">…</span></h2>
+      <p class="muted small" id="st-missing-line"></p>
+      <button class="btn btn-small" id="draft-email">✉️ Draft email to the missing</button>
+      <span class="muted small">Opens your mail app, all missing addresses in BCC.</span>
+    </div>
+
+    <div class="card hidden" id="unlisted-card">
+      <h2>⚑ Not on the roster</h2>
+      <p class="muted small">These people picked “my name is not in the list”. Adopt them to include them in matching.</p>
+      <div id="unlisted-list"></div>
+    </div>
+
+    <div class="card">
+      <table class="data-table" id="status-table"></table>
+    </div>
+  </section>
+
+  <!-- ======================= MATCH ======================= -->
+  <section class="tab-panel hidden" id="panel-match">
+    <div class="card" id="phase-card">
+      <h2>Projector &amp; phones <span class="status-pill no" id="phase-pill">collecting</span></h2>
+      <p class="muted small">What the board (and the students' phones) are showing right now.</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-small phase-btn" data-phase="collecting">1 · Collecting</button>
+        <button class="btn btn-secondary btn-small phase-btn" data-phase="matching">2 · Start matching — board says “come back later”</button>
+        <button class="btn btn-secondary btn-small phase-btn" data-phase="revealed" id="phase-reveal-btn">3 · Confirm teams → board + phones</button>
+      </div>
+      <p class="muted small" style="margin-top:8px;">Confirming needs locked groups. It unlocks the “My team” button on every student's phone (label + member names only — the why stays on your projector reveal).</p>
+    </div>
+
+    <div class="card" id="match-controls-card">
+      <h2>Weights &amp; knobs</h2>
+      <div id="weight-rows"></div>
+      <label style="display:flex; align-items:center; gap:10px; padding:10px 0; font-weight:700; font-size:0.92rem;">
+        <input type="checkbox" id="balance-toggle" checked style="width:22px; height:22px; accent-color:var(--ink);">
+        Balance penalty on “in discussions I…” (no all-loud or all-quiet groups)
+      </label>
+      <div class="match-controls-grid">
+        <div>
+          <label class="field-label" for="strategy">Remainder strategy</label>
+          <select id="strategy">
+            <option value="pairs" selected>pairs — leaves slots for late submissions</option>
+            <option value="fours">one group of 4</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label" for="seed">Random seed</label>
+          <input type="text" id="seed" value="ai4d-2026">
+        </div>
+        <div style="align-self:end;">
+          <button class="btn btn-block" id="run-btn">Run ▸</button>
+        </div>
+      </div>
+      <p class="muted small">Same seed + same weights ⇒ same groups, every time. 200 restarts of a swap hill-climb; a couple of seconds at this class size.</p>
+    </div>
+
+    <div class="card hidden" id="proposal-card">
+      <h2>Proposal <span class="muted small" id="proposal-score"></span></h2>
+      <div class="proposed-grid" id="proposal-grid"></div>
+      <div style="margin-top:16px;">
+        <button class="btn" id="lock-btn">🔒 Lock groups</button>
+        <span class="muted small">Writes groups to the database and freezes matching. Resubmissions are blocked from that moment.</span>
+      </div>
+    </div>
+
+    <div class="card hidden" id="locked-card">
+      <h2>Locked groups</h2>
+      <p class="muted small">The algorithm never touches these again. Swaps and late placements only, both flagged.</p>
+      <div style="margin: 8px 0 14px;">
+        <button class="btn btn-secondary btn-small" id="swap-toggle">Swap mode: off</button>
+        <span class="muted small" id="swap-hint"></span>
+      </div>
+      <div class="proposed-grid" id="locked-grid"></div>
+    </div>
+
+    <div class="card hidden" id="late-card">
+      <h2>Late submissions</h2>
+      <p class="muted small">Placed into the undersized group where they score best — nobody else moves.</p>
+      <div id="late-list"></div>
+    </div>
+  </section>
+
+  <!-- ======================= CARDS ======================= -->
+  <section class="tab-panel hidden" id="panel-cards">
+    <div class="card no-print">
+      <h2>Group cards</h2>
+      <p class="muted small" id="cards-source-note"></p>
+      <button class="btn btn-small" id="reveal-btn">▶ Reveal on projector</button>
+      <button class="btn btn-secondary btn-small" id="print-btn">🖨 Print (one card per A4)</button>
+    </div>
+    <div class="cards-grid" id="cards-grid"></div>
+  </section>
+
+  <!-- ======================= DATA ======================= -->
+  <section class="tab-panel hidden" id="panel-data">
+    <div class="card">
+      <h2>Export</h2>
+      <p><button class="btn btn-small" id="export-csv">⬇ Submissions as CSV</button>
+         <span class="muted small">Full answers + roster info. For instructors only — handle accordingly.</span></p>
+      <p><button class="btn btn-small btn-secondary" id="export-cards">🖨 Cards as print view</button>
+         <span class="muted small">Same as Print on the Cards tab.</span></p>
+    </div>
+    <div class="card">
+      <h2 class="accent-red">Danger zone</h2>
+      <p><button class="btn btn-danger btn-small" id="delete-subs">Delete ALL submissions</button>
+         <span class="muted small">For after groups are final. Asks twice.</span></p>
+      <p><button class="btn btn-danger btn-small" id="delete-groups">Clear groups &amp; unlock</button>
+         <span class="muted small">Rehearsal reset. Also unblocks the form. Asks twice.</span></p>
+    </div>
+  </section>
+</div>
+
+<!-- ======================= reveal overlay ======================= -->
+<div id="reveal" class="reveal-overlay hidden">
+  <div id="reveal-content"></div>
+  <div class="reveal-stage-hint">1 names · 2 cards · 3 the reveal · Esc exit</div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* =========================================================================
+     SECURITY: the service_role key bypasses all row security. It is typed in
+     by the instructor at runtime and kept in sessionStorage for this tab
+     only. NEVER hardcode it here, in config.js, or anywhere else in this
+     folder — everything in this folder ships to students' browsers.
+     ========================================================================= */
+
+  var KEY_STORE = "ai4d_service_key";
+  var db = null;
+
+  var state = {
+    roster: [],        // {id, full_name, display_name, email}
+    submissions: [],   // raw rows
+    groups: [],        // {id, label, locked, created_at}
+    members: [],       // {group_id, roster_id, placed_late, human_override}
+    dict: { words: {}, axes: {} },
+    students: [],      // parsed feature vectors (submissions with a roster_id)
+    proposal: null,    // [{label, ids:[roster_id]}] from the last run
+    lastRun: null,     // {seed, weights, strategy, balance}
+    swapMode: false,
+    swapPick: [],      // [roster_id]
+    revealStage: 0,
+    phase: "collecting"
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+  function escapeHTML(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  var VIBE_EMOJI = { cat: "🐱", dog: "🐶", plant: "🪴", robot: "🤖",
+                     frog: "🐸", mushroom: "🍄", disco: "🪩", rock: "🪨" };
+  var CAMPUS_LABEL = { on_campus: "on campus", remote: "remote", mixed: "mixed" };
+  var SCHEDULE_LABEL = { weekday_daytime: "weekday daytime", evenings: "evenings", weekends: "weekends", deadline_panic: "deadline panic" };
+
+  /* =========================================================================
+     Feature definitions. mode: 'sim' scores overlap/closeness, 'spread'
+     scores range/coverage. vibe is parsed and stored but its weight is
+     LOCKED at 0 — that is the lesson, so it gets no slider here and only
+     surfaces in reveal stage 3.
+     ========================================================================= */
+  var FEATURES = [
+    { key: "schedule",      label: "schedule overlap",    mode: "sim",    w: 3 },
+    { key: "ambition",      label: "ambition closeness",  mode: "sim",    w: 3 },
+    { key: "campus",        label: "campus match",        mode: "sim",    w: 2 },
+    { key: "coding",        label: "coding comfort",      mode: "spread", w: 2 },
+    { key: "roles",         label: "role coverage",       mode: "spread", w: 2 },
+    { key: "tool_approach", label: "tool approach",       mode: "spread", w: 1 },
+    { key: "group_style",   label: "group work style",    mode: "spread", w: 1 },
+    { key: "module",        label: "module interest",     mode: "spread", w: 1 },
+    { key: "words",         label: "self-description axes", mode: "spread", w: 1 },
+    { key: "ai_freq",       label: "AI use frequency",    mode: "spread", w: 1 },
+    { key: "ai_future",     label: "AI future outlook",   mode: "spread", w: 1 }
+  ];
+  var BALANCE_PENALTY = 2; // subtracted when a group is all-loud or all-quiet on item 12
+  var AXES = ["hands_on", "structure", "ideation", "people", "analysis"];
+
+  /* ========================= seeded PRNG ========================= */
+  function xmur3(str) {
+    var h = 1779033703 ^ str.length;
+    for (var i = 0; i < str.length; i++) {
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = (h << 13) | (h >>> 19);
+    }
+    return function () {
+      h = Math.imul(h ^ (h >>> 16), 2246822507);
+      h = Math.imul(h ^ (h >>> 13), 3266489909);
+      return (h ^= h >>> 16) >>> 0;
+    };
+  }
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /* ========================= parsing ========================= */
+  function tokenizeWords(words) {
+    return String(words || "").split(",")
+      .map(function (t) {
+        return t.trim().toLowerCase().replace(/\s+/g, " ")
+                .replace(/^[^a-zæøåäöüéèêñç0-9]+|[^a-zæøåäöüéèêñç0-9]+$/g, "");
+      })
+      .filter(Boolean);
+  }
+
+  function parseStudent(sub, rosterById) {
+    var tokens = tokenizeWords(sub.words);
+    var hits = [], misses = [], axisSum = {}, axisCount = 0;
+    AXES.forEach(function (a) { axisSum[a] = 0; });
+    tokens.forEach(function (t) {
+      var axes = state.dict.words[t];
+      if (axes && axes.length) {
+        hits.push({ token: t, axes: axes });
+        axes.forEach(function (a) { if (a in axisSum) axisSum[a] += 1 / axes.length; });
+        axisCount++;
+      } else {
+        misses.push(t);
+      }
+    });
+    var axisVec = null;
+    if (axisCount > 0) {
+      axisVec = {};
+      AXES.forEach(function (a) { axisVec[a] = axisSum[a] / axisCount; });
+    }
+    var r = rosterById[sub.roster_id] || null;
+    return {
+      sub: sub,
+      roster_id: sub.roster_id,
+      name: r ? r.display_name : (sub.unlisted_name || "?"),
+      full_name: r ? r.full_name : (sub.unlisted_name || "?"),
+      schedule: new Set(sub.schedule || []),
+      roles: sub.roles || [],
+      module: sub.module,
+      campus: sub.campus,
+      ambition: sub.ambition,          // may be null (optional item 15)
+      coding: sub.coding,
+      tool_approach: sub.tool_approach,
+      group_style: sub.group_style,
+      discussion_space: sub.discussion_space,
+      ai_freq: sub.ai_freq,
+      ai_future: sub.ai_future,
+      ai_feel: sub.ai_feel,
+      vibe: sub.vibe,
+      wordHits: hits,
+      wordMisses: misses,
+      axisVec: axisVec
+    };
+  }
+
+  /* ========================= group scoring ========================= */
+  function pairs(arr) {
+    var out = [];
+    for (var i = 0; i < arr.length; i++)
+      for (var j = i + 1; j < arr.length; j++) out.push([arr[i], arr[j]]);
+    return out;
+  }
+  function jaccard(a, b) {
+    var inter = 0;
+    a.forEach(function (x) { if (b.has(x)) inter++; });
+    var union = a.size + b.size - inter;
+    return union === 0 ? 0 : inter / union;
+  }
+  function range01(vals) {  // spread of 1-5 values, normalized to 0..1
+    if (vals.length < 2) return 0;
+    return (Math.max.apply(null, vals) - Math.min.apply(null, vals)) / 4;
+  }
+
+  // value of one feature for one group, always in 0..1
+  function featureValue(key, members) {
+    switch (key) {
+      case "schedule": {
+        var ps = pairs(members);
+        if (!ps.length) return 0.5;
+        return ps.reduce(function (s, p) { return s + jaccard(p[0].schedule, p[1].schedule); }, 0) / ps.length;
+      }
+      case "ambition": {
+        var vals = members.map(function (m) { return m.ambition; })
+                          .filter(function (v) { return v != null; });
+        if (vals.length < 2) return 0.5;  // not enough data: neutral
+        return 1 - range01(vals);
+      }
+      case "campus": {
+        var ps2 = pairs(members);
+        if (!ps2.length) return 0.5;
+        return ps2.reduce(function (s, p) { return s + (p[0].campus === p[1].campus ? 1 : 0); }, 0) / ps2.length;
+      }
+      case "coding": return range01(members.map(function (m) { return m.coding; }));
+      case "roles": {
+        var set = new Set();
+        members.forEach(function (m) { m.roles.forEach(function (r) { set.add(r); }); });
+        return set.size / 4;
+      }
+      case "tool_approach": return range01(members.map(function (m) { return m.tool_approach; }));
+      case "group_style": return range01(members.map(function (m) { return m.group_style; }));
+      case "module": {
+        var set2 = new Set(members.map(function (m) { return m.module; }));
+        return set2.size / Math.min(3, members.length);
+      }
+      case "words": {
+        var withVec = members.filter(function (m) { return m.axisVec; });
+        if (withVec.length < 2) return 0.5;
+        var total = 0;
+        AXES.forEach(function (a) {
+          var vals2 = withVec.map(function (m) { return m.axisVec[a]; });
+          total += Math.max.apply(null, vals2) - Math.min.apply(null, vals2);
+        });
+        return Math.min(1, total / AXES.length * 2); // axis ranges are small; stretch into 0..1
+      }
+      case "ai_freq": return range01(members.map(function (m) { return m.ai_freq; }));
+      case "ai_future": return range01(members.map(function (m) { return m.ai_future; }));
+    }
+    return 0;
+  }
+
+  function groupScore(members, weights, balanceOn) {
+    var total = 0;
+    var contribs = [];
+    FEATURES.forEach(function (f) {
+      var w = weights[f.key];
+      var v = featureValue(f.key, members);
+      var weighted = w * v;
+      total += weighted;
+      contribs.push({ key: f.key, label: f.label, mode: f.mode, w: w, value: v, weighted: weighted });
+    });
+    var penalty = 0;
+    if (balanceOn && members.length >= 2) {
+      var ds = members.map(function (m) { return m.discussion_space; });
+      var allLoud = ds.every(function (v) { return v <= 2; });
+      var allQuiet = ds.every(function (v) { return v >= 4; });
+      if (allLoud || allQuiet) penalty = BALANCE_PENALTY;
+    }
+    return { score: total - penalty, contribs: contribs, penalty: penalty };
+  }
+
+  /* ========================= optimizer ========================= */
+  function groupSizes(n, strategy) {
+    if (n <= 3) return n > 0 ? [n] : [];
+    var k = Math.floor(n / 3), rem = n % 3, sizes = [];
+    var i;
+    if (rem === 0) { for (i = 0; i < k; i++) sizes.push(3); }
+    else if (rem === 1) {
+      if (strategy === "fours") { for (i = 0; i < k - 1; i++) sizes.push(3); sizes.push(4); }
+      else { for (i = 0; i < k - 1; i++) sizes.push(3); sizes.push(2, 2); }
+    } else { // rem === 2
+      if (strategy === "fours" && k >= 2) { for (i = 0; i < k - 2; i++) sizes.push(3); sizes.push(4, 4); }
+      else { for (i = 0; i < k; i++) sizes.push(3); sizes.push(2); }
+    }
+    return sizes;
+  }
+
+  function runMatch(students, weights, balanceOn, strategy, seedStr, restarts) {
+    var rand = mulberry32(xmur3(String(seedStr))());
+    var order = students.slice().sort(function (a, b) {
+      return a.roster_id < b.roster_id ? -1 : a.roster_id > b.roster_id ? 1 : 0;
+    });
+    var sizes = groupSizes(order.length, strategy);
+    if (!sizes.length) return null;
+
+    function partitionScore(partition) {
+      return partition.reduce(function (s, g) {
+        return s + groupScore(g, weights, balanceOn).score;
+      }, 0);
+    }
+
+    var best = null, bestScore = -Infinity;
+    for (var r = 0; r < restarts; r++) {
+      // seeded shuffle
+      var pool = order.slice();
+      for (var i = pool.length - 1; i > 0; i--) {
+        var j = Math.floor(rand() * (i + 1));
+        var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+      }
+      // sequential partition
+      var part = [], at = 0;
+      sizes.forEach(function (sz) { part.push(pool.slice(at, at + sz)); at += sz; });
+
+      // hill-climb: pairwise swaps across groups until no improving swap
+      var scores = part.map(function (g) { return groupScore(g, weights, balanceOn).score; });
+      var improved = true, guard = 0;
+      while (improved && guard++ < 500) {
+        improved = false;
+        for (var a = 0; a < part.length; a++) {
+          for (var b = a + 1; b < part.length; b++) {
+            for (var x = 0; x < part[a].length; x++) {
+              for (var y = 0; y < part[b].length; y++) {
+                var ga = part[a].slice(), gb = part[b].slice();
+                var t = ga[x]; ga[x] = gb[y]; gb[y] = t;
+                var na = groupScore(ga, weights, balanceOn).score;
+                var nb = groupScore(gb, weights, balanceOn).score;
+                if (na + nb > scores[a] + scores[b] + 1e-9) {
+                  part[a] = ga; part[b] = gb;
+                  scores[a] = na; scores[b] = nb;
+                  improved = true;
+                }
+              }
+            }
+          }
+        }
+      }
+      var total = scores.reduce(function (s, v) { return s + v; }, 0);
+      if (total > bestScore + 1e-9) { bestScore = total; best = part; }
+    }
+    return { partition: best, total: bestScore };
+  }
+
+  /* ========================= plumbing ========================= */
+  function currentWeights() {
+    var w = {};
+    FEATURES.forEach(function (f) {
+      var el = $("w-" + f.key);
+      w[f.key] = el ? parseFloat(el.value) : f.w;
+    });
+    return w;
+  }
+
+  var UI_STORE = "ai4d_matcher_ui";
+  function saveUI() {
+    try {
+      localStorage.setItem(UI_STORE, JSON.stringify({
+        weights: currentWeights(),
+        balance: $("balance-toggle").checked,
+        strategy: $("strategy").value,
+        seed: $("seed").value
+      }));
+    } catch (e) {}
+  }
+  function restoreUI() {
+    var raw;
+    try { raw = JSON.parse(localStorage.getItem(UI_STORE)); } catch (e) { return; }
+    if (!raw) return;
+    FEATURES.forEach(function (f) {
+      if (raw.weights && raw.weights[f.key] != null) {
+        $("w-" + f.key).value = raw.weights[f.key];
+        $("wv-" + f.key).textContent = raw.weights[f.key];
+      }
+    });
+    if (typeof raw.balance === "boolean") $("balance-toggle").checked = raw.balance;
+    if (raw.strategy) $("strategy").value = raw.strategy;
+    if (raw.seed) $("seed").value = raw.seed;
+  }
+
+  function isLocked() {
+    return state.groups.some(function (g) { return g.locked; });
+  }
+  function membersOf(groupId) {
+    return state.members.filter(function (m) { return m.group_id === groupId; })
+      .sort(function (a, b) {   // stable render order regardless of DB row order
+        var sa = studentByRosterId(a.roster_id), sb = studentByRosterId(b.roster_id);
+        return (sa ? sa.name : "").localeCompare(sb ? sb.name : "", "da");
+      });
+  }
+  function studentByRosterId(id) {
+    for (var i = 0; i < state.students.length; i++)
+      if (state.students[i].roster_id === id) return state.students[i];
+    return null;
+  }
+
+  function loadAll() {
+    return Promise.all([
+      db.from("roster").select("*"),
+      db.from("submissions").select("*"),
+      db.from("groups").select("*").order("label"),
+      db.from("group_members").select("*"),
+      state.dict.loaded ? Promise.resolve(null)
+        : fetch("dictionary.json").then(function (r) { return r.json(); }),
+      db.from("app_state").select("*").eq("id", 1).single()
+    ]).then(function (res) {
+      if (res[0].error || res[1].error || res[2].error || res[3].error) {
+        throw (res[0].error || res[1].error || res[2].error || res[3].error);
+      }
+      state.phase = (res[5] && res[5].data && res[5].data.phase) || "collecting";
+      state.roster = res[0].data;
+      state.submissions = res[1].data;
+      state.groups = res[2].data;
+      // natural sort: "Group 2" before "Group 10"
+      state.groups.sort(function (a, b) {
+        return String(a.label).localeCompare(String(b.label), undefined, { numeric: true });
+      });
+      state.members = res[3].data;
+      if (res[4]) { state.dict = res[4]; state.dict.loaded = true; }
+      var rosterById = {};
+      state.roster.forEach(function (r) { rosterById[r.id] = r; });
+      state.students = state.submissions
+        .filter(function (s) { return s.roster_id; })
+        .map(function (s) { return parseStudent(s, rosterById); });
+      renderAll();
+    });
+  }
+
+  /* ========================= phases ========================= */
+  function nudgeBoards() {
+    try {
+      var ch = db.channel("ai4d-live");
+      ch.subscribe(function (status) {
+        if (status === "SUBSCRIBED") {
+          ch.send({ type: "broadcast", event: "submitted", payload: {} })
+            .then(function () { setTimeout(function () { db.removeChannel(ch); }, 500); });
+        }
+      });
+      setTimeout(function () { db.removeChannel(ch); }, 4000);
+    } catch (e) {}
+  }
+
+  function renderPhase() {
+    var pill = $("phase-pill");
+    pill.textContent = state.phase;
+    pill.className = "status-pill " + (state.phase === "revealed" ? "flag" : state.phase === "matching" ? "warn" : "no");
+    document.querySelectorAll(".phase-btn").forEach(function (b) {
+      b.classList.toggle("active-phase", b.dataset.phase === state.phase);
+      if (b.dataset.phase === "revealed") b.disabled = !isLocked();
+    });
+  }
+
+  document.querySelectorAll(".phase-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var p = btn.dataset.phase;
+      if (p === "revealed" && !isLocked()) { alert("Lock groups first — confirming shows the locked groups."); return; }
+      db.from("app_state").update({ phase: p, updated_at: new Date().toISOString() }).eq("id", 1)
+        .then(function (res) {
+          if (res.error) { alert("Couldn't switch phase: " + res.error.message); return; }
+          state.phase = p;
+          renderPhase();
+          nudgeBoards();
+        });
+    });
+  });
+
+  /* ========================= gate ========================= */
+  function tryKey(key) {
+    var client = supabase.createClient(SUPABASE_URL, key);
+    return client.from("roster").select("id").limit(1).then(function (res) {
+      if (res.error) throw res.error;
+      db = client;
+      sessionStorage.setItem(KEY_STORE, key);
+      $("gate").classList.add("hidden");
+      $("app").classList.remove("hidden");
+      return loadAll();
+    });
+  }
+  $("gate-btn").addEventListener("click", function () {
+    var key = $("gate-key").value.trim();
+    if (!key) return;
+    tryKey(key).catch(function () { $("gate-error").style.display = "block"; });
+  });
+  $("gate-key").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") $("gate-btn").click();
+  });
+  $("forget-key").addEventListener("click", function () {
+    sessionStorage.removeItem(KEY_STORE);
+    location.reload();
+  });
+
+  /* ========================= tabs ========================= */
+  document.querySelectorAll(".tab-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll(".tab-btn").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      document.querySelectorAll(".tab-panel").forEach(function (p) { p.classList.add("hidden"); });
+      $("panel-" + btn.dataset.tab).classList.remove("hidden");
+    });
+  });
+  function activateTab(name) {
+    document.querySelector('.tab-btn[data-tab="' + name + '"]').click();
+  }
+
+  /* ========================= STATUS ========================= */
+  function renderStatus() {
+    var submittedIds = new Set(state.submissions.map(function (s) { return s.roster_id; }).filter(Boolean));
+    var missing = state.roster.filter(function (r) { return !submittedIds.has(r.id); });
+    var subByRoster = {};
+    state.submissions.forEach(function (s) { if (s.roster_id) subByRoster[s.roster_id] = s; });
+
+    $("st-count").textContent = submittedIds.size + " / " + state.roster.length;
+    $("st-missing-line").textContent = missing.length
+      ? missing.length + " still missing."
+      : "Everyone's in. 🎉";
+
+    var rows = state.roster.slice().sort(function (a, b) {
+      return a.full_name.localeCompare(b.full_name, "da");
+    }).map(function (r) {
+      var s = subByRoster[r.id];
+      var cell;
+      if (!s) cell = '<span class="status-pill no">missing</span>';
+      else {
+        cell = '<span class="status-pill ok">submitted</span>';
+        if (s.updated_at && s.submitted_at && s.updated_at !== s.submitted_at) {
+          cell += ' <span class="status-pill warn" title="updated after first submit">edited</span>';
+        }
+      }
+      return "<tr" + (s ? "" : ' class="missing"') + "><td>" + escapeHTML(r.full_name) +
+        "</td><td>" + escapeHTML(r.display_name) +
+        "</td><td>" + escapeHTML(r.email || "") +
+        "</td><td>" + cell +
+        "</td><td class='small muted'>" +
+        (s ? new Date(s.updated_at).toLocaleTimeString("da-DK", { hour: "2-digit", minute: "2-digit" }) : "") +
+        "</td></tr>";
+    }).join("");
+    $("status-table").innerHTML =
+      "<tr><th>Name</th><th>Display</th><th>Email</th><th>Status</th><th>Last change</th></tr>" + rows;
+
+    // draft email to missing
+    $("draft-email").onclick = function () {
+      var emails = missing.map(function (r) { return r.email; }).filter(Boolean);
+      if (!emails.length) { alert("Nobody is missing. Nice."); return; }
+      var subject = "AI for Designers — fill in the group form";
+      var body = "Hi,\n\nYou haven't filled in the AI4D group formation form yet. It takes about 4 minutes:\n\n" +
+        FORM_URL + "\n\nDeadline: " + ABSENTEE_DEADLINE_TEXT + ". After that the algorithm places you where you fit.\n\nSee you in class,\nWillem";
+      location.href = "mailto:?bcc=" + encodeURIComponent(emails.join(",")) +
+        "&subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+    };
+
+    // unlisted submissions
+    var unlisted = state.submissions.filter(function (s) { return !s.roster_id; });
+    $("unlisted-card").classList.toggle("hidden", unlisted.length === 0);
+    $("unlisted-list").innerHTML = unlisted.map(function (s) {
+      return '<p><span class="status-pill flag">unlisted</span> <strong>' + escapeHTML(s.unlisted_name) +
+        '</strong> <button class="btn btn-small btn-secondary adopt-btn" data-id="' + s.id + '">Adopt into roster</button></p>';
+    }).join("");
+    document.querySelectorAll(".adopt-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () { adoptUnlisted(btn.dataset.id); });
+    });
+  }
+
+  function adoptUnlisted(subId) {
+    var s = state.submissions.find(function (x) { return x.id === subId; });
+    if (!s) return;
+    var full = (s.unlisted_name || "").trim();
+    var first = full.split(/\s+/)[0] || full;
+    var last = full.split(/\s+/).slice(-1)[0] || "";
+    // reuse an existing roster row with this exact name (double-click guard /
+    // re-adoption after a stray resubmission) instead of inserting a twin
+    var existing = state.roster.find(function (r) { return r.full_name === full; });
+    var taken = new Set(state.roster.map(function (r) { return r.display_name; }));
+    var display = first;
+    if (taken.has(display) && last && last !== first) display = first + " " + last[0].toUpperCase() + ".";
+    if (taken.has(display)) display = full;
+    var rosterRow = existing
+      ? Promise.resolve({ data: existing, error: null })
+      : db.from("roster").insert({ full_name: full, display_name: display, email: null }).select().single();
+    rosterRow
+      .then(function (res) {
+        if (res.error) throw res.error;
+        return db.from("submissions").update({ roster_id: res.data.id }).eq("id", subId);
+      })
+      .then(function (res) {
+        if (res && res.error) throw res.error;
+        return loadAll();
+      })
+      .catch(function (e) { alert("Adoption failed: " + (e.message || e)); });
+  }
+
+  /* ========================= MATCH ========================= */
+  function renderWeightRows() {
+    $("weight-rows").innerHTML = FEATURES.map(function (f) {
+      return '<div class="weight-row">' +
+        '<label for="w-' + f.key + '">' + f.label + "</label>" +
+        '<span class="mode-badge ' + (f.mode === "sim" ? "sim" : "spread") + '">' +
+        (f.mode === "sim" ? "similarity" : "spread") + "</span>" +
+        '<input type="range" id="w-' + f.key + '" min="0" max="5" step="0.5" value="' + f.w + '">' +
+        '<span class="weight-val" id="wv-' + f.key + '">' + f.w + "</span></div>";
+    }).join("");
+    FEATURES.forEach(function (f) {
+      $("w-" + f.key).addEventListener("input", function (e) {
+        $("wv-" + f.key).textContent = e.target.value;
+        saveUI();
+      });
+    });
+    $("balance-toggle").addEventListener("change", saveUI);
+    $("strategy").addEventListener("change", saveUI);
+    $("seed").addEventListener("input", saveUI);
+  }
+
+  function renderMatch() {
+    var locked = isLocked();
+    $("lock-indicator").textContent = locked ? "LOCKED" : "not locked";
+    $("lock-indicator").className = "status-pill " + (locked ? "flag" : "no");
+
+    $("match-controls-card").querySelectorAll("input, select, button").forEach(function (el) {
+      el.disabled = locked;
+    });
+    $("locked-card").classList.toggle("hidden", !locked);
+    if (locked) {
+      $("proposal-card").classList.add("hidden");
+      renderLockedGroups();
+      renderLate();
+    } else {
+      $("late-card").classList.add("hidden");
+      renderProposal();
+    }
+  }
+
+  function renderProposal() {
+    if (!state.proposal) { $("proposal-card").classList.add("hidden"); return; }
+    $("proposal-card").classList.remove("hidden");
+    var weights = state.lastRun.weights, balance = state.lastRun.balance;
+    var totals = 0;
+    var html = state.proposal.map(function (g) {
+      var members = g.ids.map(studentByRosterId).filter(Boolean);
+      var gs = groupScore(members, weights, balance);
+      totals += gs.score;
+      return '<div class="proposed-group"><h4>' + escapeHTML(g.label) +
+        '<span class="g-score">' + gs.score.toFixed(2) + (gs.penalty ? " ⚖" : "") + "</span></h4><ul>" +
+        members.map(function (m) {
+          return "<li>" + (VIBE_EMOJI[m.vibe] || "") + " " + escapeHTML(m.name) + "</li>";
+        }).join("") + "</ul></div>";
+    }).join("");
+    $("proposal-grid").innerHTML = html;
+    $("proposal-score").textContent = "total " + totals.toFixed(2) + " · seed “" + state.lastRun.seed + "”";
+  }
+
+  $("run-btn").addEventListener("click", function () {
+    if (isLocked()) return;
+    if (state.students.length < 2) { alert("Need at least 2 submissions to match."); return; }
+    var btn = $("run-btn");
+    btn.disabled = true;
+    btn.textContent = "Crunching…";
+    setTimeout(function () {   // let the button repaint before the synchronous crunch
+      var weights = currentWeights();
+      var balance = $("balance-toggle").checked;
+      var strategy = $("strategy").value;
+      var seed = $("seed").value.trim() || "ai4d";
+      var res = runMatch(state.students, weights, balance, strategy, seed, 200);
+      btn.disabled = false;
+      btn.textContent = "Run ▸";
+      if (!res) return;
+      state.proposal = res.partition.map(function (g, i) {
+        return { label: "Group " + (i + 1), ids: g.map(function (m) { return m.roster_id; }) };
+      });
+      state.lastRun = { seed: seed, weights: weights, strategy: strategy, balance: balance };
+      saveUI();
+      renderMatch();
+      renderCards();
+    }, 30);
+  });
+
+  $("lock-btn").addEventListener("click", function () {
+    if (!state.proposal) return;
+    if (!confirm("Lock " + state.proposal.length + " groups? This freezes matching and blocks resubmissions.")) return;
+    var rows = state.proposal.map(function (g) { return { label: g.label, locked: true }; });
+    db.from("groups").insert(rows).select().then(function (res) {
+      if (res.error) { alert("Lock failed: " + res.error.message); return; }
+      var byLabel = {};
+      res.data.forEach(function (g) { byLabel[g.label] = g.id; });
+      var memberRows = [];
+      state.proposal.forEach(function (g) {
+        g.ids.forEach(function (rid) {
+          memberRows.push({ group_id: byLabel[g.label], roster_id: rid });
+        });
+      });
+      db.from("group_members").insert(memberRows).then(function (res2) {
+        if (res2.error) { alert("Lock failed writing members: " + res2.error.message); return; }
+        // keep the run that produced the lock, for reveal stage 3 after reload
+        try { localStorage.setItem("ai4d_lock_run", JSON.stringify(state.lastRun)); } catch (e) {}
+        state.proposal = null;
+        loadAll();
+      });
+    });
+  });
+
+  function renderLockedGroups() {
+    var grid = $("locked-grid");
+    grid.classList.toggle("swap-on", state.swapMode);
+    grid.innerHTML = state.groups.map(function (g) {
+      var ms = membersOf(g.id);
+      var students = ms.map(function (m) { return { m: m, s: studentByRosterId(m.roster_id) }; });
+      var weights = lockRunWeights(), balance = lockRunBalance();
+      var gs = groupScore(students.map(function (x) { return x.s; }).filter(Boolean), weights, balance);
+      return '<div class="proposed-group"><h4>' + escapeHTML(g.label) +
+        '<span class="g-score">' + gs.score.toFixed(2) + "</span></h4><ul>" +
+        students.map(function (x) {
+          if (!x.s) return "";
+          var flags = (x.m.placed_late ? " ⏱" : "") + (x.m.human_override ? " ✋" : "");
+          var sel = state.swapPick.indexOf(x.m.roster_id) !== -1 ? " swap-selected" : "";
+          return '<li><span class="member-chip' + sel + '" data-rid="' + x.m.roster_id + '">' +
+            (VIBE_EMOJI[x.s.vibe] || "") + " " + escapeHTML(x.s.name) + flags + "</span></li>";
+        }).join("") + "</ul></div>";
+    }).join("");
+
+    grid.querySelectorAll(".member-chip").forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        if (!state.swapMode) return;
+        var rid = chip.dataset.rid;
+        var at = state.swapPick.indexOf(rid);
+        if (at !== -1) state.swapPick.splice(at, 1);
+        else state.swapPick.push(rid);
+        if (state.swapPick.length === 2) doSwap();
+        else renderLockedGroups();
+      });
+    });
+  }
+
+  $("swap-toggle").addEventListener("click", function () {
+    state.swapMode = !state.swapMode;
+    state.swapPick = [];
+    $("swap-toggle").textContent = "Swap mode: " + (state.swapMode ? "ON" : "off");
+    $("swap-hint").textContent = state.swapMode ? "Click two students to swap them." : "";
+    renderLockedGroups();
+  });
+
+  function doSwap() {
+    var a = state.members.find(function (m) { return m.roster_id === state.swapPick[0]; });
+    var b = state.members.find(function (m) { return m.roster_id === state.swapPick[1]; });
+    state.swapPick = [];
+    if (!a || !b || a.group_id === b.group_id) { renderLockedGroups(); return; }
+    var sa = studentByRosterId(a.roster_id), sb = studentByRosterId(b.roster_id);
+    if (!confirm("Swap " + sa.name + " ↔ " + sb.name + "? Both get flagged “adjusted by a human”.")) {
+      renderLockedGroups(); return;
+    }
+    var aOrig = { group_id: a.group_id, human_override: a.human_override };
+    db.from("group_members").update({ group_id: b.group_id, human_override: true })
+      .eq("roster_id", a.roster_id)
+      .then(function (r1) {
+        if (r1.error) throw r1.error;
+        return db.from("group_members").update({ group_id: a.group_id, human_override: true })
+          .eq("roster_id", b.roster_id);
+      })
+      .then(function (r2) {
+        if (r2 && r2.error) throw r2.error;
+        return loadAll();
+      })
+      .catch(function (e) {
+        // the two updates aren't atomic — if the second failed, undo the
+        // first so a half-swap never survives (harmless if the first failed)
+        db.from("group_members").update(aOrig).eq("roster_id", a.roster_id)
+          .then(loadAll, loadAll);
+        alert("Swap failed: " + (e.message || e) + " — nothing was changed.");
+      });
+  }
+
+  function lockRunWeights() {
+    try {
+      var run = JSON.parse(localStorage.getItem("ai4d_lock_run"));
+      if (run && run.weights) return run.weights;
+    } catch (e) {}
+    return currentWeights();
+  }
+  function lockRunBalance() {
+    try {
+      var run = JSON.parse(localStorage.getItem("ai4d_lock_run"));
+      if (run && typeof run.balance === "boolean") return run.balance;
+    } catch (e) {}
+    return $("balance-toggle").checked;
+  }
+
+  function renderLate() {
+    var placed = new Set(state.members.map(function (m) { return m.roster_id; }));
+    var late = state.students.filter(function (s) { return !placed.has(s.roster_id); });
+    $("late-card").classList.toggle("hidden", late.length === 0);
+    $("late-list").innerHTML = late.map(function (s) {
+      return "<p>" + (VIBE_EMOJI[s.vibe] || "") + " <strong>" + escapeHTML(s.name) + "</strong> " +
+        '<button class="btn btn-small place-btn" data-rid="' + s.roster_id + '">Place</button></p>';
+    }).join("");
+    document.querySelectorAll(".place-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () { placeLate(btn.dataset.rid); });
+    });
+  }
+
+  function placeLate(rosterId) {
+    var s = studentByRosterId(rosterId);
+    if (!s) return;
+    var weights = lockRunWeights(), balance = lockRunBalance();
+    // undersized groups first; if none, the smallest groups. Existing members
+    // NEVER move.
+    var sized = state.groups.map(function (g) {
+      return { g: g, members: membersOf(g.id).map(function (m) { return studentByRosterId(m.roster_id); }).filter(Boolean) };
+    });
+    var candidates = sized.filter(function (x) { return x.members.length < 3; });
+    if (!candidates.length) {
+      var minSize = Math.min.apply(null, sized.map(function (x) { return x.members.length; }));
+      candidates = sized.filter(function (x) { return x.members.length === minSize; });
+    }
+    var best = null, bestDelta = -Infinity;
+    candidates.forEach(function (x) {
+      var before = groupScore(x.members, weights, balance).score;
+      var after = groupScore(x.members.concat([s]), weights, balance).score;
+      if (after - before > bestDelta) { bestDelta = after - before; best = x; }
+    });
+    if (!best) return;
+    if (!confirm("Place " + s.name + " into " + best.g.label + "?")) return;
+    db.from("group_members").insert({ group_id: best.g.id, roster_id: rosterId, placed_late: true })
+      .then(function (res) {
+        if (res.error) { alert("Placement failed: " + res.error.message); return; }
+        loadAll();
+      });
+  }
+
+  /* ========================= CARDS ========================= */
+  function cardGroups() {
+    // locked groups if locked, otherwise the current proposal
+    if (isLocked()) {
+      return state.groups.map(function (g) {
+        return {
+          label: g.label,
+          members: membersOf(g.id).map(function (m) {
+            return { student: studentByRosterId(m.roster_id), meta: m };
+          }).filter(function (x) { return x.student; })
+        };
+      });
+    }
+    if (state.proposal) {
+      return state.proposal.map(function (g) {
+        return {
+          label: g.label,
+          members: g.ids.map(function (rid) {
+            return { student: studentByRosterId(rid), meta: {} };
+          }).filter(function (x) { return x.student; })
+        };
+      });
+    }
+    return [];
+  }
+
+  // Human phrasing for the top similarity / spread feature of one group.
+  function phraseFor(key, members) {
+    function vals(f) { return members.map(function (m) { return m[f]; }); }
+    switch (key) {
+      case "schedule": {
+        var common = null;
+        members.forEach(function (m) {
+          var set = m.schedule;
+          if (common === null) common = new Set(set);
+          else common = new Set(Array.from(common).filter(function (x) { return set.has(x); }));
+        });
+        var labels = Array.from(common || []).map(function (s) { return SCHEDULE_LABEL[s] || s; });
+        if (!labels.length) return "your schedules overlap more than most";
+        if (labels.length === 1 && labels[0] === "deadline panic") return "you all run on deadline panic";
+        return "you all work " + labels.join(" + ");
+      }
+      case "ambition": {
+        var a = vals("ambition").filter(function (v) { return v != null; });
+        if (a.length < 2) return "ambition mostly unstated";
+        var spread = Math.max.apply(null, a) - Math.min.apply(null, a);
+        return "ambition within " + spread + " point" + (spread === 1 ? "" : "s") + " (" + a.join(" / ") + ")";
+      }
+      case "campus": {
+        var c = vals("campus");
+        var allSame = c.every(function (v) { return v === c[0]; });
+        return allSame ? "everyone wants " + (CAMPUS_LABEL[c[0]] || c[0]) + " group work"
+                       : "campus preferences mostly line up";
+      }
+      case "coding": return "coding comfort " + vals("coding").join(" / ");
+      case "roles": {
+        var set = new Set();
+        members.forEach(function (m) { m.roles.forEach(function (r) { set.add(r); }); });
+        return set.size + " different role" + (set.size === 1 ? "" : "s") + ": " + Array.from(set).join(", ");
+      }
+      case "tool_approach": return "new-tool instincts " + vals("tool_approach").join(" / ") + " (press buttons → read first)";
+      case "group_style": return "doers and planners: " + vals("group_style").join(" / ");
+      case "module": {
+        var mods = new Set(vals("module"));
+        return mods.size + " module" + (mods.size === 1 ? "" : "s") + " represented: " + Array.from(mods).join(", ");
+      }
+      case "words": return "your self-descriptions pull toward different axes";
+      case "ai_freq": return "AI use from " + Math.min.apply(null, vals("ai_freq")) + " to " + Math.max.apply(null, vals("ai_freq")) + " of 5";
+      case "ai_future": return "AI futures from " + Math.min.apply(null, vals("ai_future")) + " to " + Math.max.apply(null, vals("ai_future")) + " of 5";
+    }
+    return "";
+  }
+
+  function memberVectorHTML(m) {
+    var words = m.wordHits.map(function (h) {
+      return '<span class="mv-feat word-hit" title="' + h.axes.join(", ") + '">' + escapeHTML(h.token) + "</span>";
+    }).join("") + m.wordMisses.map(function (t) {
+      return '<span class="mv-feat word-miss">' + escapeHTML(t) + "</span>";
+    }).join("");
+    var ignoredNote = m.wordMisses.length
+      ? ' <span class="ignored-note">struck through = ignored by the algorithm</span>' : "";
+    var feats =
+      '<span class="mv-feat">coding <b>' + m.coding + "</b></span>" +
+      '<span class="mv-feat">tool <b>' + m.tool_approach + "</b></span>" +
+      '<span class="mv-feat">style <b>' + m.group_style + "</b></span>" +
+      '<span class="mv-feat">space <b>' + m.discussion_space + "</b></span>" +
+      '<span class="mv-feat">AI freq <b>' + m.ai_freq + "</b></span>" +
+      '<span class="mv-feat">AI 10y <b>' + m.ai_future + "</b></span>" +
+      '<span class="mv-feat">feels <b>' + m.ai_feel + "</b></span>" +
+      '<span class="mv-feat">ambition <b>' + (m.ambition == null ? "—" : m.ambition) + "</b></span>" +
+      '<span class="mv-feat">' + escapeHTML(m.roles.join(" + ")) + "</span>" +
+      '<span class="mv-feat">' + escapeHTML(m.module) + "</span>" +
+      '<span class="mv-feat">' + escapeHTML(Array.from(m.schedule).map(function (s) { return SCHEDULE_LABEL[s] || s; }).join(", ")) + "</span>" +
+      '<span class="mv-feat">' + escapeHTML(CAMPUS_LABEL[m.campus] || m.campus) + "</span>" +
+      '<span class="mv-feat">' + (VIBE_EMOJI[m.vibe] || "") + " " + escapeHTML(m.vibe) + "</span>";
+    return '<div class="member-vector"><span class="mv-name">' + escapeHTML(m.name) + "</span>" +
+      '<div class="mv-feats">' + words + "</div>" +
+      '<div class="mv-feats">' + feats + "</div>" + ignoredNote + "</div>";
+  }
+
+  function renderCards() {
+    var groups = cardGroups();
+    $("cards-source-note").textContent = isLocked()
+      ? "Showing the locked groups."
+      : (groups.length ? "Showing the current proposal (not locked yet)." : "Run the matcher first — cards appear here.");
+    var weights = isLocked() ? lockRunWeights() : (state.lastRun ? state.lastRun.weights : currentWeights());
+    var balance = isLocked() ? lockRunBalance() : (state.lastRun ? state.lastRun.balance : true);
+
+    $("cards-grid").innerHTML = groups.map(function (g) {
+      var members = g.members.map(function (x) { return x.student; });
+      var gs = groupScore(members, weights, balance);
+      var sims = gs.contribs.filter(function (c) { return c.mode === "sim" && c.w > 0; });
+      var spreads = gs.contribs.filter(function (c) { return c.mode === "spread" && c.w > 0; });
+      sims.sort(function (a, b) { return b.weighted - a.weighted; });
+      spreads.sort(function (a, b) { return b.weighted - a.weighted; });
+      var topSim = sims[0], topSpread = spreads[0];
+
+      var residues = g.members.filter(function (x) { return x.student.sub.residue; });
+      var flags = [];
+      g.members.forEach(function (x) {
+        if (x.meta.placed_late) flags.push(escapeHTML(x.student.name) + " placed late");
+        if (x.meta.human_override) flags.push(escapeHTML(x.student.name) + " adjusted by a human");
+      });
+
+      return '<div class="card group-card">' +
+        "<h2>" + escapeHTML(g.label) + "</h2>" +
+        '<div class="members-line">' + members.map(function (m) {
+          return (VIBE_EMOJI[m.vibe] || "") + " " + escapeHTML(m.name);
+        }).join(" · ") + "</div>" +
+        (topSim ? '<div class="pull-block"><span class="tag">What pulled you together</span>' +
+          escapeHTML(phraseFor(topSim.key, members, "sim")) + "</div>" : "") +
+        (topSpread ? '<div class="spread-block"><span class="tag">What spreads you out</span>' +
+          escapeHTML(phraseFor(topSpread.key, members, "spread")) + "</div>" : "") +
+        '<div class="machine-view"><h4>The machine\'s view</h4>' +
+        members.map(memberVectorHTML).join("") + "</div>" +
+        (residues.length ? '<div class="residue-block"><span class="tag">What the algorithm never saw</span><ul>' +
+          residues.map(function (x) {
+            return "<li><strong>" + escapeHTML(x.student.name) + ":</strong> " + escapeHTML(x.student.sub.residue) + "</li>";
+          }).join("") + "</ul></div>" : "") +
+        (flags.length ? '<div class="card-flags">✋ ' + flags.join(" · ") + "</div>" : "") +
+        "</div>";
+    }).join("");
+  }
+
+  /* ========================= reveal staging =========================
+     Stage 1: group names only. Stage 2: full cards. Stage 3: the weights
+     table — the ONLY place zero weights are ever shown. Keyboard: 1/2/3,
+     arrows, Esc.
+     ================================================================== */
+  function revealStageHTML(stage) {
+    var groups = cardGroups();
+    if (stage === 1) {
+      return "<h1>Your groups</h1><div class='reveal-names-grid'>" +
+        groups.map(function (g) {
+          return '<div class="card"><h2>' + escapeHTML(g.label) + "</h2><ul>" +
+            g.members.map(function (x) {
+              return "<li>" + (VIBE_EMOJI[x.student.vibe] || "") + " " + escapeHTML(x.student.name) + "</li>";
+            }).join("") + "</ul></div>";
+        }).join("") + "</div>";
+    }
+    if (stage === 2) {
+      return "<h1>Why these groups</h1><div class='cards-grid'>" + $("cards-grid").innerHTML + "</div>";
+    }
+    if (stage === 3) {
+      var weights = isLocked() ? lockRunWeights() : (state.lastRun ? state.lastRun.weights : currentWeights());
+      var rows = FEATURES.map(function (f) {
+        var w = weights[f.key];
+        return '<tr class="' + (w === 0 ? "zero-weight" : "") + '"><td>' + f.label +
+          "</td><td>" + (f.mode === "sim" ? "keep similar" : "spread out") +
+          '</td><td class="w-val">' + w + "</td></tr>";
+      });
+      rows.push('<tr><td>in discussions I… (item 12)</td><td>balance guard</td><td class="w-val">' +
+        (isLocked() ? (lockRunBalance() ? "on" : "off") : ($("balance-toggle").checked ? "on" : "off")) + "</td></tr>");
+      rows.push('<tr class="zero-weight"><td>what you use AI for (item 4)</td><td>collected, discussed — not matched</td><td class="w-val">0</td></tr>');
+      rows.push('<tr class="zero-weight"><td>how AI makes you feel (item 6)</td><td>collected, discussed — not matched</td><td class="w-val">0</td></tr>');
+      rows.push('<tr class="zero-weight punchline"><td>your vibe (item 16)</td><td>you agonized over this. we never looked.</td><td class="w-val">0</td></tr>');
+      rows.push('<tr><td>what school never asks (item 17)</td><td colspan="2">never even entered the algorithm</td></tr>');
+      return "<h1>What the algorithm <em>actually</em> weighed</h1>" +
+        '<div class="card weights-table-card"><table class="data-table">' +
+        "<tr><th>signal</th><th>direction</th><th>weight</th></tr>" +
+        rows.join("") + "</table></div>";
+    }
+    return "";
+  }
+
+  function setRevealStage(stage) {
+    state.revealStage = stage;
+    if (stage === 0) { $("reveal").classList.add("hidden"); return; }
+    $("reveal").classList.remove("hidden");
+    $("reveal-content").innerHTML = revealStageHTML(stage);
+    $("reveal").scrollTop = 0;
+  }
+
+  $("reveal-btn").addEventListener("click", function () {
+    renderCards();
+    setRevealStage(1);
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (state.revealStage === 0) return;
+    if (e.key === "Escape") setRevealStage(0);
+    else if (e.key === "1") setRevealStage(1);
+    else if (e.key === "2") setRevealStage(2);
+    else if (e.key === "3") setRevealStage(3);
+    else if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") {
+      if (state.revealStage < 3) setRevealStage(state.revealStage + 1);
+    } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+      if (state.revealStage > 1) setRevealStage(state.revealStage - 1);
+    }
+  });
+
+  /* ========================= DATA ========================= */
+  function csvEscape(v) {
+    if (v == null) return "";
+    var s = Array.isArray(v) ? v.join("; ") : String(v);
+    // students control this text: neutralize spreadsheet formula injection
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    if (/[",\n]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  $("export-csv").addEventListener("click", function () {
+    var rosterById = {};
+    state.roster.forEach(function (r) { rosterById[r.id] = r; });
+    var groupByRoster = {};
+    state.members.forEach(function (m) {
+      var g = state.groups.find(function (g2) { return g2.id === m.group_id; });
+      groupByRoster[m.roster_id] = g ? g.label : "";
+    });
+    var cols = ["full_name", "display_name", "email", "unlisted_name", "words", "ai_freq", "ai_uses",
+      "ai_future", "ai_feel", "coding", "roles", "module", "tool_approach", "group_style",
+      "discussion_space", "schedule", "campus", "ambition", "vibe", "residue",
+      "group", "submitted_at", "updated_at"];
+    var lines = [cols.join(",")];
+    state.submissions.forEach(function (s) {
+      var r = rosterById[s.roster_id] || {};
+      var row = cols.map(function (c) {
+        if (c === "full_name") return csvEscape(r.full_name);
+        if (c === "display_name") return csvEscape(r.display_name);
+        if (c === "email") return csvEscape(r.email);
+        if (c === "group") return csvEscape(groupByRoster[s.roster_id] || "");
+        return csvEscape(s[c]);
+      });
+      lines.push(row.join(","));
+    });
+    var blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "ai4d-submissions.csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  $("export-cards").addEventListener("click", function () { doPrint(); });
+  $("print-btn").addEventListener("click", function () { doPrint(); });
+  function doPrint() {
+    setRevealStage(0);
+    renderCards();
+    activateTab("cards");
+    setTimeout(function () { window.print(); }, 150);
+  }
+
+  $("delete-subs").addEventListener("click", function () {
+    if (!confirm("Delete ALL submissions? This is the end-of-class cleanup. There is no undo.")) return;
+    var word = prompt('Type DELETE to confirm:');
+    if (word !== "DELETE") return;
+    db.from("submissions").delete().not("id", "is", null).then(function (res) {
+      if (res.error) { alert("Delete failed: " + res.error.message); return; }
+      alert("All submissions deleted.");
+      nudgeBoards();
+      loadAll();
+    });
+  });
+
+  $("delete-groups").addEventListener("click", function () {
+    if (!confirm("Clear all groups and unlock the form? (Rehearsal reset.)")) return;
+    var word = prompt('Type RESET to confirm:');
+    if (word !== "RESET") return;
+    db.from("groups").delete().not("id", "is", null).then(function (res) {
+      if (res.error) { alert("Reset failed: " + res.error.message); return; }
+      try { localStorage.removeItem("ai4d_lock_run"); } catch (e) {}
+      state.proposal = null;
+      db.from("app_state").update({ phase: "collecting" }).eq("id", 1).then(function () {
+        nudgeBoards();
+        loadAll();
+      });
+    });
+  });
+
+  /* ========================= render all / boot ========================= */
+  function renderAll() {
+    renderStatus();
+    renderMatch();
+    renderCards();
+    renderPhase();
+  }
+
+  renderWeightRows();
+  restoreUI();
+
+  var savedKey = sessionStorage.getItem(KEY_STORE);
+  if (savedKey) {
+    tryKey(savedKey).catch(function () {
+      sessionStorage.removeItem(KEY_STORE);
+    });
+  }
+
+  // keep Status fresh while people submit
+  setInterval(function () {
+    if (db && !document.hidden) loadAll();
+  }, 5000);
+})();
+</script>
+</body>
+</html>

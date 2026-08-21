@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI4D — Live board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+</head>
+<body>
+<div class="wrap wrap-wide">
+
+  <div id="demo-banner" class="demo-banner hidden">DEMO</div>
+
+  <div id="view-collecting">
+    <div class="board-header">
+      <h1><em>Artificial Intelligence</em> for Designers — who's in?</h1>
+      <div class="board-counter"><span id="count-n">0</span><span class="of"> / <span id="count-total">…</span></span></div>
+    </div>
+
+    <div class="board-layout">
+      <div class="card">
+        <div class="tile-grid" id="tile-grid"></div>
+      </div>
+
+      <div>
+        <div class="card chart">
+          <h3>Vibe check</h3>
+          <div id="vibe-chart"></div>
+        </div>
+        <div class="card chart">
+          <h3>AI in ten years</h3>
+          <div class="vbar-chart" id="future-chart"></div>
+          <div class="vbar-anchors"><span>mostly blown over</span><span class="anchor-right">runs everything</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- phase: matching — pure theater while the instructor presents -->
+  <div id="view-matching" class="hidden">
+    <div class="theater">
+      <div class="theater-emoji" aria-hidden="true">
+        <span>🐱</span><span>🐶</span><span>🪴</span><span>🤖</span><span>🐸</span><span>🍄</span><span>🪩</span><span>🪨</span>
+      </div>
+      <h1>The algorithm is <em>thinking</em><span class="thinking-dots"><span>.</span><span>.</span><span>.</span></span></h1>
+      <p class="theater-sub"><span id="theater-count">…</span> answers · 11 signals · 200 restarts</p>
+      <p class="theater-sub muted">Groups drop later in the session. Come back then.</p>
+    </div>
+  </div>
+
+  <!-- phase: revealed — group names only; the WHY happens on the cards -->
+  <div id="view-revealed" class="hidden">
+    <div class="board-header">
+      <h1>The algorithm has <em>spoken</em></h1>
+      <p class="muted" style="align-self:center;">Find yourself below — or tap “My team” in the form on your phone.</p>
+    </div>
+    <div class="reveal-names-grid" id="revealed-grid"></div>
+  </div>
+
+  <!-- instructor-only reset, for after rehearsals. Needs the secret key:
+       the board itself runs on the public key and cannot delete anything. -->
+  <button class="board-reset-btn" id="reset-btn" title="Clear test data (instructor)">⟲</button>
+  <div class="reset-modal hidden" id="reset-modal">
+    <div class="card">
+      <h2>Clear all data?</h2>
+      <p class="muted small">Deletes every submission and all groups, and puts the board back to collecting. For after rehearsals. Needs the <strong>secret key</strong> (sb_secret_…) — it is used once, never stored.</p>
+      <input type="password" id="reset-key" placeholder="sb_secret_…" autocomplete="off">
+      <input type="text" id="reset-word" placeholder='Type RESET to confirm' autocomplete="off" style="margin-top:8px;">
+      <p class="field-error" id="reset-error">That didn't work — check the key and the confirmation word.</p>
+      <div style="margin-top:12px; display:flex; gap:10px;">
+        <button class="btn btn-danger btn-small" id="reset-go">Clear everything</button>
+        <button class="btn btn-secondary btn-small" id="reset-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // This view renders ONLY what board_feed exposes: display_name, vibe,
+  // ai_future, submitted_at. Nothing else exists here — no missing-names
+  // list, and never items 12 / 15 / 18.
+
+  var DEMO = new URLSearchParams(location.search).get("demo") === "1";
+  var VIBE_EMOJI = { cat: "🐱", dog: "🐶", plant: "🪴", robot: "🤖",
+                     frog: "🐸", mushroom: "🍄", disco: "🪩", rock: "🪨" };
+  var VIBE_ORDER = ["cat", "dog", "plant", "robot", "frog", "mushroom", "disco", "rock"];
+
+  var rosterTotal = 0;
+  var feed = [];        // [{display_name, vibe, ai_future, submitted_at}]
+  var renderedKeys = new Set();  // tiles already flipped (so the animation runs once)
+
+  function escapeHTML(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function entryKey(e) { return e.display_name + "|" + e.submitted_at; }
+
+  function render() {
+    document.getElementById("count-n").textContent = feed.length;
+    document.getElementById("count-total").textContent = rosterTotal || "…";
+
+    // ---- tiles: submissions fill slots in arrival order; the rest stay
+    // blank gray. No names on empty tiles, ever.
+    var grid = document.getElementById("tile-grid");
+    var total = Math.max(rosterTotal, feed.length);
+    var sorted = feed.slice().sort(function (a, b) {
+      return (a.submitted_at || "").localeCompare(b.submitted_at || "");
+    });
+    var html = "";
+    for (var i = 0; i < total; i++) {
+      var e = sorted[i];
+      if (e) {
+        var isNew = !renderedKeys.has(entryKey(e));
+        html += '<div class="tile filled' + (isNew ? "" : " no-anim") + '">' +
+          '<span class="tile-emoji">' + (VIBE_EMOJI[e.vibe] || "✳️") + "</span>" +
+          '<span class="tile-name">' + escapeHTML(e.display_name || "") + "</span></div>";
+      } else {
+        html += '<div class="tile"></div>';
+      }
+    }
+    grid.innerHTML = html;
+    // suppress the flip on tiles that were already showing
+    grid.querySelectorAll(".tile.no-anim").forEach(function (t) { t.style.animation = "none"; });
+    sorted.forEach(function (e) { renderedKeys.add(entryKey(e)); });
+
+    // ---- vibe distribution (labels + emoji carry identity; one hue)
+    var vibeCounts = {};
+    VIBE_ORDER.forEach(function (v) { vibeCounts[v] = 0; });
+    feed.forEach(function (e) { if (e.vibe in vibeCounts) vibeCounts[e.vibe]++; });
+    var vibeMax = Math.max(1, Math.max.apply(null, VIBE_ORDER.map(function (v) { return vibeCounts[v]; })));
+    document.getElementById("vibe-chart").innerHTML = VIBE_ORDER.map(function (v) {
+      var n = vibeCounts[v];
+      return '<div class="hbar-row">' +
+        '<span class="hbar-label">' + VIBE_EMOJI[v] + " " + v + "</span>" +
+        '<span class="hbar-track"><span class="hbar-fill" style="width:' + (n / vibeMax * 100) + '%"></span></span>' +
+        '<span class="hbar-count">' + n + "</span></div>";
+    }).join("");
+
+    // ---- ai_future histogram, bins 1..5
+    var bins = [0, 0, 0, 0, 0];
+    feed.forEach(function (e) {
+      var v = +e.ai_future;
+      if (v >= 1 && v <= 5) bins[v - 1]++;
+    });
+    var binMax = Math.max(1, Math.max.apply(null, bins));
+    document.getElementById("future-chart").innerHTML = bins.map(function (n, i) {
+      var h = n === 0 ? "0" : Math.max(4, n / binMax * 100);
+      return '<div class="vbar">' +
+        '<span class="vbar-count">' + (n || "") + "</span>" +
+        '<span class="vbar-fill" style="height:' + h + '%"></span>' +
+        '<span class="vbar-x">' + (i + 1) + "</span></div>";
+    }).join("");
+  }
+
+  // ==========================================================================
+  // DEMO MODE: 45 fake submissions arriving over time. No database client is
+  // even created — rehearsals cannot touch real data.
+  // ==========================================================================
+  if (DEMO) {
+    document.getElementById("demo-banner").classList.remove("hidden");
+    var FAKE = ["Alma","Anker","Asta","August","Bertram","Clara","Dagmar","Ebbe","Elin","Ellen",
+      "Emil","Esther","Felix","Freja","Frida","Gry","Hannah","Hugo","Ida","Ingrid",
+      "Johan","Josefine","Karl","Klara","Lauge","Liv","Ludvig","Lærke","Malou","Marius",
+      "Merle","Nanna","Noah","Nora","Otto","Pelle","Ronja","Saga","Selma","Sofus",
+      "Storm","Thea","Vilma","Viggo","Yrsa"];
+    rosterTotal = FAKE.length;
+    var vibePool = ["cat","cat","dog","dog","plant","plant","robot","robot","frog","frog",
+      "mushroom","disco","disco","rock"];
+    var futurePool = [2,3,3,3,4,4,4,4,5,5];
+    var di = 0;
+    render();
+    function demoTick() {
+      if (di >= FAKE.length) return;
+      feed.push({
+        display_name: FAKE[di],
+        vibe: vibePool[Math.floor(Math.random() * vibePool.length)],
+        ai_future: futurePool[Math.floor(Math.random() * futurePool.length)],
+        submitted_at: String(Date.now())
+      });
+      di++;
+      render();
+      setTimeout(demoTick, 400 + Math.random() * 1800);
+    }
+    setTimeout(demoTick, 800);
+    return;
+  }
+
+  // ==========================================================================
+  // LIVE MODE
+  // ==========================================================================
+  var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  var phase = "collecting";
+
+  function showPhase() {
+    document.getElementById("view-collecting").classList.toggle("hidden", phase !== "collecting");
+    document.getElementById("view-matching").classList.toggle("hidden", phase !== "matching");
+    document.getElementById("view-revealed").classList.toggle("hidden", phase !== "revealed");
+    if (phase === "matching") {
+      document.getElementById("theater-count").textContent = feed.length;
+    }
+  }
+
+  function renderRevealed(rows) {
+    var byGroup = {};
+    rows.forEach(function (r) {
+      (byGroup[r.group_label] = byGroup[r.group_label] || []).push(r);
+    });
+    document.getElementById("revealed-grid").innerHTML = Object.keys(byGroup).sort(function (a, b) {
+      return (parseInt(a.replace(/\D/g, ""), 10) || 0) - (parseInt(b.replace(/\D/g, ""), 10) || 0);
+    }).map(function (label) {
+      return '<div class="card"><h2>' + escapeHTML(label) + "</h2><ul>" +
+        byGroup[label].map(function (m) {
+          return "<li>" + (VIBE_EMOJI[m.vibe] || "✳️") + " " + escapeHTML(m.display_name) + "</li>";
+        }).join("") + "</ul></div>";
+    }).join("");
+  }
+
+  function refresh() {
+    sb.rpc("current_phase").then(function (res) {
+      if (res.error || !res.data) return;
+      phase = res.data;
+      showPhase();
+      if (phase === "revealed") {
+        sb.rpc("groups_overview").then(function (r2) {
+          if (!r2.error && r2.data) renderRevealed(r2.data);
+        });
+      }
+    });
+    sb.from("roster_names").select("id").then(function (res) {
+      if (!res.error && res.data) { rosterTotal = res.data.length; render(); }
+    });
+    sb.from("board_feed").select("*").then(function (res) {
+      if (!res.error && res.data) { feed = res.data; render(); showPhase(); }
+    });
+  }
+
+  // ---- instructor reset (needs the secret key, used once, never stored) ----
+  var resetModal = document.getElementById("reset-modal");
+  document.getElementById("reset-btn").addEventListener("click", function () {
+    resetModal.classList.remove("hidden");
+    document.getElementById("reset-key").focus();
+  });
+  document.getElementById("reset-cancel").addEventListener("click", function () {
+    resetModal.classList.add("hidden");
+    document.getElementById("reset-key").value = "";
+    document.getElementById("reset-word").value = "";
+    document.getElementById("reset-error").style.display = "none";
+  });
+  document.getElementById("reset-go").addEventListener("click", function () {
+    var key = document.getElementById("reset-key").value.trim();
+    var word = document.getElementById("reset-word").value.trim();
+    var err = document.getElementById("reset-error");
+    if (!key || word !== "RESET") { err.style.display = "block"; return; }
+    var svc = supabase.createClient(SUPABASE_URL, key);
+    svc.from("groups").delete().not("id", "is", null)
+      .then(function (r1) {
+        if (r1.error) throw r1.error;
+        return svc.from("submissions").delete().not("id", "is", null);
+      })
+      .then(function (r2) {
+        if (r2 && r2.error) throw r2.error;
+        return svc.from("app_state").update({ phase: "collecting" }).eq("id", 1);
+      })
+      .then(function (r3) {
+        if (r3 && r3.error) throw r3.error;
+        document.getElementById("reset-cancel").click();
+        refresh();
+      })
+      .catch(function () { err.style.display = "block"; });
+  });
+
+  refresh();
+  setInterval(refresh, 4000);   // polling fallback: worst case stays inside the 5s promise
+
+  // Realtime nudge: the form broadcasts after every successful submit so the
+  // flip usually happens near-instantly. (Anon can't read the submissions
+  // table, so postgres_changes wouldn't deliver — broadcast + poll instead.)
+  try {
+    sb.channel("ai4d-live")
+      .on("broadcast", { event: "submitted" }, function () { refresh(); })
+      .subscribe();
+  } catch (e) { /* polling covers it */ }
+})();
+</script>
+</body>
+</html>
