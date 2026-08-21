@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI4D — Find your group</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="card">
+    <h1><em>Artificial Intelligence</em> for Designers</h1>
+    <p class="muted">Group formation, ~4 minutes. Your answers build your group and get discussed in class today.</p>
+  </header>
+
+  <div id="load-error" class="card hidden">
+    <h2>Hmm, that didn't work</h2>
+    <p id="load-error-msg" class="muted">Couldn't reach the database. Check your connection and reload.</p>
+  </div>
+
+  <div id="locked-banner" class="card hidden">
+    <h2>Groups are locked 🔒</h2>
+    <p>Haven't submitted yet? You can still fill this in — the instructor will place you into a group. Already submitted? Your answers are final now.</p>
+  </div>
+
+  <div id="locked-screen" class="card hidden">
+    <h2>Groups are final 🔒</h2>
+    <p>Your earlier answers are locked in — resubmissions closed when the groups did. Need a change or still group-less? Talk to the instructor.</p>
+  </div>
+
+  <!-- Always present; unlocks when the instructor confirms teams -->
+  <button type="button" class="team-fab" id="my-team-btn" disabled>🔒 My team</button>
+
+  <!-- Shown once the instructor confirms teams (phase 'revealed') -->
+  <div id="group-screen" class="hidden">
+    <div class="card">
+      <h1>The algorithm has <em>spoken</em></h1>
+      <div id="group-lookup">
+        <p class="muted">Groups are out. Who are you?</p>
+        <div class="name-picker">
+          <input type="text" id="group-name-input" autocomplete="off" placeholder="Start typing your name…" aria-label="Your name">
+          <div class="name-options hidden" id="group-name-options"></div>
+        </div>
+      </div>
+      <div id="group-result" class="hidden"></div>
+    </div>
+    <div class="card small muted">
+      <p>Not in a group, or something looks off? Talk to the instructor — that's faster than arguing with the algorithm.</p>
+      <button type="button" class="btn btn-secondary btn-small" id="late-submit-link">I still need to submit the form</button>
+    </div>
+  </div>
+
+  <form id="the-form" novalidate>
+    <div class="progress" id="progress" aria-hidden="true"></div>
+
+    <!-- ============ Who you are ============ -->
+    <section class="card">
+      <div class="section-title"><h2>Who you are</h2><span class="section-count">1 / 6</span></div>
+
+      <div class="field" id="f-name">
+        <label class="field-label" for="name-input"><span class="qnum">1</span>Your name</label>
+        <div class="name-picker">
+          <input type="text" id="name-input" autocomplete="off" placeholder="Start typing your name…" aria-label="Your name">
+          <div class="name-options hidden" id="name-options"></div>
+        </div>
+        <div class="field" id="f-unlisted" style="display:none; margin-top:10px;">
+          <label class="field-label" for="unlisted-input">Your full name</label>
+          <input type="text" id="unlisted-input" placeholder="Full name">
+          <p class="field-hint">We'll flag this for the instructor so you're added to the class list.</p>
+        </div>
+        <p class="field-error">Pick your name from the list (or choose “my name is not in the list”).</p>
+      </div>
+
+      <div class="field" id="f-words">
+        <label class="field-label" for="words-input"><span class="qnum">2</span>Describe yourself in 3 to 5 words, comma separated</label>
+        <input type="text" id="words-input" placeholder="creative, stubborn, night owl, ...">
+        <p class="field-hint hidden" id="words-count-hint"></p>
+        <p class="field-error">A few words about you, please — comma separated.</p>
+      </div>
+    </section>
+
+    <!-- ============ You and AI ============ -->
+    <section class="card">
+      <div class="section-title"><h2>You <em>and</em> AI</h2><span class="section-count">2 / 6</span></div>
+
+      <div class="field scale-field" id="f-ai_freq" data-col="ai_freq">
+        <span class="field-label"><span class="qnum">3</span>How often do you use AI?</span>
+        <fieldset class="scale" data-name="ai_freq"></fieldset>
+        <div class="scale-anchors"><span>never</span><span class="anchor-right">daily, basically a roommate</span></div>
+        <p class="field-error">Pick a step.</p>
+      </div>
+
+      <div class="field" id="f-ai_uses">
+        <span class="field-label"><span class="qnum">4</span>What for? Pick any.</span>
+        <div class="chips" id="ai_uses-chips"></div>
+        <p class="field-error">Pick at least one (there's a “nothing” option).</p>
+      </div>
+
+      <div class="field scale-field" id="f-ai_future" data-col="ai_future">
+        <span class="field-label"><span class="qnum">5</span>AI in ten years</span>
+        <fieldset class="scale" data-name="ai_future"></fieldset>
+        <div class="scale-anchors"><span>mostly blown over</span><span class="anchor-right">runs everything</span></div>
+        <p class="field-error">Pick a step.</p>
+      </div>
+
+      <div class="field scale-field" id="f-ai_feel" data-col="ai_feel">
+        <span class="field-label"><span class="qnum">6</span>And that makes you feel…</span>
+        <fieldset class="scale" data-name="ai_feel"></fieldset>
+        <div class="scale-anchors"><span>excited</span><span class="anchor-right">worried</span></div>
+        <p class="field-error">Pick a step.</p>
+      </div>
+    </section>
+
+    <!-- ============ What you bring ============ -->
+    <section class="card">
+      <div class="section-title"><h2>What you <em>bring</em></h2><span class="section-count">3 / 6</span></div>
+
+      <div class="field scale-field" id="f-coding" data-col="coding">
+        <span class="field-label"><span class="qnum">7</span>Coding comfort</span>
+        <fieldset class="scale" data-name="coding"></fieldset>
+        <div class="scale-anchors"><span>never tried it</span><span class="anchor-right">very confident coder</span></div>
+        <p class="field-error">Pick a step.</p>
+      </div>
+
+      <div class="field" id="f-roles">
+        <span class="field-label"><span class="qnum">8</span>I'd rather contribute… pick up to two</span>
+        <div class="chips" id="roles-chips"></div>
+        <p class="field-hint hidden" id="roles-hint">Up to two — unpick one first.</p>
+        <p class="field-error">Pick one or two.</p>
+      </div>
+
+      <div class="field" id="f-module">
+        <span class="field-label"><span class="qnum">9</span>Which module sounds most exciting?</span>
+        <div class="chips" id="module-chips"></div>
+        <p class="field-error">Pick one.</p>
+      </div>
+    </section>
+
+    <!-- ============ How you work ============ -->
+    <section class="card">
+      <div class="section-title"><h2>How you <em>work</em></h2><span class="section-count">4 / 6</span></div>
+
+      <div class="field scale-field" id="f-tool_approach" data-col="tool_approach">
+        <span class="field-label"><span class="qnum">10</span>New tool in front of you. You…</span>
+        <fieldset class="scale" data-name="tool_approach"></fieldset>
+        <div class="scale-anchors"><span>press buttons and see</span><span class="anchor-right">read how it works first</span></div>
+        <p class="field-error">Pick a step.</p>
+      </div>
+
+      <div class="field scale-field" id="f-group_style" data-col="group_style">
+        <span class="field-label"><span class="qnum">11</span>In group work I naturally…</span>
+        <fieldset class="scale" data-name="group_style"></fieldset>
+        <div class="scale-anchors"><span>start producing</span><span class="anchor-right">plan and structure</span></div>
+        <p class="field-error">Pick a step.</p>
+      </div>
+
+      <div class="field scale-field" id="f-discussion_space" data-col="discussion_space">
+        <span class="field-label"><span class="qnum">12</span>In discussions I…</span>
+        <fieldset class="scale" data-name="discussion_space"></fieldset>
+        <div class="scale-anchors"><span>take space easily</span><span class="anchor-right">need space made for me</span></div>
+        <p class="field-error">Pick a step.</p>
+      </div>
+    </section>
+
+    <!-- ============ Practical ============ -->
+    <section class="card">
+      <div class="section-title"><h2>Practical</h2><span class="section-count">5 / 6</span></div>
+
+      <div class="field" id="f-schedule">
+        <span class="field-label"><span class="qnum">13</span>When do you actually do coursework? Pick all that apply.</span>
+        <div class="chips" id="schedule-chips"></div>
+        <p class="field-error">Pick at least one.</p>
+      </div>
+
+      <div class="field" id="f-campus">
+        <span class="field-label"><span class="qnum">14</span>Group work location</span>
+        <div class="chips" id="campus-chips"></div>
+        <p class="field-error">Pick one.</p>
+      </div>
+
+      <div class="field scale-field" id="f-ambition" data-col="ambition" data-optional="1">
+        <span class="field-label"><span class="qnum">15</span>This module's artifact should be… <span class="muted small">(optional)</span></span>
+        <fieldset class="scale" data-name="ambition"></fieldset>
+        <div class="scale-anchors"><span>enough to pass</span><span class="anchor-right">a portfolio piece I'd show an employer</span></div>
+      </div>
+    </section>
+
+    <!-- ============ Last ones ============ -->
+    <section class="card">
+      <div class="section-title"><h2>Last ones</h2><span class="section-count">6 / 6</span></div>
+
+      <div class="field" id="f-vibe">
+        <span class="field-label"><span class="qnum">16</span>Pick a vibe</span>
+        <div class="chips" id="vibe-chips"></div>
+        <p class="field-error">Pick one. Don't overthink it. Or do.</p>
+      </div>
+
+      <div class="field" id="f-residue">
+        <label class="field-label" for="residue-input"><span class="qnum">17</span>One thing you're good at that school never asks about <span class="muted small">(optional)</span></label>
+        <p class="field-hint">For your group, not for the algorithm. This is never used in matching.</p>
+        <textarea id="residue-input" rows="2"></textarea>
+      </div>
+    </section>
+
+    <div class="card">
+      <button type="submit" class="btn btn-block" id="submit-btn">Send it →</button>
+      <p class="field-error" id="submit-error" style="text-align:center;">Something's missing — scroll up to the red bits.</p>
+    </div>
+
+    <footer class="card small muted">
+      <h3 class="small">Your data, briefly</h3>
+      <p>This form collects the answers above, linked to your name from the class roster. Everything is stored in a database in the EU (Supabase, EU region). Full answers are visible to the course instructors; your own group's card — name, answers, and your item-17 note — is shared with your group. All submissions are deleted once groups are final, by <span id="deletion-date"></span>. No cookies, no analytics — this page only remembers your draft on your own device.</p>
+    </footer>
+  </form>
+
+  <!-- Confirmation -->
+  <div id="done-screen" class="hidden">
+    <div class="card">
+      <h1>You're in ✓</h1>
+      <p>Watch the board — your name is on its way up. Here's what the algorithm now knows about you:</p>
+      <div id="summary"></div>
+    </div>
+    <div class="card small muted">
+      <p><strong>Change of heart?</strong> Reopen this page and submit again — a resubmission overwrites your previous answers, right up until the groups are locked in class.</p>
+      <button type="button" class="btn btn-secondary btn-small" id="edit-again">Change my answers</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var sb = null;
+  try {
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } catch (e) { /* handled below when the roster load fails */ }
+
+  document.getElementById("deletion-date").textContent = DELETION_DATE_TEXT;
+
+  // ---- questionnaire option sets -------------------------------------------
+  var AI_USES = [
+    ["writing", "writing"], ["code", "code"], ["images", "images"],
+    ["ideas", "ideas"], ["homework", "homework"], ["nothing", "nothing"], ["other", "other"]
+  ];
+  var ROLES = [["visuals", "visuals"], ["words", "words"], ["code", "code"], ["organizing", "organizing"]];
+  var MODULES = [
+    ["filter", "Filter — what AI lets in", "mod-filter"],
+    ["curator", "Curator — what AI surfaces", "mod-curator"],
+    ["collaborator", "Collaborator — what AI makes", "mod-collaborator"]
+  ];
+  var SCHEDULE = [
+    ["weekday_daytime", "weekday daytime"], ["evenings", "evenings"],
+    ["weekends", "weekends"], ["deadline_panic", "deadline panic"]
+  ];
+  var CAMPUS = [["on_campus", "on campus"], ["remote", "remote"], ["mixed", "mixed"]];
+  var VIBES = [
+    ["cat", "🐱 cat", "vibe vibe-cat"], ["dog", "🐶 dog", "vibe vibe-dog"],
+    ["plant", "🪴 plant", "vibe vibe-plant"], ["robot", "🤖 robot", "vibe vibe-robot"],
+    ["frog", "🐸 frog", "vibe vibe-frog"], ["mushroom", "🍄 mushroom", "vibe vibe-mushroom"],
+    ["disco", "🪩 disco ball", "vibe vibe-disco"], ["rock", "🪨 rock", "vibe vibe-rock"]
+  ];
+
+  function chipHTML(name, type, value, label, extraClass) {
+    return '<label class="chip ' + (extraClass || "") + '">' +
+      '<input type="' + type + '" name="' + name + '" value="' + value + '">' +
+      "<span>" + label + "</span></label>";
+  }
+  function fillChips(elId, name, type, options) {
+    document.getElementById(elId).innerHTML = options
+      .map(function (o) { return chipHTML(name, type, o[0], o[1], o[2]); }).join("");
+  }
+  fillChips("ai_uses-chips", "ai_uses", "checkbox", AI_USES);
+  fillChips("roles-chips", "roles", "checkbox", ROLES);
+  fillChips("module-chips", "module", "radio", MODULES);
+  fillChips("schedule-chips", "schedule", "checkbox", SCHEDULE);
+  fillChips("campus-chips", "campus", "radio", CAMPUS);
+  fillChips("vibe-chips", "vibe", "radio", VIBES);
+
+  // 1-5 scales as five discrete tappable steps
+  document.querySelectorAll("fieldset.scale").forEach(function (fs) {
+    var name = fs.dataset.name;
+    var html = '<div class="scale-steps">';
+    for (var i = 1; i <= 5; i++) {
+      html += '<label class="scale-step"><input type="radio" name="' + name +
+        '" value="' + i + '"><span>' + i + "</span></label>";
+    }
+    fs.innerHTML = html + "</div>";
+  });
+
+  // roles: max two
+  var rolesChips = document.getElementById("roles-chips");
+  rolesChips.addEventListener("change", function (e) {
+    var checked = rolesChips.querySelectorAll("input:checked");
+    var hint = document.getElementById("roles-hint");
+    if (checked.length > 2) {
+      e.target.checked = false;
+      hint.classList.remove("hidden");
+      setTimeout(function () { hint.classList.add("hidden"); }, 2500);
+    }
+  });
+
+  // soft word count on item 2
+  var wordsInput = document.getElementById("words-input");
+  wordsInput.addEventListener("input", function () {
+    var hint = document.getElementById("words-count-hint");
+    var toks = wordsInput.value.split(",").map(function (t) { return t.trim(); }).filter(Boolean);
+    if (toks.length && (toks.length < 3 || toks.length > 5)) {
+      hint.textContent = "That's " + toks.length + (toks.length === 1 ? " word" : " words") + " — aim for 3 to 5. (We won't stop you.)";
+      hint.classList.remove("hidden");
+    } else {
+      hint.classList.add("hidden");
+    }
+  });
+
+  // ---- name picker ---------------------------------------------------------
+  var roster = [];           // {id, display_name}
+  var chosenRosterId = null;
+  var unlistedMode = false;
+  var nameInput = document.getElementById("name-input");
+  var nameOptions = document.getElementById("name-options");
+
+  // Fold case + Danish/other diacritics so "jorgensen" finds "Jørgensen".
+  function fold(s) {
+    return s.toLowerCase()
+      .replace(/ø/g, "o").replace(/æ/g, "ae").replace(/å/g, "a")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function renderNameOptions(query) {
+    var q = fold(query.trim());
+    var hits = roster.filter(function (r) {
+      return !q || fold(r.display_name).indexOf(q) !== -1;
+    });
+    var html = hits.slice(0, 200).map(function (r) {
+      return '<button type="button" class="name-option" data-id="' + r.id + '">' +
+        escapeHTML(r.display_name) + "</button>";
+    }).join("");
+    html += '<button type="button" class="name-option not-listed" data-id="">My name is not in the list</button>';
+    nameOptions.innerHTML = html;
+    nameOptions.classList.remove("hidden");
+  }
+  function escapeHTML(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  nameInput.addEventListener("focus", function () { renderNameOptions(nameInput.value); });
+  nameInput.addEventListener("input", function () {
+    chosenRosterId = null;
+    unlistedMode = false;
+    document.getElementById("f-unlisted").style.display = "none";
+    renderNameOptions(nameInput.value);
+  });
+  nameOptions.addEventListener("click", function (e) {
+    var btn = e.target.closest(".name-option");
+    if (!btn) return;
+    if (btn.dataset.id) {
+      chosenRosterId = btn.dataset.id;
+      unlistedMode = false;
+      nameInput.value = btn.textContent;
+      document.getElementById("f-unlisted").style.display = "none";
+    } else {
+      chosenRosterId = null;
+      unlistedMode = true;
+      nameInput.value = "My name is not in the list";
+      document.getElementById("f-unlisted").style.display = "block";
+      document.getElementById("unlisted-input").focus();
+    }
+    nameOptions.classList.add("hidden");
+    saveDraft();
+  });
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest(".name-picker")) nameOptions.classList.add("hidden");
+  });
+
+  // ---- draft persistence (device-local only) -------------------------------
+  var DRAFT_KEY = "ai4d_draft_v1";
+  function collectRaw() {
+    var form = document.getElementById("the-form");
+    var raw = { chosenRosterId: chosenRosterId, unlistedMode: unlistedMode,
+                nameText: nameInput.value,
+                unlisted: document.getElementById("unlisted-input").value,
+                words: wordsInput.value,
+                residue: document.getElementById("residue-input").value,
+                radios: {}, checks: {} };
+    ["ai_freq","ai_future","ai_feel","coding","module","tool_approach","group_style",
+     "discussion_space","campus","ambition","vibe"].forEach(function (n) {
+      var el = form.querySelector('input[name="' + n + '"]:checked');
+      raw.radios[n] = el ? el.value : null;
+    });
+    ["ai_uses","roles","schedule"].forEach(function (n) {
+      raw.checks[n] = Array.prototype.map.call(
+        form.querySelectorAll('input[name="' + n + '"]:checked'),
+        function (el) { return el.value; });
+    });
+    return raw;
+  }
+  function saveDraft() {
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(collectRaw())); } catch (e) {}
+  }
+  function restoreDraft() {
+    var raw;
+    try { raw = JSON.parse(localStorage.getItem(DRAFT_KEY)); } catch (e) { return; }
+    if (!raw) return;
+    var form = document.getElementById("the-form");
+    chosenRosterId = raw.chosenRosterId || null;
+    unlistedMode = !!raw.unlistedMode;
+    nameInput.value = raw.nameText || "";
+    document.getElementById("unlisted-input").value = raw.unlisted || "";
+    if (unlistedMode) document.getElementById("f-unlisted").style.display = "block";
+    wordsInput.value = raw.words || "";
+    document.getElementById("residue-input").value = raw.residue || "";
+    Object.keys(raw.radios || {}).forEach(function (n) {
+      if (!raw.radios[n]) return;
+      var el = form.querySelector('input[name="' + n + '"][value="' + raw.radios[n] + '"]');
+      if (el) el.checked = true;
+    });
+    Object.keys(raw.checks || {}).forEach(function (n) {
+      (raw.checks[n] || []).forEach(function (v) {
+        var el = form.querySelector('input[name="' + n + '"][value="' + v + '"]');
+        if (el) el.checked = true;
+      });
+    });
+  }
+  document.getElementById("the-form").addEventListener("change", function () { saveDraft(); updateProgress(); });
+  wordsInput.addEventListener("blur", saveDraft);
+  document.getElementById("residue-input").addEventListener("blur", saveDraft);
+  document.getElementById("unlisted-input").addEventListener("blur", saveDraft);
+
+  // If the student re-submits, keep the client-side id we used for the
+  // unlisted insert so their update overwrites instead of duplicating.
+  var UNLISTED_ID_KEY = "ai4d_unlisted_submission_id";
+
+  // ---- progress dots -------------------------------------------------------
+  var progress = document.getElementById("progress");
+  progress.innerHTML = "<span></span>".repeat(6);
+  function sectionDone(idx) {
+    var raw = collectRaw();
+    switch (idx) {
+      case 0: return !!((raw.chosenRosterId || (raw.unlistedMode && raw.unlisted.trim())) && raw.words.trim());
+      case 1: return !!(raw.radios.ai_freq && raw.checks.ai_uses.length && raw.radios.ai_future && raw.radios.ai_feel);
+      case 2: return !!(raw.radios.coding && raw.checks.roles.length && raw.radios.module);
+      case 3: return !!(raw.radios.tool_approach && raw.radios.group_style && raw.radios.discussion_space);
+      case 4: return !!(raw.checks.schedule.length && raw.radios.campus); // ambition optional
+      case 5: return !!raw.radios.vibe;                                  // residue optional
+    }
+  }
+  function updateProgress() {
+    Array.prototype.forEach.call(progress.children, function (dot, i) {
+      dot.classList.toggle("done", !!sectionDone(i));
+    });
+  }
+  nameInput.addEventListener("input", updateProgress);
+  wordsInput.addEventListener("input", updateProgress);
+
+  // ---- boot: roster + lock state -------------------------------------------
+  function showLoadError(msg) {
+    document.getElementById("load-error").classList.remove("hidden");
+    if (msg) document.getElementById("load-error-msg").textContent = msg;
+  }
+  // ---- reveal phase: the "My team" button + finder screen -----------------
+  var phase = "collecting";
+  var firstPhaseCheck = true;
+  var myTeamBtn = document.getElementById("my-team-btn");
+  function unlockTeamButton() {
+    myTeamBtn.disabled = false;
+    myTeamBtn.classList.add("unlocked");
+    myTeamBtn.textContent = "🎉 My team";
+  }
+  function showGroupFinder() {
+    document.getElementById("the-form").classList.add("hidden");
+    document.getElementById("locked-banner").classList.add("hidden");
+    document.getElementById("locked-screen").classList.add("hidden");
+    document.getElementById("done-screen").classList.add("hidden");
+    document.getElementById("group-screen").classList.remove("hidden");
+    myTeamBtn.classList.add("hidden");
+    window.scrollTo({ top: 0 });
+    if (chosenRosterId) lookupGroup(chosenRosterId);
+  }
+  myTeamBtn.addEventListener("click", function () {
+    if (phase === "revealed") showGroupFinder();
+  });
+  function lookupGroup(rosterId) {
+    sb.rpc("my_group", { p_roster: rosterId }).then(function (res) {
+      var box = document.getElementById("group-result");
+      box.classList.remove("hidden");
+      if (res.error || !res.data || !res.data.length) {
+        box.innerHTML = "<p>You're not in a group yet — grab the instructor and you'll be placed on the spot.</p>";
+        return;
+      }
+      var label = res.data[0].group_label;
+      box.innerHTML = "<h2>" + escapeHTML(label) + "</h2><ul style='list-style:none; padding:0; font-size:1.15rem; font-weight:600;'>" +
+        res.data.map(function (m) {
+          var you = m.display_name && rosterId === chosenRosterId && false; // marker handled below
+          return "<li style='padding:4px 0;'>" + (VIBE_EMOJI[m.vibe] || "✳️") + " " + escapeHTML(m.display_name) + "</li>";
+        }).join("") + "</ul><p class='muted small'>Go find each other. Why you? That gets answered on the projector.</p>";
+    });
+  }
+  var groupNameInput = document.getElementById("group-name-input");
+  var groupNameOptions = document.getElementById("group-name-options");
+  function renderGroupOptions(query) {
+    var q = fold(query.trim());
+    var hits = roster.filter(function (r) { return !q || fold(r.display_name).indexOf(q) !== -1; });
+    groupNameOptions.innerHTML = hits.slice(0, 200).map(function (r) {
+      return '<button type="button" class="name-option" data-id="' + r.id + '">' + escapeHTML(r.display_name) + "</button>";
+    }).join("");
+    groupNameOptions.classList.remove("hidden");
+  }
+  groupNameInput.addEventListener("focus", function () { renderGroupOptions(groupNameInput.value); });
+  groupNameInput.addEventListener("input", function () { renderGroupOptions(groupNameInput.value); });
+  groupNameOptions.addEventListener("click", function (e) {
+    var btn = e.target.closest(".name-option");
+    if (!btn) return;
+    groupNameInput.value = btn.textContent;
+    groupNameOptions.classList.add("hidden");
+    chosenRosterId = btn.dataset.id;
+    lookupGroup(btn.dataset.id);
+  });
+  document.getElementById("late-submit-link").addEventListener("click", function () {
+    document.getElementById("group-screen").classList.add("hidden");
+    document.getElementById("the-form").classList.remove("hidden");
+    myTeamBtn.classList.remove("hidden");
+    sb.rpc("match_locked").then(function (res) {
+      if (!res.error && res.data === true) document.getElementById("locked-banner").classList.remove("hidden");
+    });
+  });
+  function checkPhase() {
+    sb.rpc("current_phase").then(function (res) {
+      if (res.error || !res.data) return;
+      var was = phase;
+      phase = res.data;
+      var isFirst = firstPhaseCheck;
+      firstPhaseCheck = false;
+      if (phase === "revealed") {
+        unlockTeamButton();
+        // fresh visit while teams are already out: straight to the finder.
+        // Mid-session we only light the button up — no yanking screens away.
+        if (isFirst) showGroupFinder();
+      }
+    });
+  }
+
+  function boot() {
+    if (!sb) { showLoadError("This page isn't configured yet (config.js)."); return; }
+    checkPhase();
+    setInterval(checkPhase, 5000);  // phones flip to their group the moment it's released
+    // After lock, FIRST-TIME submissions stay open (latecomers get placed by
+    // the instructor); only resubmissions are blocked — RLS refuses the
+    // update and the 42501 handler below shows the "final" screen.
+    sb.rpc("match_locked").then(function (res) {
+      if (!res.error && res.data === true) {
+        document.getElementById("locked-banner").classList.remove("hidden");
+      }
+    });
+    sb.from("roster_names").select("id, display_name").then(function (res) {
+      if (res.error) { showLoadError(); return; }
+      roster = res.data || [];
+      roster.sort(function (a, b) { return a.display_name.localeCompare(b.display_name, "da"); });
+    });
+    restoreDraft();
+    updateProgress();
+  }
+  boot();
+
+  // ---- validation + submit -------------------------------------------------
+  function validate() {
+    var raw = collectRaw();
+    var bad = [];
+    function flag(id, ok) {
+      var el = document.getElementById(id);
+      el.classList.toggle("show-error", !ok);
+      if (!ok) bad.push(el);
+    }
+    flag("f-name", !!(raw.chosenRosterId || (raw.unlistedMode && raw.unlisted.trim())));
+    flag("f-words", !!raw.words.trim());
+    flag("f-ai_freq", !!raw.radios.ai_freq);
+    flag("f-ai_uses", raw.checks.ai_uses.length > 0);
+    flag("f-ai_future", !!raw.radios.ai_future);
+    flag("f-ai_feel", !!raw.radios.ai_feel);
+    flag("f-coding", !!raw.radios.coding);
+    flag("f-roles", raw.checks.roles.length >= 1 && raw.checks.roles.length <= 2);
+    flag("f-module", !!raw.radios.module);
+    flag("f-tool_approach", !!raw.radios.tool_approach);
+    flag("f-group_style", !!raw.radios.group_style);
+    flag("f-discussion_space", !!raw.radios.discussion_space);
+    flag("f-schedule", raw.checks.schedule.length > 0);
+    flag("f-campus", !!raw.radios.campus);
+    flag("f-vibe", !!raw.radios.vibe);
+    return bad;
+  }
+
+  function buildPayload() {
+    var raw = collectRaw();
+    var p = {
+      words: raw.words.trim(),
+      ai_freq: +raw.radios.ai_freq,
+      ai_uses: raw.checks.ai_uses,
+      ai_future: +raw.radios.ai_future,
+      ai_feel: +raw.radios.ai_feel,
+      coding: +raw.radios.coding,
+      roles: raw.checks.roles,
+      module: raw.radios.module,
+      tool_approach: +raw.radios.tool_approach,
+      group_style: +raw.radios.group_style,
+      discussion_space: +raw.radios.discussion_space,
+      schedule: raw.checks.schedule,
+      campus: raw.radios.campus,
+      ambition: raw.radios.ambition ? +raw.radios.ambition : null,
+      vibe: raw.radios.vibe,
+      residue: raw.residue.trim() || null
+    };
+    if (raw.chosenRosterId) {
+      p.roster_id = raw.chosenRosterId;
+      p.unlisted_name = null;
+    } else {
+      // NOTE: roster_id is deliberately ABSENT from this payload (not null).
+      // If the instructor has adopted this student into the roster, their
+      // resubmission must not overwrite that link back to null — PostgREST
+      // only updates columns present in the payload.
+      p.unlisted_name = raw.unlisted.trim();
+      // stable client-side id so an unlisted resubmission overwrites
+      var uid = localStorage.getItem(UNLISTED_ID_KEY);
+      if (!uid) {
+        uid = (crypto.randomUUID ? crypto.randomUUID()
+          : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+              var r = Math.random() * 16 | 0;
+              return (c === "x" ? r : (r & 0x3 | 0x8)).toString(16);
+            }));
+        localStorage.setItem(UNLISTED_ID_KEY, uid);
+      }
+      p.id = uid;
+    }
+    return p;
+  }
+
+  function nudgeBoard() {
+    // Best-effort realtime ping so the board flips within a second or two;
+    // the board also polls every 5s, so failure here is harmless.
+    try {
+      var ch = sb.channel("ai4d-live");
+      ch.subscribe(function (status) {
+        if (status === "SUBSCRIBED") {
+          ch.send({ type: "broadcast", event: "submitted", payload: {} })
+            .then(function () { setTimeout(function () { sb.removeChannel(ch); }, 500); });
+        }
+      });
+      setTimeout(function () { sb.removeChannel(ch); }, 4000);
+    } catch (e) {}
+  }
+
+  var VIBE_EMOJI = { cat: "🐱", dog: "🐶", plant: "🪴", robot: "🤖",
+                     frog: "🐸", mushroom: "🍄", disco: "🪩", rock: "🪨" };
+  var LABELS = {}; // value -> label lookups for the summary
+  [AI_USES, ROLES, SCHEDULE, CAMPUS].forEach(function (set) {
+    set.forEach(function (o) { LABELS[o[0]] = o[1]; });
+  });
+  MODULES.forEach(function (o) { LABELS[o[0]] = o[1].split(" — ")[0]; });
+  VIBES.forEach(function (o) { LABELS[o[0]] = o[1]; });
+
+  function showSummary(p) {
+    function row(k, v) {
+      return "<tr><td class='muted small' style='padding:3px 12px 3px 0; white-space:nowrap;'>" + k +
+        "</td><td style='padding:3px 0;'>" + escapeHTML(v) + "</td></tr>";
+    }
+    var name = unlistedMode ? document.getElementById("unlisted-input").value : nameInput.value;
+    var html = "<table style='border-collapse:collapse; font-size:0.95rem;'>" +
+      row("name", name) +
+      row("your words", p.words) +
+      row("AI use", p.ai_freq + "/5 — " + p.ai_uses.map(function (u) { return LABELS[u]; }).join(", ")) +
+      row("AI in 10 yrs", p.ai_future + "/5, feeling " + p.ai_feel + "/5") +
+      row("coding", p.coding + "/5") +
+      row("contributing", p.roles.map(function (r) { return LABELS[r]; }).join(" + ")) +
+      row("module", LABELS[p.module]) +
+      row("work style", "tool " + p.tool_approach + "/5 · group " + p.group_style + "/5 · space " + p.discussion_space + "/5") +
+      row("schedule", p.schedule.map(function (s) { return LABELS[s]; }).join(", ")) +
+      row("location", LABELS[p.campus]) +
+      (p.ambition ? row("ambition", p.ambition + "/5") : "") +
+      row("vibe", LABELS[p.vibe]) +
+      (p.residue ? row("off the record", p.residue) : "") +
+      "</table>";
+    document.getElementById("summary").innerHTML = html;
+  }
+
+  document.getElementById("the-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var bad = validate();
+    var submitError = document.getElementById("submit-error");
+    if (bad.length) {
+      submitError.style.display = "block";
+      bad[0].scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    submitError.style.display = "none";
+
+    var btn = document.getElementById("submit-btn");
+    btn.disabled = true;
+    btn.textContent = "Sending…";
+
+    var payload = buildPayload();
+    // All writes go through the submit_answers() database function — anon
+    // has no direct access to the submissions table at all.
+    sb.rpc("submit_answers", { p: payload }).then(function (res) {
+      btn.disabled = false;
+      btn.textContent = "Send it →";
+      if (res.error) {
+        // submit_answers() raises 42501 for resubmissions once groups are locked
+        if (res.error.code === "42501") {
+          document.getElementById("locked-screen").classList.remove("hidden");
+          document.getElementById("the-form").classList.add("hidden");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          submitError.textContent = "Couldn't save (" + (res.error.message || "unknown error") + "). Try again?";
+          submitError.style.display = "block";
+        }
+        return;
+      }
+      nudgeBoard();
+      showSummary(payload);
+      document.getElementById("the-form").classList.add("hidden");
+      document.getElementById("done-screen").classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  document.getElementById("edit-again").addEventListener("click", function () {
+    document.getElementById("done-screen").classList.add("hidden");
+    document.getElementById("the-form").classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+})();
+</script>
+</body>
+</html>
