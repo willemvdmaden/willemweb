@@ -325,8 +325,16 @@ input.invalid, textarea.invalid, .invalid-box { border-color: var(--red) !import
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;
   gap: 20px;
-  align-items: start;
+  align-items: stretch;  /* tile card and chart column share the same bottom line */
 }
+.board-layout > .card { margin-bottom: 0; }
+.board-charts {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.board-charts .card { margin-bottom: 0; }
+.board-charts .chart:last-child { flex: 1; }
 @media (max-width: 980px) { .board-layout { grid-template-columns: 1fr; } }
 
 .tile-grid {
