@@ -345,7 +345,9 @@
       case "roles": {
         var set = new Set();
         members.forEach(function (m) { m.roles.forEach(function (r) { set.add(r); }); });
-        return set.size / 4;
+        // 6 role options; each member brings at most 2, so normalize by the
+        // best coverage this group size could actually achieve
+        return set.size / Math.min(6, 2 * members.length);
       }
       case "tool_approach": return range01(members.map(function (m) { return m.tool_approach; }));
       case "group_style": return range01(members.map(function (m) { return m.group_style; }));
@@ -1170,7 +1172,7 @@
       var g = state.groups.find(function (g2) { return g2.id === m.group_id; });
       groupByRoster[m.roster_id] = g ? g.label : "";
     });
-    var cols = ["full_name", "display_name", "email", "unlisted_name", "words", "ai_freq", "ai_uses",
+    var cols = ["full_name", "display_name", "email", "unlisted_name", "words", "ai_freq", "ai_uses", "ai_uses_other",
       "ai_future", "ai_feel", "coding", "roles", "module", "tool_approach", "group_style",
       "discussion_space", "schedule", "campus", "ambition", "vibe", "residue",
       "group", "submitted_at", "updated_at"];

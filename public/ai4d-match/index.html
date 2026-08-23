@@ -99,7 +99,10 @@
       <div class="field" id="f-ai_uses">
         <span class="field-label"><span class="qnum">4</span>What for? Pick any.</span>
         <div class="chips" id="ai_uses-chips"></div>
-        <p class="field-error">Pick at least one (there's a “nothing” option).</p>
+        <div id="ai-uses-other-wrap" class="hidden" style="margin-top:10px;">
+          <input type="text" id="ai-uses-other-input" placeholder="what then?">
+        </div>
+        <p class="field-error">Pick at least one (there's a “nothing” option) — and if you picked “other”, tell us what.</p>
       </div>
 
       <div class="field scale-field" id="f-ai_future" data-col="ai_future">
@@ -112,14 +115,14 @@
       <div class="field scale-field" id="f-ai_feel" data-col="ai_feel">
         <span class="field-label"><span class="qnum">6</span>And that makes you feel…</span>
         <fieldset class="scale" data-name="ai_feel"></fieldset>
-        <div class="scale-anchors"><span>excited</span><span class="anchor-right">worried</span></div>
+        <div class="scale-anchors"><span>worried</span><span class="anchor-right">excited</span></div>
         <p class="field-error">Pick a step.</p>
       </div>
     </section>
 
     <!-- ============ What you bring ============ -->
     <section class="card">
-      <div class="section-title"><h2>What you <em>bring</em></h2><span class="section-count">3 / 6</span></div>
+      <div class="section-title"><h2>What do you <em>bring</em> to the group?</h2><span class="section-count">3 / 6</span></div>
 
       <div class="field scale-field" id="f-coding" data-col="coding">
         <span class="field-label"><span class="qnum">7</span>Coding comfort</span>
@@ -129,7 +132,7 @@
       </div>
 
       <div class="field" id="f-roles">
-        <span class="field-label"><span class="qnum">8</span>I'd rather contribute… pick up to two</span>
+        <span class="field-label"><span class="qnum">8</span>I prefer to take on this role in the group — pick up to two</span>
         <div class="chips" id="roles-chips"></div>
         <p class="field-hint hidden" id="roles-hint">Up to two — unpick one first.</p>
         <p class="field-error">Pick one or two.</p>
@@ -202,7 +205,7 @@
       </div>
 
       <div class="field" id="f-residue">
-        <label class="field-label" for="residue-input"><span class="qnum">17</span>One thing you're good at that school never asks about <span class="muted small">(optional)</span></label>
+        <label class="field-label" for="residue-input"><span class="qnum">17</span>One thing you're good at that uni never asks about <span class="muted small">(optional)</span></label>
         <p class="field-hint">For your group, not for the algorithm. This is never used in matching.</p>
         <textarea id="residue-input" rows="2"></textarea>
       </div>
@@ -248,9 +251,14 @@
   // ---- questionnaire option sets -------------------------------------------
   var AI_USES = [
     ["writing", "writing"], ["code", "code"], ["images", "images"],
-    ["ideas", "ideas"], ["homework", "homework"], ["nothing", "nothing"], ["other", "other"]
+    ["ideas", "ideas"], ["homework", "homework"], ["emotional_support", "emotional support"],
+    ["nothing", "nothing"], ["other", "other"]
   ];
-  var ROLES = [["visuals", "visuals"], ["words", "words"], ["code", "code"], ["organizing", "organizing"]];
+  var ROLES = [
+    ["visuals", "visuals & design"], ["words", "words & writing"], ["code", "code & tech"],
+    ["organizing", "organizing & planning"], ["research", "research & analysis"],
+    ["presenting", "presenting & pitching"]
+  ];
   var MODULES = [
     ["filter", "Filter — what AI lets in", "mod-filter"],
     ["curator", "Curator — what AI surfaces", "mod-curator"],
@@ -294,6 +302,15 @@
     }
     fs.innerHTML = html + "</div>";
   });
+
+  // item 4: "other" reveals a free-text field
+  var aiUsesChips = document.getElementById("ai_uses-chips");
+  aiUsesChips.addEventListener("change", function () {
+    var otherOn = !!aiUsesChips.querySelector('input[value="other"]:checked');
+    document.getElementById("ai-uses-other-wrap").classList.toggle("hidden", !otherOn);
+    if (otherOn) document.getElementById("ai-uses-other-input").focus();
+  });
+  document.getElementById("ai-uses-other-input").addEventListener("blur", saveDraft);
 
   // roles: max two
   var rolesChips = document.getElementById("roles-chips");
@@ -390,6 +407,7 @@
                 nameText: nameInput.value,
                 unlisted: document.getElementById("unlisted-input").value,
                 words: wordsInput.value,
+                aiOther: document.getElementById("ai-uses-other-input").value,
                 residue: document.getElementById("residue-input").value,
                 radios: {}, checks: {} };
     ["ai_freq","ai_future","ai_feel","coding","module","tool_approach","group_style",
@@ -418,6 +436,7 @@
     document.getElementById("unlisted-input").value = raw.unlisted || "";
     if (unlistedMode) document.getElementById("f-unlisted").style.display = "block";
     wordsInput.value = raw.words || "";
+    document.getElementById("ai-uses-other-input").value = raw.aiOther || "";
     document.getElementById("residue-input").value = raw.residue || "";
     Object.keys(raw.radios || {}).forEach(function (n) {
       if (!raw.radios[n]) return;
@@ -583,7 +602,8 @@
     flag("f-name", !!(raw.chosenRosterId || (raw.unlistedMode && raw.unlisted.trim())));
     flag("f-words", !!raw.words.trim());
     flag("f-ai_freq", !!raw.radios.ai_freq);
-    flag("f-ai_uses", raw.checks.ai_uses.length > 0);
+    var otherPicked = raw.checks.ai_uses.indexOf("other") !== -1;
+    flag("f-ai_uses", raw.checks.ai_uses.length > 0 && (!otherPicked || !!raw.aiOther.trim()));
     flag("f-ai_future", !!raw.radios.ai_future);
     flag("f-ai_feel", !!raw.radios.ai_feel);
     flag("f-coding", !!raw.radios.coding);
@@ -604,6 +624,7 @@
       words: raw.words.trim(),
       ai_freq: +raw.radios.ai_freq,
       ai_uses: raw.checks.ai_uses,
+      ai_uses_other: raw.checks.ai_uses.indexOf("other") !== -1 ? (raw.aiOther.trim() || null) : null,
       ai_future: +raw.radios.ai_future,
       ai_feel: +raw.radios.ai_feel,
       coding: +raw.radios.coding,
@@ -675,7 +696,8 @@
     var html = "<table style='border-collapse:collapse; font-size:0.95rem;'>" +
       row("name", name) +
       row("your words", p.words) +
-      row("AI use", p.ai_freq + "/5 — " + p.ai_uses.map(function (u) { return LABELS[u]; }).join(", ")) +
+      row("AI use", p.ai_freq + "/5 — " + p.ai_uses.map(function (u) { return LABELS[u]; }).join(", ") +
+        (p.ai_uses_other ? " (" + p.ai_uses_other + ")" : "")) +
       row("AI in 10 yrs", p.ai_future + "/5, feeling " + p.ai_feel + "/5") +
       row("coding", p.coding + "/5") +
       row("contributing", p.roles.map(function (r) { return LABELS[r]; }).join(" + ")) +
