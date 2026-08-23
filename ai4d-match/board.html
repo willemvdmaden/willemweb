@@ -49,6 +49,7 @@
       </div>
       <h1>The algorithm is <em>thinking</em><span class="thinking-dots"><span>.</span><span>.</span><span>.</span></span></h1>
       <p class="theater-sub"><span id="theater-count">…</span> answers · 11 signals · 200 restarts</p>
+      <p class="theater-sub theater-status" id="theater-status">warming up…</p>
       <p class="theater-sub muted">Groups drop later in the session. Come back then.</p>
     </div>
   </div>
@@ -201,6 +202,27 @@
   // ==========================================================================
   var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   var phase = "collecting";
+
+  var STATUS_LINES = [
+    "reading 72 self-descriptions",
+    "normalizing 11 signals",
+    "weighing schedule overlap",
+    "maximizing coding spread",
+    "trying another 200 shuffles",
+    "checking the loud/quiet balance",
+    "escaping a local optimum",
+    "re-scoring the draft groups",
+    "not happy yet — swapping two people",
+    "consulting the dictionary",
+    "ignoring your vibe (or is it?)"
+  ];
+  var statusIdx = 0;
+  setInterval(function () {
+    var el = document.getElementById("theater-status");
+    if (!el) return;
+    statusIdx = (statusIdx + 1) % STATUS_LINES.length;
+    el.textContent = STATUS_LINES[statusIdx] + "…";
+  }, 2800);
 
   function showPhase() {
     document.getElementById("view-collecting").classList.toggle("hidden", phase !== "collecting");

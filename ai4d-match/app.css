@@ -406,15 +406,19 @@ input.invalid, textarea.invalid, .invalid-box { border-color: var(--red) !import
 }
 .vbar-x { font-family: var(--mono); font-size: 0.8rem; color: var(--ink-soft); }
 .vbar-anchors {
-  display: flex;
-  justify-content: space-between;
+  /* mirror the histogram's 5 columns so each anchor centers under its
+     end bin, exactly like the numbers above it */
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--ink-soft);
-  margin-top: 6px;
-  gap: 12px;
+  margin-top: 2px;
 }
-.vbar-anchors .anchor-right { text-align: right; }
+.vbar-anchors span { white-space: nowrap; }
+.vbar-anchors span:first-child { grid-column: 1; justify-self: center; }
+.vbar-anchors .anchor-right { grid-column: 5; justify-self: center; }
 
 /* "The algorithm is thinking" theater (board, phase = matching) */
 .theater {
@@ -428,6 +432,12 @@ input.invalid, textarea.invalid, .invalid-box { border-color: var(--red) !import
 }
 .theater h1 { font-size: clamp(1.8rem, 5vw, 3.4rem); }
 .theater-sub { font-family: var(--mono); font-weight: 700; font-size: 1.05rem; margin: 0; }
+.theater-status {
+  font-style: italic;
+  color: var(--ink-soft);
+  animation: status-fade 2.8s ease-in-out infinite;
+}
+@keyframes status-fade { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
 .theater-emoji { display: flex; gap: 14px; font-size: 2rem; margin-bottom: 12px; }
 .theater-emoji span {
   display: inline-block;
