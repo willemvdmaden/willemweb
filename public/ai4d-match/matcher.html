@@ -97,7 +97,7 @@
           <input type="text" id="seed" value="ai4d-2026">
         </div>
         <div style="align-self:end;">
-          <button class="btn btn-block" id="run-btn">Run ▸</button>
+          <button class="btn btn-block" id="run-btn">⚙ Match groups</button>
         </div>
       </div>
       <p class="muted small">Same seed + same weights ⇒ same groups, every time. 200 restarts of a swap hill-climb; a couple of seconds at this class size.</p>
@@ -780,7 +780,7 @@
       var seed = $("seed").value.trim() || "ai4d";
       var res = runMatch(state.students, weights, balance, strategy, seed, 200);
       btn.disabled = false;
-      btn.textContent = "Run ▸";
+      btn.textContent = "⚙ Match groups";
       if (!res) return;
       state.proposal = res.partition.map(function (g, i) {
         return { label: "Group " + (i + 1), ids: g.map(function (m) { return m.roster_id; }) };
