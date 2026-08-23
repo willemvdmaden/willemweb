@@ -78,12 +78,7 @@
     </div>
 
     <div class="card" id="match-controls-card">
-      <h2>Weights &amp; knobs</h2>
-      <div id="weight-rows"></div>
-      <label style="display:flex; align-items:center; gap:10px; padding:10px 0; font-weight:700; font-size:0.92rem;">
-        <input type="checkbox" id="balance-toggle" checked style="width:22px; height:22px; accent-color:var(--ink);">
-        Balance penalty on “in discussions I…” (no all-loud or all-quiet groups)
-      </label>
+      <h2>Matching</h2>
       <div class="match-controls-grid">
         <div>
           <label class="field-label" for="strategy">Remainder strategy</label>
@@ -101,6 +96,12 @@
         </div>
       </div>
       <p class="muted small">Same seed + same weights ⇒ same groups, every time. 200 restarts of a swap hill-climb; a couple of seconds at this class size.</p>
+      <h3 style="margin-top:20px;">Weights</h3>
+      <div id="weight-rows"></div>
+      <label style="display:flex; align-items:center; gap:10px; padding:10px 0; font-weight:700; font-size:0.92rem;">
+        <input type="checkbox" id="balance-toggle" checked style="width:22px; height:22px; accent-color:var(--ink);">
+        Balance penalty on “in discussions I…” (no all-loud or all-quiet groups)
+      </label>
     </div>
 
     <div class="card hidden" id="proposal-card">
