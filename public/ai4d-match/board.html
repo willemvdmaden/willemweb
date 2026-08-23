@@ -68,8 +68,8 @@
   <div class="reset-modal hidden" id="reset-modal">
     <div class="card">
       <h2>Clear all data?</h2>
-      <p class="muted small">Deletes every submission and all groups, and puts the board back to collecting. For after rehearsals. Needs the <strong>secret key</strong> (sb_secret_…) — it is used once, never stored.</p>
-      <input type="password" id="reset-key" placeholder="sb_secret_…" autocomplete="off">
+      <p class="muted small">Deletes every submission and all groups, and puts the board back to collecting. For after rehearsals. Needs the <strong>legacy service_role key</strong> (eyJ…, from the Legacy API keys tab — sb_secret keys don't work in browsers). Used once, never stored.</p>
+      <input type="password" id="reset-key" placeholder="service_role key (eyJ…)" autocomplete="off">
       <input type="text" id="reset-word" placeholder='Type RESET to confirm' autocomplete="off" style="margin-top:8px;">
       <p class="field-error" id="reset-error">That didn't work — check the key and the confirmation word.</p>
       <div style="margin-top:12px; display:flex; gap:10px;">

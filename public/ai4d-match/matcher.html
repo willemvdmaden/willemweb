@@ -17,9 +17,9 @@
 <div id="gate" class="gate">
   <div class="card">
     <h1>Matcher</h1>
-    <p class="muted">Instructor view. Paste the <strong>secret key</strong> (<code>sb_secret_…</code>, called <em>service_role</em> on older dashboards) from Supabase → Project Settings → API keys. It stays in this tab's sessionStorage and nowhere else.</p>
-    <input type="password" id="gate-key" placeholder="sb_secret_… / service_role key" autocomplete="off">
-    <p class="field-error" id="gate-error">That key was rejected. Copy the secret key (sb_secret_…, not the publishable one) and try again.</p>
+    <p class="muted">Instructor view. Paste the <strong>legacy service_role key</strong> (the long <code>eyJ…</code> one): Supabase → Project Settings → API keys → <em>Legacy API keys</em> tab. The newer <code>sb_secret_…</code> keys will NOT work — Supabase blocks them in browsers. The key stays in this tab's sessionStorage and nowhere else.</p>
+    <input type="password" id="gate-key" placeholder="service_role key (eyJ…)" autocomplete="off">
+    <p class="field-error" id="gate-error">That key was rejected. Use the LEGACY service_role key (starts with eyJ, under “Legacy API keys”) — sb_secret keys are blocked in browsers, and the publishable key has no power here.</p>
     <div style="margin-top:14px;">
       <button class="btn" id="gate-btn">Unlock →</button>
     </div>
