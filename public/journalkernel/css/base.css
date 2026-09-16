@@ -221,6 +221,7 @@ input::placeholder, textarea::placeholder { color: var(--jk-fainter); }
 .auth-card .card-header p { font-size: 14px; color: var(--jk-muted); }
 .auth-card input { padding: 12px 14px; font-size: 15px; }
 .auth-foot { text-align: center; margin-top: 18px; }
+.auth-foot-note { font-size: 13px; color: var(--jk-muted); }
 .back-link { text-align: center; margin-top: 24px; }
 .back-link a {
     color: var(--jk-faint);

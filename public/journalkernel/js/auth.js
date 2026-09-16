@@ -107,7 +107,7 @@
 
     function friendlyAuthError(error) {
         var m = (error && error.message) ? String(error.message) : '';
-        if (/invalid login credentials/i.test(m)) return 'Invalid email or password.';
+        if (/invalid login credentials/i.test(m)) return 'Invalid name or password.';
         if (/email not confirmed/i.test(m)) return 'This account has not finished setup yet — use the invite link from your email, or "Forgot password?" below.';
         if (/rate limit|too many/i.test(m)) return 'Too many attempts — wait a minute and try again.';
         if (/auth session missing/i.test(m)) return 'Your link has expired. Go to the login page and use "Forgot password?" to get a new one.';
@@ -165,6 +165,16 @@
     function currentUser() { return cachedUser; }
 
     // ---------- auth actions ----------
+
+    /**
+     * Sign-in is by first name; Supabase accounts are keyed by a synthetic address derived from
+     * it. The domain is a convention, not a mailbox — nothing is ever sent there — and it must
+     * match the addresses the 4 accounts were created with AND the ALLOWED_EMAILS secret.
+     */
+    var NAME_DOMAIN = 'journalkernel.willemvandermaden.com';
+    function toEmail(name) {
+        return name.trim().toLowerCase().replace(/\s+/g, '') + '@' + NAME_DOMAIN;
+    }
 
     function signIn(email, password) {
         return client.auth.signInWithPassword({ email: email, password: password })
@@ -266,12 +276,12 @@
         if (form) {
             form.addEventListener('submit', function (e) {
                 e.preventDefault();
-                var email = (document.getElementById('email').value || '').trim();
+                var name = (document.getElementById('name').value || '').trim();
                 var password = document.getElementById('password').value || '';
-                if (!email || !password) return;
+                if (!name || !password) return;
                 if (loginBtn) { loginBtn.disabled = true; loginBtn.textContent = 'Logging in…'; }
                 if (msg) msg.hidden = true;
-                signIn(email, password).then(function (user) {
+                signIn(toEmail(name), password).then(function (user) {
                     goto(mustSetPassword(user) ? './set-password.html' : './index.html');
                 }).catch(function (err) {
                     flash(msg, err.message, 'error');
