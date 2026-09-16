@@ -876,6 +876,128 @@
     padding-left: 20px;
 }
 
+/* ============= FEEDBACK PROBE CARD ============= */
+/* One small question after a save (Requisite feedback probe, JK.probe).
+   Same paper language as the floating reflection card; fixed bottom-right
+   so it lands after the save feedback and never sits over the editor.
+   One tap answers; the × dismisses. */
+.probe-card {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 900;
+    width: 300px;
+    max-width: calc(100vw - 48px);
+    background: var(--jk-card-alt);
+    border: 1px solid #E8DFC8;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+    padding: 14px 18px 16px;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+}
+
+.probe-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.probe-card-close {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    padding: 0;
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--jk-fainter);
+    cursor: pointer;
+    transition: all 0.12s ease;
+}
+
+.probe-card-close:hover {
+    background: #faf8f1;
+    border-color: #d4cec6;
+    color: var(--jk-ink);
+}
+
+.probe-card-lead {
+    font-size: 12px;
+    font-style: italic;
+    color: var(--jk-fainter);
+    line-height: 1.45;
+    margin-bottom: 4px;
+    padding-right: 20px;
+}
+
+.probe-card-question {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--jk-ink);
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    margin-bottom: 12px;
+    padding-right: 20px;
+}
+
+.probe-card-answers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.probe-answer-btn {
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--jk-ink-soft);
+    background: var(--jk-card);
+    border: 1px solid var(--jk-border-strong);
+    border-radius: 999px;
+    padding: 5px 11px;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.probe-answer-btn:hover {
+    color: var(--jk-accent);
+    border-color: var(--jk-accent);
+}
+
+/* Numbered scales (e.g. the SEQ's seven): equal-width buttons in one row,
+   with the two scale anchors underneath. */
+.probe-card-answers.numbered {
+    flex-wrap: nowrap;
+}
+
+.probe-card-answers.numbered .probe-answer-btn {
+    flex: 1;
+    text-align: center;
+    padding: 5px 0;
+    min-width: 28px;
+}
+
+.probe-card-anchors {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 6px;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    color: var(--jk-fainter);
+}
+
 /* ============= RESPONSIVE ============= */
 @media (max-width: 1200px) {
     .left-sidebar {

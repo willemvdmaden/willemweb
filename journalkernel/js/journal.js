@@ -909,6 +909,12 @@
         showSaveFeedback();
         renderEntriesList();
 
+        // Feedback probe: after a successful save, ask whether there is one
+        // question worth this moment. JK.probe shows its card after the save
+        // feedback, off to the side; no journal content is ever sent, and
+        // failures are silent.
+        if (window.JK.probe) window.JK.probe.afterSave();
+
         // Post-save kernel-memory update — fire-and-forget, silent on
         // failure. Deliberate deviation from the Flask reference: when the
         // memory toggle is OFF we skip the call ENTIRELY (the pill promises
@@ -1254,6 +1260,10 @@
         restoreSidebarState();
         renderEntriesList();
         wireEvents();
+
+        // Feedback probe: announce the app booted (powers Requisite's
+        // "installed" health check). Once per page load; failures silent.
+        if (window.JK.probe) window.JK.probe.hello();
 
         var params = new URLSearchParams(window.location.search);
         var isNewEntry = params.get('new') === 'true';
