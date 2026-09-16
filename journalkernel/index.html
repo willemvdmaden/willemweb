@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal Kernel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/journal.css">
+</head>
+
+<body class="page-journal">
+
+    <!-- Left Sidebar (Entries) — collapsed by default; journal.js restores the
+         saved preference. -->
+    <div class="left-sidebar collapsed" id="entriesSidebar">
+        <div class="left-sidebar-header">
+            <span class="left-sidebar-title">journal entries</span>
+            <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="Collapse" type="button">‹</button>
+        </div>
+
+        <!-- New Entry Button -->
+        <button class="new-entry-btn" id="newEntryBtn" type="button">+ New Entry</button>
+
+        <!-- Entries List -->
+        <div class="entries-list" id="entriesList">
+            <!-- Entries are rendered here by journal.js -->
+        </div>
+    </div>
+
+    <!-- Left Sidebar Toggle — opens/closes the journal-entries history. -->
+    <div class="left-sidebar-toggle" id="sidebarToggle">
+        <span class="left-sidebar-toggle-icon">
+            <span class="icon-collapse">◀</span>
+            <span class="icon-expand">☰</span>
+        </span>
+    </div>
+
+    <!-- Top navigation (fixed, top-right): three separate groups.
+         1) Mode pills: PAJ / Open / Auto (the journaling modes).
+         2) Memory toggle: across-entries memory on/off for the current entry.
+         3) Nav icons: Home and Log out. -->
+    <div class="top-nav">
+        <div class="variant-selector mode-pills" id="modePills">
+            <button type="button" class="variant-btn" data-variant="paj" title="Themed prompt journaling">PAJ</button>
+            <button type="button" class="variant-btn" data-variant="open" title="Free-form journaling">Open</button>
+            <button type="button" class="variant-btn" data-variant="auto" title="Free-form, explanations auto-shown">Auto</button>
+        </div>
+
+        <button type="button" class="memory-toggle" id="memoryToggle"
+                title="When on, the kernel uses what it remembers about you across entries. When off, you write this entry in isolation.">
+            <span class="memory-dot" id="memoryDot"></span>
+            <span id="memoryToggleLabel">Memory</span>
+        </button>
+
+        <div class="nav-icons">
+            <a href="./home.html" class="nav-icon" title="Home">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9.5L12 3l9 6.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/>
+                </svg>
+            </a>
+            <button type="button" class="nav-icon" id="logoutBtn" title="Log out">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <div class="header">
+                <h1><span class="wm-journal">journal</span> <span class="wm-kernel">kernel</span></h1>
+            </div>
+
+            <!-- Flex container for journal + floating reflection card -->
+            <div class="content-wrapper" id="contentWrapper">
+                <div class="journal-card" id="journalCard">
+                    <div class="journal-meta">
+                        <div class="date-display" id="currentDate"></div>
+                        <div class="word-count"><span id="wordCount">0</span> words</div>
+                    </div>
+
+                    <!-- Prompt Display Area (PAJ mode) -->
+                    <div class="prompt-display-area" id="pajPromptArea">
+                        <div class="prompt-select-row">
+                            <select id="pajPromptSelect" class="prompt-dropdown">
+                                <option value="" disabled selected>Please select your journaling prompt</option>
+                                <option value="three_good_things">Three good things</option>
+                                <option value="personal_strength">Personal strength</option>
+                                <option value="meaningful_activity">Meaningful activity</option>
+                                <option value="kind_act">Kind act</option>
+                                <option value="gratitude">Gratitude</option>
+                            </select>
+                        </div>
+                        <p class="prompt-text" id="pajPromptText"></p>
+                    </div>
+
+                    <!-- Open Prompt Area (Open / Auto modes) -->
+                    <div class="prompt-display-area" id="openPromptArea" hidden>
+                        <p class="open-prompt-text" id="openPromptText">Write about whatever's on your mind today.</p>
+                    </div>
+
+                    <!-- The ruled-paper editor. Locked until a PAJ prompt is
+                         chosen (journal.js flips contenteditable). -->
+                    <div class="journal-textarea" id="editor" contenteditable="false"
+                        data-placeholder="To start writing, select a prompt above" spellcheck="true"></div>
+
+                    <div class="journal-actions">
+                        <button class="journal-action-btn wipe-action" id="wipeBtn" title="Clear entry" type="button">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                <line x1="10" y1="11" x2="10" y2="17"/>
+                                <line x1="14" y1="11" x2="14" y2="17"/>
+                            </svg>
+                        </button>
+                        <button class="journal-action-btn save-action" id="saveBtn" title="Save entry" type="button">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                <polyline points="17 21 17 13 7 13 7 21"/>
+                                <polyline points="7 3 7 8 15 8"/>
+                            </svg>
+                        </button>
+                        <div class="save-feedback" id="saveFeedback">Entry saved</div>
+                    </div>
+
+                    <!-- Floating reflection card (v2 delivery) — positioned at
+                         the caret line by journal.js; hidden until a
+                         suggestion arrives. -->
+                    <div class="floating-reflection-card" id="marginFloatingCard"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+    <script src="./js/supabase-init.js"></script>
+    <script src="./js/auth.js"></script>
+    <script src="./js/util.js"></script>
+    <script src="./js/prompts.js"></script>
+    <script src="./js/store.js"></script>
+    <script src="./js/ai.js"></script>
+    <script src="./js/journal.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home · journal kernel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/base.css">
+</head>
+
+<body class="page-home">
+    <div class="wrap">
+        <div class="topbar">
+            <div class="brand"><span class="wm-journal">journal</span> <span class="wm-kernel">kernel</span></div>
+            <div class="topbar-links">
+                <a href="./index.html">← Editor</a><span class="sep">·</span><a href="./entries.html">Entries</a><span class="sep">·</span><button type="button" class="link-plain" id="logoutBtn">Log out</button>
+            </div>
+        </div>
+
+        <h1>Home</h1>
+        <div class="sub" id="homeGreeting">Manage your memory, account, and privacy here.</div>
+
+        <div class="flash" id="homeMessage" hidden></div>
+
+        <!-- Kernel memory -->
+        <div class="card">
+            <h2>What the kernel remembers</h2>
+            <div class="hint">After you save an entry, the kernel quietly updates these notes with durable things about you. Edit or clear them any time, they are yours.</div>
+            <label class="field-label" for="memoryNotes">Memory notes</label>
+            <textarea id="memoryNotes" maxlength="1500"
+                placeholder="Nothing yet. Save a few entries and the kernel will start keeping notes here."></textarea>
+            <div class="toggle-row">
+                <input type="checkbox" id="memoryDefault" checked>
+                <label for="memoryDefault">Use across-entries memory by default (you can still toggle it per entry while writing)</label>
+            </div>
+            <button class="btn mt" type="button" id="saveMemoryBtn">Save memory settings</button>
+        </div>
+
+        <!-- Account: change password -->
+        <div class="card">
+            <h2>Account</h2>
+            <div class="hint">Change your password.</div>
+            <form id="changePasswordForm">
+                <div class="row">
+                    <div class="group">
+                        <label class="field-label" for="newPassword">New password</label>
+                        <input type="password" id="newPassword" autocomplete="new-password" minlength="8" required>
+                        <div class="field-hint">At least 8 characters.</div>
+                    </div>
+                    <div class="group">
+                        <label class="field-label" for="newPasswordConfirm">Confirm new password</label>
+                        <input type="password" id="newPasswordConfirm" autocomplete="new-password" minlength="8" required>
+                    </div>
+                </div>
+                <button class="btn" type="submit" id="changePasswordBtn">Update password</button>
+            </form>
+        </div>
+
+        <!-- Your data -->
+        <div class="card">
+            <h2>Your data</h2>
+            <div class="hint">
+                Entries, reflections, and kernel memory are stored only in this
+                browser — nothing journal-related ever touches a server. That also
+                means this browser is the only copy: clearing site data deletes it,
+                private windows don't keep it, and Safari deletes script-written
+                storage for sites you haven't visited in 7 days. Download a backup
+                now and then.
+            </div>
+            <button class="btn btn-secondary" type="button" id="downloadDataBtn">Download my journal (JSON)</button>
+        </div>
+
+        <!-- Danger zone -->
+        <div class="card danger-zone">
+            <h2>Clear this browser's journal data</h2>
+            <div class="hint">
+                Permanently deletes every entry, reflection, and the kernel memory
+                stored in this browser for your account. Since your journal lives
+                only here, this cannot be undone — download a backup first.
+            </div>
+            <button class="btn btn-danger" type="button" id="clearDataBtn">Clear this browser's journal data</button>
+        </div>
+    </div>
+
+    <script src="./js/config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+    <script src="./js/supabase-init.js"></script>
+    <script src="./js/auth.js"></script>
+    <script src="./js/util.js"></script>
+    <script src="./js/store.js"></script>
+    <script src="./js/home.js"></script>
+</body>
+
+</html>
