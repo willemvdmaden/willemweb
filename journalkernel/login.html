@@ -19,16 +19,17 @@
         <div class="auth-card">
             <div class="card-header">
                 <h1>Welcome back</h1>
-                <p>Access is by invitation only.</p>
+                <p>Sign in with your name.</p>
             </div>
 
             <div class="flash error" id="authMessage" hidden></div>
 
             <form id="loginForm">
                 <div class="form-group">
-                    <label class="field-label" for="email">Email</label>
-                    <input type="email" id="email" name="email" placeholder="Enter your email"
-                           autocomplete="email" required autofocus>
+                    <label class="field-label" for="name">Name</label>
+                    <input type="text" id="name" name="name" placeholder="Your name"
+                           autocomplete="username" autocapitalize="none" spellcheck="false"
+                           required autofocus>
                 </div>
 
                 <div class="form-group">
@@ -41,7 +42,9 @@
             </form>
 
             <div class="auth-foot">
-                <button type="button" class="link-btn" id="forgotBtn">Forgot password?</button>
+                <!-- Sign-in is by name; the mapped addresses receive no mail, so an email reset
+                     flow would dead-end. Resets are an admin action instead. -->
+                <span class="auth-foot-note">Forgot your password? Ask Willem to reset it.</span>
             </div>
         </div>
 
