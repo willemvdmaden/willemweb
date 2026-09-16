@@ -1,0 +1,46 @@
+# Pulls the journal kernel app from its own repo into the served site, daily.
+#
+# Deliberately narrow: this workflow touches ONLY the journalkernel/ folder of the
+# gh-pages branch. The site itself keeps its local-build + gh-pages push flow — the
+# decision to remove Actions-driven site deploys stands; this is not a site deploy.
+#
+# 07:00 UTC = 09:00 Copenhagen in summer (08:00 in winter — cron has no timezone).
+# The "Run workflow" button covers the impatient case.
+name: Sync journal kernel
+
+on:
+  schedule:
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out served site (gh-pages)
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Fetch journal kernel
+        uses: actions/checkout@v4
+        with:
+          repository: willemvdmaden/journalkernel-web
+          path: .journalkernel-src
+
+      - name: Copy app into place
+        run: |
+          rsync -a --delete .journalkernel-src/app/ journalkernel/
+          rm -rf .journalkernel-src
+
+      - name: Commit if changed
+        run: |
+          git config user.name "journalkernel-sync"
+          git config user.email "actions@users.noreply.github.com"
+          git add journalkernel
+          git diff --cached --quiet && echo "No changes." && exit 0
+          git commit -m "Sync journal kernel from willemvdmaden/journalkernel"
+          git push
