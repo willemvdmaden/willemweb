@@ -108,7 +108,9 @@
     function friendlyAuthError(error) {
         var m = (error && error.message) ? String(error.message) : '';
         if (/invalid login credentials/i.test(m)) return 'Invalid name or password.';
-        if (/email not confirmed/i.test(m)) return 'This account has not finished setup yet — use the invite link from your email, or "Forgot password?" below.';
+        // No mailbox exists behind the account addresses, so telling anyone to check their email
+        // for an invite link is a dead end. The only cure is the operator ticking Auto Confirm.
+        if (/email not confirmed/i.test(m)) return 'This account was created without being confirmed, so it cannot be used yet. Ask Willem to re-create it with "Auto Confirm User" ticked.';
         if (/rate limit|too many/i.test(m)) return 'Too many attempts — wait a minute and try again.';
         if (/auth session missing/i.test(m)) return 'Your link has expired. Go to the login page and use "Forgot password?" to get a new one.';
         if (/(should be different|different from the old)/i.test(m)) return 'The new password must be different from your current one.';
@@ -173,7 +175,11 @@
      */
     var NAME_DOMAIN = 'journalkernel.willemvandermaden.com';
     function toEmail(name) {
-        return name.trim().toLowerCase().replace(/\s+/g, '') + '@' + NAME_DOMAIN;
+        var v = name.trim().toLowerCase().replace(/\s+/g, '');
+        // Anyone who has seen the account's address types the whole thing, and appending the domain
+        // to an address that already carries one built 'willem@…com@…com' and answered with a flat
+        // "invalid name or password" — a dead end with no way to see the cause.
+        return v.indexOf('@') === -1 ? v + '@' + NAME_DOMAIN : v;
     }
 
     function signIn(email, password) {
@@ -281,10 +287,18 @@
                 if (!name || !password) return;
                 if (loginBtn) { loginBtn.disabled = true; loginBtn.textContent = 'Logging in…'; }
                 if (msg) msg.hidden = true;
-                signIn(toEmail(name), password).then(function (user) {
+                // The address is shown on failure on purpose. Supabase answers "invalid
+                // credentials" identically for a wrong password and an account that does not
+                // exist, so without naming what was tried there is no way to tell a typo in the
+                // name from a typo in the account, and nothing on screen can be acted on.
+                var attempted = toEmail(name);
+                signIn(attempted, password).then(function (user) {
                     goto(mustSetPassword(user) ? './set-password.html' : './index.html');
                 }).catch(function (err) {
-                    flash(msg, err.message, 'error');
+                    var hint = /invalid name or password/i.test(err.message)
+                        ? ' Tried ' + attempted + '.'
+                        : '';
+                    flash(msg, err.message + hint, 'error');
                     if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = 'Log in'; }
                 });
             });
