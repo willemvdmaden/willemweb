@@ -4,16 +4,26 @@
 // the function forwards four ops to Requisite's probe API server-side, using
 // its own REQUISITE_URL + REQUISITE_PROBE_KEY secrets. This client never
 // holds the Requisite URL or key, and never talks to Requisite directly:
-//   probe_hello    fired once per journal-page load ("installed" health ping)
-//   probe_next     fired after a successful entry save ("ask something now?")
-//   probe_answer   one tapped answer (numeric value)
-//   probe_dismiss  the card's × (recorded as dismissed:true, no value)
+//   probe_hello     fired once per journal-page load ("installed" health ping)
+//   probe_next      fired after a successful entry save ("ask something now?")
+//   probe_answer    one tapped answer (numeric value)
+//   probe_dismiss   the card's × (recorded as dismissed:true, no value)
+//   probe_direction free text the journaler typed INTO THE SUGGESTION BOX
 //
-// Privacy: NO journal content ever rides a probe op — question ids and
-// numeric answer values only (the card renders only the options the API
-// returns; there is no free-text input). Identity is a pseudonymous id the
-// Edge Function derives (SHA-256 of the Supabase user id); this file sends
-// nothing identifying at all.
+// Privacy: NO journal content ever rides a probe op. That rule is unchanged
+// and is the one that matters; what changed on 2026-09-18 is that it used to
+// be enforced by a blunter one — "no free text at all" — which also ruled out
+// the journaler telling us anything in their own words.
+//
+// The distinction the blunter rule could not make: journal text is written
+// FOR THEMSELVES and we happen to process it, while the suggestion box is
+// written TO US, deliberately, in a field that says so and starts empty every
+// time. Only the second travels. Nothing reads the editor, the entry store or
+// the clipboard; the only string that can leave is one typed into that box
+// and then sent by pressing Send.
+//
+// Identity is a pseudonymous id the Edge Function derives (SHA-256 of the
+// Supabase user id); this file sends nothing identifying at all.
 //
 // Failure model: feedback is optional, journaling never breaks. Everything
 // here is fire-and-forget; when the function reports {off:true} (probe not
@@ -21,7 +31,14 @@
 //
 // UX rules (enforced here): at most one card per save; the card appears
 // AFTER the save feedback, fixed bottom-right — never over the editor and
-// never grabbing focus; answer or dismiss removes it.
+// never grabbing focus; dismiss removes it, and answering turns it into the
+// suggestion box rather than closing it.
+//
+// The suggestion box is also reachable on its own, from the top-nav button,
+// with no question in front of it and no eligibility gate at all — that is
+// what makes it a standing channel rather than a reward for answering. The
+// two paths post the same op; the only difference is whether questionId is
+// filled in.
 (function () {
     'use strict';
     window.JK = window.JK || {};
@@ -110,6 +127,19 @@
         send(body);
     }
 
+    /** One suggestion. `ask` is null when it came from the standing surface —
+     *  a direction belongs to no question, and saying which one they had just
+     *  answered is context upstream, never a parent. */
+    function sendDirection(text, ask) {
+        var body = { op: 'probe_direction', body: String(text).slice(0, 2000) };
+        if (ask && ask.questionId) body.questionId = ask.questionId;
+        if (testMode) body.test = true;
+        // Not fire-and-forget, unlike every other op here. Somebody typed this
+        // on purpose and is entitled to know it did not arrive; the caller
+        // renders the difference.
+        return postJson(body);
+    }
+
     function sendDismiss(ask) {
         var body = {
             op: 'probe_dismiss',
@@ -118,6 +148,130 @@
         };
         if (testMode) body.test = true;
         send(body);
+    }
+
+    /**
+     * Turn the card into the suggestion box.
+     *
+     * The same card, rewritten in place, rather than a second card appearing:
+     * a new panel after an answer reads as a second interruption, and this is
+     * meant to read as the other half of the one they already chose to have.
+     *
+     * `ask` may be null — from the top-nav button there is no question behind
+     * it at all, and the copy changes accordingly: after an answer this is a
+     * follow-on, and on its own it has to say what it is for.
+     */
+    function showSuggestionStep(card, ask) {
+        // Everything belonging to the question goes. The lead isolated THAT
+        // question, the scale is answered, the anchors describe a row that is
+        // no longer on screen.
+        ['probe-card-lead', 'probe-card-question', 'probe-card-answers', 'probe-card-anchors'].forEach(
+            function (cls) {
+                var el = card.querySelector('.' + cls);
+                if (el) el.parentNode.removeChild(el);
+            },
+        );
+
+        var q = document.createElement('div');
+        q.className = 'probe-card-question';
+        q.textContent = ask
+            ? 'Thanks. Anything we should be looking at?'
+            : 'What should we be looking at?';
+        card.appendChild(q);
+
+        var hint = document.createElement('div');
+        hint.className = 'probe-card-hint';
+        hint.textContent = ask
+            ? 'Whatever you think deserves attention — it goes to Willem, not to the model.'
+            : 'Something that bothers you, something you wish it did, something worth measuring. It goes to Willem, not to the model.';
+        card.appendChild(hint);
+
+        var box = document.createElement('textarea');
+        box.className = 'probe-card-text';
+        box.rows = 3;
+        box.maxLength = 2000;
+        box.placeholder = 'One line is plenty';
+        box.setAttribute('aria-label', 'What should we be looking at?');
+        card.appendChild(box);
+
+        var status = document.createElement('div');
+        status.className = 'probe-card-status';
+        card.appendChild(status);
+
+        var row = document.createElement('div');
+        row.className = 'probe-card-send';
+
+        var send = document.createElement('button');
+        send.type = 'button';
+        send.className = 'probe-send-btn';
+        send.textContent = 'Send';
+        row.appendChild(send);
+
+        // Its own Skip, rather than relabelling the ×. The cross closes the
+        // card and must keep meaning that at every step; a control that
+        // changes what it does mid-card is how somebody closes by accident.
+        var skip = document.createElement('button');
+        skip.type = 'button';
+        skip.className = 'probe-skip-btn';
+        skip.textContent = ask ? 'Skip' : 'Close';
+        skip.addEventListener('click', function () { removeCard(true); });
+        row.appendChild(skip);
+
+        card.appendChild(row);
+
+        var sending = false;
+        send.addEventListener('click', function () {
+            var text = (box.value || '').trim();
+            if (!text || sending) return;
+            sending = true;
+            send.disabled = true;
+            send.textContent = 'Sending';
+            status.textContent = '';
+            sendDirection(text, ask).then(function () {
+                status.className = 'probe-card-status ok';
+                status.textContent = 'Sent. Thank you.';
+                setTimeout(function () { removeCard(true); }, 1200);
+            }).catch(function () {
+                // Said out loud, unlike every other probe failure. The rest are
+                // things we asked for and can ask for again; this is something
+                // they chose to write, and silently dropping it would be the
+                // app pretending to have listened.
+                sending = false;
+                send.disabled = false;
+                send.textContent = 'Send';
+                status.className = 'probe-card-status err';
+                status.textContent = 'That did not send. Try again in a moment.';
+            });
+        });
+
+        box.focus();
+    }
+
+    /** The standing surface: the suggestion box with no question in front of
+     *  it, on demand, subject to no eligibility rule whatsoever. */
+    function openSuggestion() {
+        removeCard(false);
+        var card = document.createElement('div');
+        card.className = 'probe-card';
+        card.id = 'probeCard';
+        currentAsk = null;
+
+        var close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'probe-card-close';
+        close.setAttribute('aria-label', 'Close');
+        close.textContent = '\u00d7';
+        close.addEventListener('click', function () { removeCard(true); });
+        card.appendChild(close);
+
+        var label = document.createElement('div');
+        label.className = 'card-section-label';
+        label.textContent = 'Suggest a direction';
+        card.appendChild(label);
+
+        document.body.appendChild(card);
+        showSuggestionStep(card, null);
+        requestAnimationFrame(function () { card.classList.add('visible'); });
     }
 
     /** Render the question card. All API-provided strings are set via
@@ -179,8 +333,12 @@
             btn.addEventListener('click', function () {
                 if (done) return;
                 done = true;
+                // The answer goes NOW, on its own row, before the suggestion
+                // step is offered. Deferring it until they resolve the second
+                // step would lose the rating for anyone who closes the tab
+                // there — and the rating is the part that was asked for.
                 sendAnswer(ask, a.value);
-                removeCard(true);
+                showSuggestionStep(card, ask);
             });
             row.appendChild(btn);
         });
@@ -242,8 +400,28 @@
         });
     }
 
+    // The standing surface wires itself, rather than waiting for journal.js to
+    // call it: the button has to work on a page where the probe is switched
+    // off upstream ({off:true}) as well as on one where it is on. Sending is
+    // what can fail there, and the box says so; not opening at all would look
+    // like a broken button.
+    function mountSuggestButton() {
+        var btn = document.getElementById('suggestBtn');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+            if (document.getElementById('probeCard')) removeCard(false);
+            openSuggestion();
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', mountSuggestButton);
+    } else {
+        mountSuggestButton();
+    }
+
     window.JK.probe = {
         hello: hello,
-        afterSave: afterSave
+        afterSave: afterSave,
+        openSuggestion: openSuggestion
     };
 })();

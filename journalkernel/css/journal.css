@@ -998,6 +998,92 @@
     color: var(--jk-fainter);
 }
 
+/* The suggestion step: the same card, rewritten after an answer, and the
+   whole card when it is opened from the top-nav button. Deliberately quieter
+   than the question above it — this is an invitation, not a request. */
+.probe-card-hint {
+    font-size: 11px;
+    color: var(--jk-fainter);
+    line-height: 1.45;
+    margin: -6px 0 10px;
+    padding-right: 20px;
+}
+
+.probe-card-text {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 58px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--jk-ink);
+    background: var(--jk-card);
+    border: 1px solid var(--jk-border-strong);
+    border-radius: 6px;
+    padding: 8px 10px;
+    transition: border-color 0.15s ease;
+}
+
+.probe-card-text:focus {
+    outline: none;
+    border-color: var(--jk-accent);
+}
+
+.probe-card-text::placeholder {
+    color: var(--jk-fainter);
+}
+
+.probe-card-send {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.probe-send-btn {
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--jk-card);
+    background: var(--jk-ink);
+    border: 1px solid var(--jk-ink);
+    border-radius: 999px;
+    padding: 5px 14px;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.probe-send-btn:hover { opacity: 0.85; }
+.probe-send-btn:disabled { opacity: 0.5; cursor: default; }
+
+.probe-skip-btn {
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--jk-fainter);
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.probe-skip-btn:hover { color: var(--jk-ink); }
+
+/* Said out loud, unlike the rest of the probe. Everything else here fails
+   silently because it is something we asked for and can ask for again; this
+   is something they chose to write. */
+.probe-card-status {
+    font-size: 11px;
+    line-height: 1.4;
+    margin-top: 6px;
+    min-height: 0;
+}
+
+.probe-card-status.ok  { color: var(--jk-fainter); }
+.probe-card-status.err { color: #9a3b32; }
+
 /* ============= RESPONSIVE ============= */
 @media (max-width: 1200px) {
     .left-sidebar {
