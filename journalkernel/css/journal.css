@@ -536,12 +536,22 @@
     opacity: 1;
 }
 
+/* "Entry saved" sits INSIDE the card, on the same row as the buttons.
+
+   It used to be `position: absolute; top: 100%`, which places it a full row
+   BELOW the actions — and since the actions are the last thing in the journal
+   card, that put the confirmation outside the card entirely, floating on the
+   page background. Reported by a journaler as "the entry saved was
+   misaligned", which it was.
+
+   The absolute positioning was there so the message could not shift the layout
+   when it appeared. A flex item does that just as well and stays in the card:
+   it is always in the flow, only its opacity changes, so the row never moves.
+   `order: -1` with `margin-right: auto` puts it at the left of the row without
+   reordering the markup, and the buttons stay where they were. */
 .save-feedback {
-    position: absolute;
-    right: 0;
-    top: 100%;
-    margin-top: 8px;
-    text-align: center;
+    order: -1;
+    margin-right: auto;
     font-size: 14px;
     font-weight: 500;
     color: #6B7280;
