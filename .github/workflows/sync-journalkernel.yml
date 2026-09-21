@@ -30,6 +30,9 @@ jobs:
         with:
           repository: willemvdmaden/journalkernel-web
           path: .journalkernel-src
+          # journalkernel-web is private; the default GITHUB_TOKEN is scoped to
+          # this repo only, so a cross-repo read needs its own token.
+          token: ${{ secrets.JOURNALKERNEL_TOKEN }}
 
       - name: Copy app into place
         run: |
