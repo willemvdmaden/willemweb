@@ -13,6 +13,10 @@ const ogImageURL = ogImage ? new URL(ogImage, Astro.site).href : new URL("/icon.
 import { ViewTransitions } from 'astro:transitions';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import '@fontsource-variable/sora';
+import '@fontsource/lora/400.css';
+import '@fontsource/lora/500.css';
+import '@fontsource/lora/400-italic.css';
 import '../styles/global.css';
 ---
 
@@ -57,7 +61,9 @@ import '../styles/global.css';
         },
         "url": "https://willemvandermaden.com",
         "sameAs": [
-          "https://scholar.google.com/citations?user=Willem+van+der+Maden"
+          "https://scholar.google.com/citations?user=_9ZGOcAAAAAJ",
+          "https://orcid.org/0000-0003-0245-1633",
+          "https://www.linkedin.com/in/wlavandermaden/"
         ],
         "description": description
       })} />
@@ -71,11 +77,6 @@ import '../styles/global.css';
       })} />
     )}
 
-    <!-- Fonts: Sora (headings) + Lora (body) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
-    
     <ViewTransitions />
   </head>
   <body class="flex flex-col min-h-screen">

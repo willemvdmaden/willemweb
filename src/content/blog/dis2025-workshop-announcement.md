@@ -2,7 +2,7 @@
 title: "Call for Participation: From Dead-Ends to Dialogue (DIS '25 Workshop)"
 description: "Announcing the Third Workshop on GenAI & Design Research at DIS 2025. Share your experiences overcoming semantic and practical stopsigns."
 pubDate: "2025-05-14"
-heroImage: "/square-workshop.png"
+heroImage: "/images/blog/dis2025-workshop.jpg"
 ---
 
 I'm excited to announce our Third Workshop on GenAI & Design Research, titled **From Dead-Ends to Dialogue**, as a companion to DIS '25 in Funchal, Portugal. The workshop dives into the "stopsigns"—those semantic and practical barriers that can impede thoughtful progress when integrating generative AI into design research.

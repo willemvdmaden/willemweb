@@ -30,7 +30,7 @@ export default {
                 border: '#E8E0D5',
             },
             fontFamily: {
-                heading: ['Sora', 'sans-serif'],
+                heading: ['"Sora Variable"', 'Sora', 'sans-serif'],
                 body: ['Lora', 'serif'],
             },
             maxWidth: {

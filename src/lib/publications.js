@@ -4,8 +4,8 @@ import * as path from 'path';
 // Simple BibTeX parser (avoiding npm dependency issues)
 function parseBibtex(content) {
     const entries = [];
-    // Match @type{key, ... }
-    const entryRegex = /@(\w+)\s*\{\s*([^,]+)\s*,([^@]*?)(?=\n\s*@|\n*$)/gs;
+    // Match @type{key, ... } up to the next entry header; field values may contain "@" (e.g. HEAL@CHI'25)
+    const entryRegex = /^@(\w+)\s*\{\s*([^,]+)\s*,([\s\S]*?)(?=^@\w+\s*\{|(?![\s\S]))/gm;
 
     let match;
     while ((match = entryRegex.exec(content)) !== null) {
@@ -51,6 +51,22 @@ function isPreprint(entry) {
         entry.fields.eprint ||
         (entry.fields.journal?.toLowerCase().includes('arxiv'));
 }
+
+// Workshop proposals and workshop papers: explicit `kind = {workshop}`, or "workshop" in title/venue
+function isWorkshopEntry(entry) {
+    if (entry.fields.kind) return entry.fields.kind.toLowerCase() === 'workshop';
+    const text = `${entry.fields.title || ''} ${entry.fields.booktitle || ''}`.toLowerCase();
+    return text.includes('workshop');
+}
+
+function getType(entry) {
+    if (isPreprint(entry)) return 'Preprint';
+    if (isWorkshopEntry(entry)) return 'Workshop';
+    return getTypeLabel(entry.type);
+}
+
+// Within a year: full papers first, then workshops, then preprints
+const typeRank = { 'Journal': 0, 'Conference': 0, 'Dissertation': 0, 'Workshop': 1, 'Preprint': 2 };
 
 // Check if entry is under review (should be filtered out)
 function isUnderReview(entry) {
@@ -99,6 +115,8 @@ function getVenue(entry) {
 
 // Get DOI or URL link
 function getLink(entry) {
+    // A self-hosted PDF (url starting with "/") wins over the DOI
+    if (entry.fields.url?.startsWith('/')) return entry.fields.url;
     if (entry.fields.doi) {
         const doi = entry.fields.doi;
         return doi.startsWith('http') ? doi : `https://doi.org/${doi}`;
@@ -148,7 +166,7 @@ export async function loadPublications() {
     const filtered = entries.filter(entry => !isUnderReview(entry));
     const publications = await Promise.all(filtered.map(async entry => ({
             key: entry.key,
-            type: isPreprint(entry) ? 'Preprint' : getTypeLabel(entry.type),
+            type: getType(entry),
             title: cleanTitle(entry.fields.title || ''),
             year: parseInt(entry.fields.year) || 0,
             authors: formatAuthors(entry.fields.author),
@@ -162,6 +180,9 @@ export async function loadPublications() {
     // Sort by year descending, then by title
     return publications.sort((a, b) => {
         if (b.year !== a.year) return b.year - a.year;
+        const rankCompare = (typeRank[a.type] ?? 1) - (typeRank[b.type] ?? 1);
+        if (rankCompare !== 0) return rankCompare;
+        if (a.featured !== b.featured) return a.featured ? -1 : 1;
         // Group by venue within same year
         const venueCompare = (a.venue || '').localeCompare(b.venue || '');
         if (venueCompare !== 0) return venueCompare;
@@ -173,10 +194,8 @@ export async function getFeaturedPublications(limit = 4) {
     const all = await loadPublications();
     // Prioritize: featured first, then journals & dissertations, skip workshops
     const isWorkshop = (p) => {
-        const t = p.title.toLowerCase();
         const v = p.venue.toLowerCase();
-        return t.includes('workshop') || v.includes('workshop') ||
-               v.includes('companion') || v.includes('extended abstracts');
+        return p.type === 'Workshop' || v.includes('companion') || v.includes('extended abstracts');
     };
     const featured = all.filter(p => p.featured && !isWorkshop(p));
     const journals = all.filter(p => !p.featured && p.type === 'Journal' && !isWorkshop(p));

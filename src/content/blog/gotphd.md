@@ -2,7 +2,7 @@
 title: "Designing Positive AI: Successfully Defended my PhD Thesis"
 description: "Reflecting on my journey exploring how to design AI systems that enhance human wellbeing"
 pubDate: "2024-05-08"
-heroImage: "/thesis.png"
+heroImage: "/images/blog/thesis.jpg"
 ---
 
 I'm thrilled to share that I successfully defended my PhD thesis on "Designing Positive AI" at TU Delft!

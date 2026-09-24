@@ -5,12 +5,32 @@ import { getPublicationsByYear } from '../lib/publications.js';
 
 const publicationsByYear = await getPublicationsByYear();
 const totalCount = publicationsByYear.reduce((sum, group) => sum + group.publications.length, 0);
+
+// ScholarlyArticle list for search engines
+const site = Astro.site?.href ?? 'https://willemvandermaden.com/';
+const scholarlyJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "itemListElement": publicationsByYear.flatMap(({ publications }) => publications).map((pub, i) => ({
+    "@type": "ListItem",
+    "position": i + 1,
+    "item": {
+      "@type": pub.type === 'Dissertation' ? "Thesis" : "ScholarlyArticle",
+      "headline": pub.title,
+      "author": pub.authors.split(', ').filter(a => a !== 'et al.').map(name => ({ "@type": "Person", "name": name })),
+      "datePublished": String(pub.year),
+      ...(pub.venue ? { "isPartOf": { "@type": "PublicationIssue", "name": pub.venue } } : {}),
+      ...(pub.link ? { "url": new URL(pub.link, site).href } : {}),
+    },
+  })),
+};
 ---
 
 <Layout 
   title="Publications" 
   description="Research publications on AI, Design, and Human-Computer Interaction by Willem van der Maden"
 >
+  <script type="application/ld+json" set:html={JSON.stringify(scholarlyJsonLd)} />
   <section class="container-content py-12 md:py-16">
     <h1 class="mb-10" data-scroll-reveal>Publications</h1>
     
