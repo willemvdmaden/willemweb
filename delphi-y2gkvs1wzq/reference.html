@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taxonomy reference sheet</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #16181d;
+  --muted: #55606e;
+  --rule: #d7dce3;
+  --panel: #f6f7f9;
+  --accent: #1f3b73;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14161a;
+    --fg: #e8eaee;
+    --muted: #a6aebb;
+    --rule: #333941;
+    --panel: #1c1f25;
+    --accent: #9db8ee;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  padding: 24px 16px 48px;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.sheet { max-width: 1000px; margin: 0 auto; }
+header.sheet-head { border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 18px; }
+h1 { font-size: 1.35rem; line-height: 1.25; margin: 0 0 6px; }
+.lede { margin: 0 0 4px; color: var(--muted); font-size: 0.9rem; }
+.counts { margin: 0; font-size: 0.9rem; color: var(--muted); }
+.counts strong { color: var(--fg); }
+.sheet-actions { margin: 10px 0 0; min-height: 0; }
+.sheet-actions button {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 5px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--fg);
+  cursor: pointer;
+}
+.sheet-actions button:hover { border-color: var(--accent); }
+.sheet-actions button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+section.dim { margin: 0 0 22px; break-inside: avoid; page-break-inside: avoid; }
+section.dim h2 {
+  font-size: 1.05rem;
+  margin: 0 0 4px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--rule);
+}
+section.dim h2 .n {
+  display: inline-block;
+  min-width: 1.5em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+p.desc { margin: 6px 0; }
+p.note {
+  margin: 6px 0;
+  padding: 7px 10px;
+  background: var(--panel);
+  border-left: 3px solid var(--accent);
+  font-size: 0.9rem;
+}
+table { width: 100%; border-collapse: collapse; margin: 8px 0 0; font-size: 0.88rem; }
+caption { text-align: left; color: var(--muted); font-size: 0.82rem; padding-bottom: 3px; }
+th, td { text-align: left; vertical-align: top; padding: 5px 8px; border-bottom: 1px solid var(--rule); }
+thead th { border-bottom: 2px solid var(--rule); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); }
+td.num { width: 2.2em; color: var(--muted); font-variant-numeric: tabular-nums; }
+td.name { width: 14em; font-weight: 600; }
+td.def { width: 32%; }
+td.chars .ch { display: inline-block; }
+td.chars .sep { color: var(--muted); padding: 0 0.35em; }
+section.howto { margin: 18px 0 8px; padding: 12px 16px; border: 1px solid var(--rule); border-radius: 8px; }
+section.howto h2 { margin: 0 0 6px; font-size: 1rem; }
+section.howto ul { margin: 0 0 8px 1.1rem; padding: 0; }
+section.howto p { margin: 0; }
+footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 0.82rem; }
+@media (max-width: 720px) {
+  td.name, td.def { width: auto; }
+  table, thead, tbody, tr, td, th { display: block; }
+  thead { display: none; }
+  /* Keep the caption for screen readers, out of the way visually. */
+  caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; padding: 0; }
+  tr { border-bottom: 1px solid var(--rule); padding: 6px 0; }
+  td { border: 0; padding: 2px 0; }
+  td.num { display: none; }
+  td.name { font-size: 0.95rem; }
+  td.def::before { content: "Definition: "; color: var(--muted); }
+  td.chars::before { content: "Characteristics: "; color: var(--muted); }
+}
+@media print {
+  @page { margin: 12mm; }
+  body { background: #fff; color: #000; font-size: 8.6pt; line-height: 1.3; padding: 0; }
+  .sheet { max-width: none; }
+  .sheet-actions { display: none !important; }
+  header.sheet-head { border-bottom: 1.5pt solid #000; margin-bottom: 8pt; padding-bottom: 5pt; }
+  h1 { font-size: 12pt; }
+  .lede, .counts, footer.sheet-foot { color: #333; font-size: 7.6pt; }
+  section.dim { margin-bottom: 9pt; }
+  section.dim h2 { font-size: 9.6pt; border-bottom: 0.5pt solid #666; }
+  section.dim h2 .n { color: #000; }
+  p.note { background: transparent; border-left: 1.5pt solid #666; padding: 2pt 5pt; font-size: 7.8pt; }
+  table { font-size: 7.8pt; }
+  th, td { padding: 1.5pt 4pt; border-bottom: 0.4pt solid #bbb; }
+  thead th { border-bottom: 0.8pt solid #666; color: #000; }
+  td.num, td.chars .sep { color: #444; }
+  a { color: #000; text-decoration: none; }
+}
+</style>
+</head>
+<body>
+  <main class="sheet">
+    <header class="sheet-head">
+      <h1>Taxonomy of LLM self-explanations: reference sheet</h1>
+      <p class="lede">Properties of a self-explanation, as shown to a user, that a designer can set through prompt, pipeline, or interface choices.</p>
+      <p class="counts"><strong>7</strong> dimensions, <strong>25</strong> subdimensions. Every explanation takes exactly one characteristic per subdimension.</p>
+      <div class="sheet-actions"></div>
+    </header>
+    <section class="howto">
+      <h2>How to read this sheet</h2>
+      <ul>
+        <li><strong>Dimension:</strong> a group of related properties. There are 7. Example: Surface.</li>
+        <li><strong>Subdimension:</strong> one property. There are 25. Example: length.</li>
+        <li><strong>Characteristic:</strong> one of the values a subdimension can take. Example: short, medium, long. Every explanation takes exactly one characteristic per subdimension.</li>
+      </ul>
+      <p><strong>Reading the example pairs.</strong> Each dimension page shows two cards that answer the same question with the same content. Chips in the card header give that card's characteristic on each subdimension; shaded spans in the text show where each subdimension appears.</p>
+      <p><strong>One test for two of the dimensions.</strong> Structural and Delivery are separated by a simple test. If you paste the explanation into a plain text file and the property is still visible, it is structural (ordering, whether alternatives are weighed). If it disappears, it is delivery (whether the explanation was shown on request, whether it could be edited).</p>
+    </section>
+    <section class="dim">
+      <h2><span class="n">1</span> Surface</h2>
+      <p class="desc">Surface covers how the explanation looks on the page before its content is read: how much text there is, what kind of words it uses, and how it is laid out. Surface properties can be changed without changing a single reason.</p>
+      <table>
+        <caption>Subdimensions of Surface</caption>
+        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
+        <tbody>
+<tr><td class="num">1</td><td class="name">Length</td><td class="def">The amount of explanation text</td><td class="chars"><span class="ch">short (one or two sentences)</span><span class="sep" aria-hidden="true">/</span><span class="ch">medium (three to six)</span><span class="sep" aria-hidden="true">/</span><span class="ch">long (more than six)</span></td></tr>
+<tr><td class="num">2</td><td class="name">Vocabulary</td><td class="def">The register of word choice</td><td class="chars"><span class="ch">everyday</span><span class="sep" aria-hidden="true">/</span><span class="ch">mixed</span><span class="sep" aria-hidden="true">/</span><span class="ch">technical</span></td></tr>
+<tr><td class="num">3</td><td class="name">Formatting</td><td class="def">The typographic structure of the text</td><td class="chars"><span class="ch">running prose</span><span class="sep" aria-hidden="true">/</span><span class="ch">lightly structured (a list or emphasis)</span><span class="sep" aria-hidden="true">/</span><span class="ch">heavily structured (headers, tables, nested lists)</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="dim">
+      <h2><span class="n">2</span> Epistemic stance</h2>
+      <p class="desc">Epistemic stance covers how the explanation positions the assistant toward its own claims: how sure it says it is, whether that certainty attaches to the whole answer or to individual claims, and whether individual reasons are softened. It does not cover how the assistant addresses the user; that is Interpersonal stance.</p>
+      <p class="note"><strong>Note.</strong> Expressed confidence is about the verdict; hedging is about the reasons. A response can be categorical in its verdict and heavily hedged in its reasons, or the reverse.</p>
+      <table>
+        <caption>Subdimensions of Epistemic stance</caption>
+        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
+        <tbody>
+<tr><td class="num">1</td><td class="name">Expressed confidence</td><td class="def">How certain the conclusion is presented to be</td><td class="chars"><span class="ch">categorical</span><span class="sep" aria-hidden="true">/</span><span class="ch">qualified</span><span class="sep" aria-hidden="true">/</span><span class="ch">explicitly uncertain</span><span class="sep" aria-hidden="true">/</span><span class="ch">numeric</span></td></tr>
+<tr><td class="num">2</td><td class="name">Confidence granularity</td><td class="def">The level at which confidence is attached</td><td class="chars"><span class="ch">response level</span><span class="sep" aria-hidden="true">/</span><span class="ch">claim level</span></td></tr>
+<tr><td class="num">3</td><td class="name">Hedging</td><td class="def">Whether individual reasons carry mitigating words (appears to, possibly, seems)</td><td class="chars"><span class="ch">none</span><span class="sep" aria-hidden="true">/</span><span class="ch">light (one or two mitigators)</span><span class="sep" aria-hidden="true">/</span><span class="ch">heavy (most reasons)</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="dim">
+      <h2><span class="n">3</span> Interpersonal stance</h2>
+      <p class="desc">Interpersonal stance covers how the explanation positions the assistant toward the user: who is presented as doing the reasoning, how formal and how warm the address is, whether the assistant sides with what the user brought to the conversation, and whether it uses rhetorical devices beyond stating reasons.</p>
+      <table>
+        <caption>Subdimensions of Interpersonal stance</caption>
+        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
+        <tbody>
+<tr><td class="num">1</td><td class="name">Framing</td><td class="def">Who is presented as doing the reasoning</td><td class="chars"><span class="ch">first person</span><span class="sep" aria-hidden="true">/</span><span class="ch">impersonal</span><span class="sep" aria-hidden="true">/</span><span class="ch">tool voice</span><span class="sep" aria-hidden="true">/</span><span class="ch">user-directed</span></td></tr>
+<tr><td class="num">2</td><td class="name">Register</td><td class="def">Formality toward the user</td><td class="chars"><span class="ch">formal</span><span class="sep" aria-hidden="true">/</span><span class="ch">neutral</span><span class="sep" aria-hidden="true">/</span><span class="ch">casual</span></td></tr>
+<tr><td class="num">3</td><td class="name">Warmth</td><td class="def">Affective stance toward the user</td><td class="chars"><span class="ch">warm</span><span class="sep" aria-hidden="true">/</span><span class="ch">neutral</span></td></tr>
+<tr><td class="num">4</td><td class="name">Agreement with user&#39;s position</td><td class="def">Stance toward the premise or view the user brought</td><td class="chars"><span class="ch">challenges</span><span class="sep" aria-hidden="true">/</span><span class="ch">neutral</span><span class="sep" aria-hidden="true">/</span><span class="ch">accommodates</span><span class="sep" aria-hidden="true">/</span><span class="ch">actively affirms</span></td></tr>
+<tr><td class="num">5</td><td class="name">Persuasive appeals</td><td class="def">Whether the text uses rhetorical devices beyond stating reasons (authority, social proof, urgency, emotion)</td><td class="chars"><span class="ch">none</span><span class="sep" aria-hidden="true">/</span><span class="ch">present</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="dim">
+      <h2><span class="n">4</span> Structural</h2>
+      <p class="desc">Structural covers the form of the reasoning as it appears on the page: whether it follows one path or weighs alternatives, whether every claim gets a reason, whether it says why this rather than something else, where the conclusion sits, and how the shown text relates to the model’s reasoning. Test: a property is structural if it survives pasting the explanation into a plain text file.</p>
+      <table>
+        <caption>Subdimensions of Structural</caption>
+        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
+        <tbody>
+<tr><td class="num">1</td><td class="name">Reasoning form</td><td class="def">The path of the reasoning</td><td class="chars"><span class="ch">linear</span><span class="sep" aria-hidden="true">/</span><span class="ch">branching (alternatives considered)</span></td></tr>
+<tr><td class="num">2</td><td class="name">Completeness</td><td class="def">Whether every claim in the answer has a stated reason</td><td class="chars"><span class="ch">full</span><span class="sep" aria-hidden="true">/</span><span class="ch">partial</span></td></tr>
+<tr><td class="num">3</td><td class="name">Contrastive form</td><td class="def">Whether the explanation says why this rather than an alternative</td><td class="chars"><span class="ch">non-contrastive</span><span class="sep" aria-hidden="true">/</span><span class="ch">contrastive</span></td></tr>
+<tr><td class="num">4</td><td class="name">Ordering</td><td class="def">Position of the conclusion relative to the reasons</td><td class="chars"><span class="ch">conclusion first</span><span class="sep" aria-hidden="true">/</span><span class="ch">reasons first</span><span class="sep" aria-hidden="true">/</span><span class="ch">interleaved</span></td></tr>
+<tr><td class="num">5</td><td class="name">Trace form</td><td class="def">Relation of the shown text to the model&#39;s reasoning process</td><td class="chars"><span class="ch">full trace</span><span class="sep" aria-hidden="true">/</span><span class="ch">summarized trace</span><span class="sep" aria-hidden="true">/</span><span class="ch">post-hoc rationale</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="dim">
+      <h2><span class="n">5</span> Delivery</h2>
+      <p class="desc">Delivery covers when and how the explanation reaches the user: whether it comes before, with, or after the answer; whether it is shown by default or on request; whether more can be revealed in steps; through which channel; and what the user can do with it. Test: a property is delivery if it is lost when the explanation is pasted into a plain text file.</p>
+      <p class="note"><strong>Note.</strong> In this pair the explanation text is identical on both cards. The cards differ only in how the interface delivers it.</p>
+      <table>
+        <caption>Subdimensions of Delivery</caption>
+        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
+        <tbody>
+<tr><td class="num">1</td><td class="name">Timing</td><td class="def">When the explanation appears relative to the answer</td><td class="chars"><span class="ch">before</span><span class="sep" aria-hidden="true">/</span><span class="ch">with</span><span class="sep" aria-hidden="true">/</span><span class="ch">after</span><span class="sep" aria-hidden="true">/</span><span class="ch">adaptive to user state</span></td></tr>
+<tr><td class="num">2</td><td class="name">Availability</td><td class="def">Whether the explanation is shown by default</td><td class="chars"><span class="ch">always shown</span><span class="sep" aria-hidden="true">/</span><span class="ch">on request</span></td></tr>
+<tr><td class="num">3</td><td class="name">Progressive disclosure</td><td class="def">Whether more detail can be revealed in steps</td><td class="chars"><span class="ch">single level</span><span class="sep" aria-hidden="true">/</span><span class="ch">expandable</span></td></tr>
+<tr><td class="num">4</td><td class="name">Modality</td><td class="def">The channel of the explanation</td><td class="chars"><span class="ch">text</span><span class="sep" aria-hidden="true">/</span><span class="ch">voice</span><span class="sep" aria-hidden="true">/</span><span class="ch">text with visual indicators</span></td></tr>
+<tr><td class="num">5</td><td class="name">Interactivity</td><td class="def">What the user can do with the shown reasoning</td><td class="chars"><span class="ch">read-only</span><span class="sep" aria-hidden="true">/</span><span class="ch">navigable</span><span class="sep" aria-hidden="true">/</span><span class="ch">editable</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="dim">
+      <h2><span class="n">6</span> Source</h2>
+      <p class="desc">Source covers what the explanation rests on and how the user can check it: whether the shown reasons come from the process that produced the answer or were generated afterward, and how external evidence is linked.</p>
+      <p class="note"><strong>Note.</strong> Provenance is the design choice about where the explanation comes from. Whether the result is faithful to the model&#39;s actual computation is what that choice is meant to secure, not a characteristic a designer sets directly.</p>
+      <table>
+        <caption>Subdimensions of Source</caption>
+        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
+        <tbody>
+<tr><td class="num">1</td><td class="name">Provenance</td><td class="def">How the explanation relates to the process that produced the answer</td><td class="chars"><span class="ch">generated from the reasoning trace</span><span class="sep" aria-hidden="true">/</span><span class="ch">generated post hoc</span><span class="sep" aria-hidden="true">/</span><span class="ch">verified against the process</span></td></tr>
+<tr><td class="num">2</td><td class="name">Citations and grounding</td><td class="def">How external evidence is linked</td><td class="chars"><span class="ch">none</span><span class="sep" aria-hidden="true">/</span><span class="ch">attribution (source named)</span><span class="sep" aria-hidden="true">/</span><span class="ch">citation (source linked)</span><span class="sep" aria-hidden="true">/</span><span class="ch">quotation (verbatim passage)</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="dim">
+      <h2><span class="n">7</span> Semantic</h2>
+      <p class="desc">Semantic covers what the explanation claims: whether the reasons are true and support the answer, and whether the explanation and the answer agree.</p>
+      <table>
+        <caption>Subdimensions of Semantic</caption>
+        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
+        <tbody>
+<tr><td class="num">1</td><td class="name">Correctness of reasoning</td><td class="def">Whether the stated reasons are true and support the answer</td><td class="chars"><span class="ch">correct</span><span class="sep" aria-hidden="true">/</span><span class="ch">partially correct</span><span class="sep" aria-hidden="true">/</span><span class="ch">incorrect</span></td></tr>
+<tr><td class="num">2</td><td class="name">Consistency with answer</td><td class="def">Whether the explanation and the answer agree</td><td class="chars"><span class="ch">consistent</span><span class="sep" aria-hidden="true">/</span><span class="ch">contradicts</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+    <footer class="sheet-foot">
+      <p>Dimension: a group of related properties. Subdimension: one property. Characteristic: one of the values a subdimension can take.</p>
+    </footer>
+  </main>
+<script>
+(function () {
+  var slot = document.querySelector('.sheet-actions');
+  if (!slot || typeof window.print !== 'function') return;
+  var b = document.createElement('button');
+  b.type = 'button';
+  b.textContent = 'Print this sheet';
+  b.addEventListener('click', function () { window.print(); });
+  slot.appendChild(b);
+})();
+</script>
+</body>
+</html>
