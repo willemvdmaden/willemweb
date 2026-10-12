@@ -101,7 +101,7 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
   td.num { display: none; }
   td.name { font-size: 0.95rem; }
   td.def::before { content: "Definition: "; color: var(--muted); }
-  td.chars::before { content: "Characteristics: "; color: var(--muted); }
+  td.chars::before { content: "Values: "; color: var(--muted); }
 }
 @media print {
   @page { margin: 12mm; }
@@ -128,7 +128,7 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
     <header class="sheet-head">
       <h1>Taxonomy of LLM self-explanations: reference sheet</h1>
       <p class="lede">The taxonomy characterizes the explanation as delivered to the user, in its content, form, and presentation. It is restricted to properties that can be configured without modifying the model, whether through the prompt, the surrounding pipeline, or the interface.</p>
-      <p class="counts"><strong>7</strong> dimensions, <strong>25</strong> subdimensions. Every explanation takes exactly one characteristic per subdimension.</p>
+      <p class="counts"><strong>7</strong> dimensions, <strong>25</strong> subdimensions. Every explanation takes exactly one value per subdimension.</p>
       <div class="sheet-actions"></div>
     </header>
     <section class="howto">
@@ -136,9 +136,9 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
       <ul>
         <li><strong>Dimension:</strong> a group of related properties. There are 7. Example: Surface.</li>
         <li><strong>Subdimension:</strong> one property. There are 25. Example: length.</li>
-        <li><strong>Characteristic:</strong> one of the values a subdimension can take. Example: short, medium, long. Every explanation takes exactly one characteristic per subdimension.</li>
+        <li><strong>Value:</strong> one of the options a subdimension can take. Example: short, medium, long. Every explanation takes exactly one value per subdimension.</li>
       </ul>
-      <p><strong>Reading the example pairs.</strong> Each dimension page shows two cards that answer the same question with the same content. Chips in the card header give that card's characteristic on each subdimension; shaded spans in the text show where each subdimension appears.</p>
+      <p><strong>Reading the example pairs.</strong> Each dimension page shows two cards built from the same baseline, which differ only on the subdimensions of that dimension. Labels in the card header give each card&#39;s value on each subdimension; shaded phrases in the text show where each subdimension appears.</p>
       <p><strong>One test for two of the dimensions.</strong> Structural and Delivery are separated by a simple test. If you paste the explanation into a plain text file and the property is still visible, it is structural (ordering, whether alternatives are weighed). If it disappears, it is delivery (whether the explanation was shown on request, whether it could be edited).</p>
     </section>
     <section class="dim">
@@ -146,7 +146,7 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
       <p class="desc">Surface covers how the explanation looks on the page before its content is read: how much text there is, what kind of words it uses, and how it is laid out. Surface properties can be changed without changing a single reason.</p>
       <table>
         <caption>Subdimensions of Surface</caption>
-        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
+        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Values</th></tr></thead>
         <tbody>
 <tr><td class="num">1</td><td class="name">Length</td><td class="def">The amount of explanation text</td><td class="chars"><span class="ch">short (one or two sentences)</span><span class="sep" aria-hidden="true">/</span><span class="ch">medium (three to six)</span><span class="sep" aria-hidden="true">/</span><span class="ch">long (more than six)</span></td></tr>
 <tr><td class="num">2</td><td class="name">Vocabulary</td><td class="def">The register of word choice</td><td class="chars"><span class="ch">everyday</span><span class="sep" aria-hidden="true">/</span><span class="ch">mixed</span><span class="sep" aria-hidden="true">/</span><span class="ch">technical</span></td></tr>
@@ -160,7 +160,7 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
       <p class="note"><strong>Note.</strong> Expressed confidence is about the verdict; hedging is about the reasons. A response can be categorical in its verdict and heavily hedged in its reasons, or the reverse.</p>
       <table>
         <caption>Subdimensions of Epistemic stance</caption>
-        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
+        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Values</th></tr></thead>
         <tbody>
 <tr><td class="num">1</td><td class="name">Expressed confidence</td><td class="def">How certain the conclusion is presented to be</td><td class="chars"><span class="ch">categorical</span><span class="sep" aria-hidden="true">/</span><span class="ch">qualified</span><span class="sep" aria-hidden="true">/</span><span class="ch">explicitly uncertain</span><span class="sep" aria-hidden="true">/</span><span class="ch">numeric</span></td></tr>
 <tr><td class="num">2</td><td class="name">Confidence granularity</td><td class="def">The level at which confidence is attached</td><td class="chars"><span class="ch">response level</span><span class="sep" aria-hidden="true">/</span><span class="ch">claim level</span></td></tr>
@@ -173,7 +173,7 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
       <p class="desc">Interpersonal stance covers how the explanation positions the system toward the user: who is presented as doing the reasoning, how formal and how warm the address is, whether the system sides with what the user brought to the interaction, and whether it uses rhetorical devices beyond stating reasons.</p>
       <table>
         <caption>Subdimensions of Interpersonal stance</caption>
-        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
+        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Values</th></tr></thead>
         <tbody>
 <tr><td class="num">1</td><td class="name">Framing</td><td class="def">Who is presented as doing the reasoning</td><td class="chars"><span class="ch">first person</span><span class="sep" aria-hidden="true">/</span><span class="ch">impersonal</span><span class="sep" aria-hidden="true">/</span><span class="ch">tool voice</span><span class="sep" aria-hidden="true">/</span><span class="ch">user-directed</span></td></tr>
 <tr><td class="num">2</td><td class="name">Register</td><td class="def">Formality toward the user</td><td class="chars"><span class="ch">formal</span><span class="sep" aria-hidden="true">/</span><span class="ch">neutral</span><span class="sep" aria-hidden="true">/</span><span class="ch">casual</span></td></tr>
@@ -188,7 +188,7 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
       <p class="desc">Structural covers the form of the reasoning as it appears on the page: whether it follows one path or weighs alternatives, whether every claim gets a reason, whether it says why this rather than something else, where the conclusion sits, and how the shown text relates to the model’s reasoning. Test: a property is structural if it survives pasting the explanation into a plain text file.</p>
       <table>
         <caption>Subdimensions of Structural</caption>
-        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
+        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Values</th></tr></thead>
         <tbody>
 <tr><td class="num">1</td><td class="name">Reasoning form</td><td class="def">The path of the reasoning</td><td class="chars"><span class="ch">linear</span><span class="sep" aria-hidden="true">/</span><span class="ch">branching (alternatives considered)</span></td></tr>
 <tr><td class="num">2</td><td class="name">Completeness</td><td class="def">Whether every claim in the answer has a stated reason</td><td class="chars"><span class="ch">full</span><span class="sep" aria-hidden="true">/</span><span class="ch">partial</span></td></tr>
@@ -204,7 +204,7 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
       <p class="note"><strong>Note.</strong> In this pair the explanation text is identical on both cards. The cards differ only in how the interface delivers it.</p>
       <table>
         <caption>Subdimensions of Delivery</caption>
-        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
+        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Values</th></tr></thead>
         <tbody>
 <tr><td class="num">1</td><td class="name">Timing</td><td class="def">When the explanation appears relative to the answer</td><td class="chars"><span class="ch">before</span><span class="sep" aria-hidden="true">/</span><span class="ch">with</span><span class="sep" aria-hidden="true">/</span><span class="ch">after</span><span class="sep" aria-hidden="true">/</span><span class="ch">adaptive to user state</span></td></tr>
 <tr><td class="num">2</td><td class="name">Availability</td><td class="def">Whether the explanation is shown by default</td><td class="chars"><span class="ch">always shown</span><span class="sep" aria-hidden="true">/</span><span class="ch">on request</span></td></tr>
@@ -220,7 +220,7 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
       <p class="note"><strong>Note.</strong> Provenance is the design choice about where the explanation comes from. Whether the result is faithful to the model&#39;s actual computation is what that choice is meant to secure, not a characteristic a designer sets directly.</p>
       <table>
         <caption>Subdimensions of Source</caption>
-        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
+        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Values</th></tr></thead>
         <tbody>
 <tr><td class="num">1</td><td class="name">Provenance</td><td class="def">How the explanation relates to the process that produced the answer</td><td class="chars"><span class="ch">generated from the reasoning trace</span><span class="sep" aria-hidden="true">/</span><span class="ch">generated post hoc</span><span class="sep" aria-hidden="true">/</span><span class="ch">verified against the process</span></td></tr>
 <tr><td class="num">2</td><td class="name">Citations and grounding</td><td class="def">How external evidence is linked</td><td class="chars"><span class="ch">none</span><span class="sep" aria-hidden="true">/</span><span class="ch">attribution (source named)</span><span class="sep" aria-hidden="true">/</span><span class="ch">citation (source linked)</span><span class="sep" aria-hidden="true">/</span><span class="ch">quotation (verbatim passage)</span></td></tr>
@@ -232,7 +232,7 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
       <p class="desc">Semantic covers what the explanation claims: whether the reasons are true and support the answer, and whether the explanation and the answer agree.</p>
       <table>
         <caption>Subdimensions of Semantic</caption>
-        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
+        <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Values</th></tr></thead>
         <tbody>
 <tr><td class="num">1</td><td class="name">Correctness of reasoning</td><td class="def">Whether the stated reasons are true and support the answer</td><td class="chars"><span class="ch">correct</span><span class="sep" aria-hidden="true">/</span><span class="ch">partially correct</span><span class="sep" aria-hidden="true">/</span><span class="ch">incorrect</span></td></tr>
 <tr><td class="num">2</td><td class="name">Consistency with answer</td><td class="def">Whether the explanation and the answer agree</td><td class="chars"><span class="ch">consistent</span><span class="sep" aria-hidden="true">/</span><span class="ch">contradicts</span></td></tr>
@@ -240,7 +240,7 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
       </table>
     </section>
     <footer class="sheet-foot">
-      <p>Dimension: a group of related properties. Subdimension: one property. Characteristic: one of the values a subdimension can take.</p>
+      <p>Dimension: a group of related properties. Subdimension: one property. Value: one of the options a subdimension can take.</p>
     </footer>
   </main>
 <script>
