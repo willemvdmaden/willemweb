@@ -33,25 +33,30 @@ text{font-family:'Lato','Source Sans 3','Inter',sans-serif;}
 <rect x="563.3" y="627.7" width="72.0" height="24" rx="12.0" fill="#D1FAE5"/><text x="572.3" y="644.5" font-size="15" font-weight="700" fill="#047857">hedging</text>
 <rect x="915.9" y="627.7" width="72.0" height="24" rx="12.0" fill="#D1FAE5"/><text x="924.9" y="644.5" font-size="15" font-weight="700" fill="#047857">hedging</text>
 <text y="645.0" font-size="25" fill="#1F2937"><tspan x="204.0" font-weight="400">The</tspan><tspan x="251.8" font-weight="400">sender&#x27;s</tspan><tspan x="350.1" font-weight="400">domain</tspan><tspan x="438.1" font-weight="400">appears</tspan><tspan x="531.8" font-weight="400">to</tspan><tspan x="640.7" font-weight="400">be</tspan><tspan x="673.6" font-weight="400">paypa1.com,</tspan><tspan x="817.6" font-weight="400">possibly</tspan><tspan x="993.3" font-weight="400">with</tspan><tspan x="1048.2" font-weight="400">the</tspan></text>
-<rect x="555.6" y="660.8" width="477.1" height="28.7" rx="4" fill="#FEF3C7"/>
-<rect x="555.6" y="687.0" width="477.1" height="3" fill="#B45309"/>
-<text y="682.0" font-size="25" fill="#1F2937"><tspan x="204.0" font-weight="400">digit</tspan><tspan x="259.0" font-weight="400">one</tspan><tspan x="305.9" font-weight="400">in</tspan><tspan x="331.9" font-weight="400">place</tspan><tspan x="395.8" font-weight="400">of</tspan><tspan x="423.9" font-weight="400">the</tspan><tspan x="466.1" font-weight="400">letter</tspan><tspan x="533.8" font-weight="400">L;</tspan><tspan x="558.6" font-weight="400">if</tspan><tspan x="579.0" font-weight="400">so,</tspan><tspan x="614.9" font-weight="400">it</tspan><tspan x="636.3" font-weight="400">is</tspan><tspan x="659.2" font-weight="400">fairly</tspan><tspan x="722.2" font-weight="400">clearly</tspan><tspan x="801.8" font-weight="400">not</tspan><tspan x="844.9" font-weight="400">PayPal&#x27;s</tspan><tspan x="941.7" font-weight="400">domain.</tspan></text>
-<rect x="204.0" y="701.7" width="171.2" height="24" rx="12.0" fill="#FEF3C7"/><text x="213.0" y="718.5" font-size="15" font-weight="700" fill="#B45309">confidence granularity</text>
+<rect x="555.6" y="660.8" width="383.7" height="28.7" rx="4" fill="#FEF3C7"/>
+<rect x="555.6" y="687.0" width="383.7" height="3" fill="#B45309"/>
+<text y="682.0" font-size="25" fill="#1F2937"><tspan x="204.0" font-weight="400">digit</tspan><tspan x="259.0" font-weight="400">one</tspan><tspan x="305.9" font-weight="400">in</tspan><tspan x="331.9" font-weight="400">place</tspan><tspan x="395.8" font-weight="400">of</tspan><tspan x="423.9" font-weight="400">the</tspan><tspan x="466.1" font-weight="400">letter</tspan><tspan x="533.8" font-weight="400">L;</tspan><tspan x="558.6" font-weight="400">if</tspan><tspan x="579.0" font-weight="400">so,</tspan><tspan x="614.9" font-weight="400">it</tspan><tspan x="636.3" font-weight="400">is</tspan><tspan x="659.2" font-weight="400">fairly</tspan><tspan x="722.2" font-weight="400">clearly</tspan><tspan x="801.8" font-weight="400">not</tspan><tspan x="844.9" font-weight="400">PayPal&#x27;s</tspan></text>
+<rect x="201.0" y="697.8" width="94.0" height="28.7" rx="4" fill="#FEF3C7"/>
+<rect x="201.0" y="724.0" width="94.0" height="3" fill="#B45309"/>
+<rect x="300.0" y="701.7" width="171.2" height="24" rx="12.0" fill="#FEF3C7"/><text x="309.0" y="718.5" font-size="15" font-weight="700" fill="#B45309">confidence granularity</text>
+<text y="719.0" font-size="25" fill="#1F2937"><tspan x="204.0" font-weight="400">domain.</tspan></text>
 <circle cx="180" cy="752.0" r="4" fill="#1F2937"/>
 <rect x="349.4" y="738.8" width="104.4" height="28.7" rx="4" fill="#D1FAE5"/>
 <rect x="349.4" y="765.0" width="104.4" height="3" fill="#047857"/>
-<rect x="969.1" y="738.8" width="99.6" height="28.7" rx="4" fill="#D1FAE5"/>
-<rect x="969.1" y="765.0" width="99.6" height="3" fill="#047857"/>
+<rect x="969.1" y="738.8" width="66.8" height="28.7" rx="4" fill="#D1FAE5"/>
+<rect x="969.1" y="765.0" width="66.8" height="3" fill="#047857"/>
 <rect x="458.8" y="742.7" width="72.0" height="24" rx="12.0" fill="#D1FAE5"/><text x="467.8" y="759.5" font-size="15" font-weight="700" fill="#047857">hedging</text>
-<text y="760.0" font-size="25" fill="#1F2937"><tspan x="204.0" font-weight="400">The</tspan><tspan x="251.8" font-weight="400">message</tspan><tspan x="352.4" font-weight="400">seems</tspan><tspan x="427.2" font-weight="400">to</tspan><tspan x="536.2" font-weight="400">press</tspan><tspan x="601.2" font-weight="400">you</tspan><tspan x="647.4" font-weight="400">to</tspan><tspan x="676.4" font-weight="400">act</tspan><tspan x="716.0" font-weight="400">within</tspan><tspan x="791.5" font-weight="400">24</tspan><tspan x="826.3" font-weight="400">hours,</tspan><tspan x="900.7" font-weight="400">which</tspan><tspan x="972.1" font-weight="400">could</tspan><tspan x="1038.3" font-weight="400">be</tspan></text>
-<rect x="489.9" y="775.8" width="588.0" height="28.7" rx="4" fill="#FEF3C7"/>
-<rect x="489.9" y="802.0" width="588.0" height="3" fill="#B45309"/>
-<rect x="204.0" y="779.7" width="72.0" height="24" rx="12.0" fill="#D1FAE5"/><text x="213.0" y="796.5" font-size="15" font-weight="700" fill="#047857">hedging</text>
-<text y="797.0" font-size="25" fill="#1F2937"><tspan x="281.4" font-weight="400">a</tspan><tspan x="299.7" font-weight="400">trick</tspan><tspan x="356.4" font-weight="400">to</tspan><tspan x="385.4" font-weight="400">rush</tspan><tspan x="440.2" font-weight="400">you;</tspan><tspan x="492.9" font-weight="400">I</tspan><tspan x="506.1" font-weight="400">am</tspan><tspan x="545.2" font-weight="400">less</tspan><tspan x="592.3" font-weight="400">sure</tspan><tspan x="646.4" font-weight="400">about</tspan><tspan x="716.5" font-weight="400">this</tspan><tspan x="763.0" font-weight="400">one,</tspan><tspan x="815.3" font-weight="400">since</tspan><tspan x="877.4" font-weight="400">legitimate</tspan><tspan x="994.5" font-weight="400">notices</tspan></text>
-<rect x="201.0" y="812.8" width="230.7" height="28.7" rx="4" fill="#FEF3C7"/>
-<rect x="201.0" y="839.0" width="230.7" height="3" fill="#B45309"/>
-<rect x="436.7" y="816.7" width="171.2" height="24" rx="12.0" fill="#FEF3C7"/><text x="445.7" y="833.5" font-size="15" font-weight="700" fill="#B45309">confidence granularity</text>
-<text y="834.0" font-size="25" fill="#1F2937"><tspan x="204.0" font-weight="400">also</tspan><tspan x="253.9" font-weight="400">carry</tspan><tspan x="317.4" font-weight="400">deadlines.</tspan></text>
+<text y="760.0" font-size="25" fill="#1F2937"><tspan x="204.0" font-weight="400">The</tspan><tspan x="251.8" font-weight="400">message</tspan><tspan x="352.4" font-weight="400">seems</tspan><tspan x="427.2" font-weight="400">to</tspan><tspan x="536.2" font-weight="400">press</tspan><tspan x="601.2" font-weight="400">you</tspan><tspan x="647.4" font-weight="400">to</tspan><tspan x="676.4" font-weight="400">act</tspan><tspan x="716.0" font-weight="400">within</tspan><tspan x="791.5" font-weight="400">24</tspan><tspan x="826.3" font-weight="400">hours,</tspan><tspan x="900.7" font-weight="400">which</tspan><tspan x="972.1" font-weight="400">could</tspan></text>
+<rect x="201.0" y="775.8" width="33.5" height="28.7" rx="4" fill="#D1FAE5"/>
+<rect x="201.0" y="802.0" width="33.5" height="3" fill="#047857"/>
+<rect x="525.4" y="775.8" width="502.2" height="28.7" rx="4" fill="#FEF3C7"/>
+<rect x="525.4" y="802.0" width="502.2" height="3" fill="#B45309"/>
+<rect x="239.5" y="779.7" width="72.0" height="24" rx="12.0" fill="#D1FAE5"/><text x="248.5" y="796.5" font-size="15" font-weight="700" fill="#047857">hedging</text>
+<text y="797.0" font-size="25" fill="#1F2937"><tspan x="204.0" font-weight="400">be</tspan><tspan x="316.9" font-weight="400">a</tspan><tspan x="335.1" font-weight="400">trick</tspan><tspan x="391.9" font-weight="400">to</tspan><tspan x="420.8" font-weight="400">rush</tspan><tspan x="475.7" font-weight="400">you;</tspan><tspan x="528.4" font-weight="400">I</tspan><tspan x="541.5" font-weight="400">am</tspan><tspan x="580.6" font-weight="400">less</tspan><tspan x="627.8" font-weight="400">sure</tspan><tspan x="681.8" font-weight="400">about</tspan><tspan x="752.0" font-weight="400">this</tspan><tspan x="798.5" font-weight="400">one,</tspan><tspan x="850.7" font-weight="400">since</tspan><tspan x="912.9" font-weight="400">legitimate</tspan></text>
+<rect x="201.0" y="812.8" width="316.5" height="28.7" rx="4" fill="#FEF3C7"/>
+<rect x="201.0" y="839.0" width="316.5" height="3" fill="#B45309"/>
+<rect x="522.5" y="816.7" width="171.2" height="24" rx="12.0" fill="#FEF3C7"/><text x="531.5" y="833.5" font-size="15" font-weight="700" fill="#B45309">confidence granularity</text>
+<text y="834.0" font-size="25" fill="#1F2937"><tspan x="204.0" font-weight="400">notices</tspan><tspan x="289.7" font-weight="400">also</tspan><tspan x="339.6" font-weight="400">carry</tspan><tspan x="403.2" font-weight="400">deadlines.</tspan></text>
 <circle cx="180" cy="867.0" r="4" fill="#1F2937"/>
 <rect x="551.6" y="853.8" width="230.7" height="28.7" rx="4" fill="#D1FAE5"/>
 <rect x="551.6" y="880.0" width="230.7" height="3" fill="#047857"/>
