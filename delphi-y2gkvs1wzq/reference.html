@@ -136,8 +136,9 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
       <ul>
         <li><strong>Dimension:</strong> a group of related properties. There are 7. Example: Surface.</li>
         <li><strong>Subdimension:</strong> one property. There are 25. Example: length.</li>
-        <li><strong>Value:</strong> one of the options a subdimension can take. Example: short, medium, long. Every explanation takes exactly one value per subdimension.</li>
+        <li><strong>Value:</strong> one of the bands a subdimension is divided into. Example: short, medium, long. Every explanation takes exactly one value per subdimension.</li>
       </ul>
+      <p>Each subdimension is one property of the explanation. For each, you see its name, its definition, and its values. The values divide the property into a few bands, and every explanation falls into exactly one of them.</p>
       <p><strong>Reading the example pairs.</strong> Each dimension page shows two examples built from the same baseline, which differ only on the subdimensions of that dimension. Labels at the top of each example give its value on each subdimension; shaded phrases in the text show where each subdimension appears.</p>
       <p><strong>One test for two of the dimensions.</strong> Structural and Delivery are separated by a simple test. If you paste the explanation into a plain text file and the property is still visible, it is structural (ordering, whether alternatives are weighed). If it disappears, it is delivery (whether the explanation was shown on request, whether it could be edited).</p>
     </section>
@@ -148,9 +149,9 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
         <caption>Subdimensions of Surface</caption>
         <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Values</th></tr></thead>
         <tbody>
-<tr><td class="num">1</td><td class="name">Length</td><td class="def">The amount of explanation text</td><td class="chars"><span class="ch">short (one or two sentences)</span>; <span class="ch">medium (three to six)</span>; <span class="ch">long (more than six)</span></td></tr>
-<tr><td class="num">2</td><td class="name">Vocabulary</td><td class="def">The register of word choice</td><td class="chars"><span class="ch">everyday</span>; <span class="ch">mixed</span>; <span class="ch">technical</span></td></tr>
-<tr><td class="num">3</td><td class="name">Formatting</td><td class="def">The typographic structure of the text</td><td class="chars"><span class="ch">running prose</span>; <span class="ch">lightly structured (a list or emphasis)</span>; <span class="ch">heavily structured (headers, tables, nested lists)</span></td></tr>
+<tr><td class="num">1</td><td class="name">Length</td><td class="def">The amount of explanation text</td><td class="chars"><span class="ch">short (one or two sentences)</span>, <span class="ch">medium (three to six)</span>, <span class="ch">long (more than six)</span></td></tr>
+<tr><td class="num">2</td><td class="name">Vocabulary</td><td class="def">The register of word choice</td><td class="chars"><span class="ch">everyday</span>, <span class="ch">mixed</span>, <span class="ch">technical</span></td></tr>
+<tr><td class="num">3</td><td class="name">Formatting</td><td class="def">The typographic structure of the text</td><td class="chars"><span class="ch">running prose</span>, <span class="ch">lightly structured (a list or emphasis)</span>, <span class="ch">heavily structured (headers, tables, nested lists)</span></td></tr>
         </tbody>
       </table>
     </section>
@@ -162,9 +163,9 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
         <caption>Subdimensions of Epistemic stance</caption>
         <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Values</th></tr></thead>
         <tbody>
-<tr><td class="num">1</td><td class="name">Expressed confidence</td><td class="def">How certain the conclusion is presented to be</td><td class="chars"><span class="ch">categorical</span>; <span class="ch">qualified</span>; <span class="ch">explicitly uncertain</span>; <span class="ch">numeric</span></td></tr>
-<tr><td class="num">2</td><td class="name">Confidence granularity</td><td class="def">The level at which confidence is attached</td><td class="chars"><span class="ch">response level</span>; <span class="ch">claim level</span></td></tr>
-<tr><td class="num">3</td><td class="name">Hedging</td><td class="def">Whether individual reasons carry mitigating words (appears to, possibly, seems)</td><td class="chars"><span class="ch">none</span>; <span class="ch">light (one or two mitigators)</span>; <span class="ch">heavy (most reasons)</span></td></tr>
+<tr><td class="num">1</td><td class="name">Expressed confidence</td><td class="def">How certain the conclusion is presented to be</td><td class="chars"><span class="ch">categorical</span>, <span class="ch">qualified</span>, <span class="ch">explicitly uncertain</span>, <span class="ch">numeric</span></td></tr>
+<tr><td class="num">2</td><td class="name">Confidence granularity</td><td class="def">The level at which confidence is attached</td><td class="chars"><span class="ch">response level</span>, <span class="ch">claim level</span></td></tr>
+<tr><td class="num">3</td><td class="name">Hedging</td><td class="def">Whether individual reasons carry mitigating words (appears to, possibly, seems)</td><td class="chars"><span class="ch">none</span>, <span class="ch">light (one or two mitigators)</span>, <span class="ch">heavy (most reasons)</span></td></tr>
         </tbody>
       </table>
     </section>
@@ -175,11 +176,11 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
         <caption>Subdimensions of Interpersonal stance</caption>
         <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Values</th></tr></thead>
         <tbody>
-<tr><td class="num">1</td><td class="name">Framing</td><td class="def">Who is presented as doing the reasoning</td><td class="chars"><span class="ch">first person</span>; <span class="ch">impersonal</span>; <span class="ch">tool voice</span>; <span class="ch">user-directed</span></td></tr>
-<tr><td class="num">2</td><td class="name">Register</td><td class="def">Formality toward the user</td><td class="chars"><span class="ch">formal</span>; <span class="ch">neutral</span>; <span class="ch">casual</span></td></tr>
-<tr><td class="num">3</td><td class="name">Warmth</td><td class="def">Affective stance toward the user</td><td class="chars"><span class="ch">warm</span>; <span class="ch">neutral</span></td></tr>
-<tr><td class="num">4</td><td class="name">Agreement with user&#39;s position</td><td class="def">Stance toward the premise or view the user brought</td><td class="chars"><span class="ch">challenges</span>; <span class="ch">neutral</span>; <span class="ch">accommodates</span>; <span class="ch">actively affirms</span></td></tr>
-<tr><td class="num">5</td><td class="name">Persuasive appeals</td><td class="def">Whether the text uses rhetorical devices beyond stating reasons (authority, social proof, urgency, emotion)</td><td class="chars"><span class="ch">none</span>; <span class="ch">present</span></td></tr>
+<tr><td class="num">1</td><td class="name">Framing</td><td class="def">Who is presented as doing the reasoning</td><td class="chars"><span class="ch">first person</span>, <span class="ch">impersonal</span>, <span class="ch">tool voice</span>, <span class="ch">user-directed</span></td></tr>
+<tr><td class="num">2</td><td class="name">Register</td><td class="def">Formality toward the user</td><td class="chars"><span class="ch">formal</span>, <span class="ch">neutral</span>, <span class="ch">casual</span></td></tr>
+<tr><td class="num">3</td><td class="name">Warmth</td><td class="def">Affective stance toward the user</td><td class="chars"><span class="ch">warm</span>, <span class="ch">neutral</span></td></tr>
+<tr><td class="num">4</td><td class="name">Agreement with user&#39;s position</td><td class="def">Stance toward the premise or view the user brought</td><td class="chars"><span class="ch">challenges</span>, <span class="ch">neutral</span>, <span class="ch">accommodates</span>, <span class="ch">actively affirms</span></td></tr>
+<tr><td class="num">5</td><td class="name">Persuasive appeals</td><td class="def">Whether the text uses rhetorical devices beyond stating reasons (authority, social proof, urgency, emotion)</td><td class="chars"><span class="ch">none</span>, <span class="ch">present</span></td></tr>
         </tbody>
       </table>
     </section>
@@ -190,11 +191,11 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
         <caption>Subdimensions of Structural</caption>
         <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Values</th></tr></thead>
         <tbody>
-<tr><td class="num">1</td><td class="name">Reasoning form</td><td class="def">The path of the reasoning</td><td class="chars"><span class="ch">linear</span>; <span class="ch">branching (alternatives considered)</span></td></tr>
-<tr><td class="num">2</td><td class="name">Completeness</td><td class="def">Whether every claim in the answer has a stated reason</td><td class="chars"><span class="ch">full</span>; <span class="ch">partial</span></td></tr>
-<tr><td class="num">3</td><td class="name">Contrastive form</td><td class="def">Whether the explanation says why this rather than an alternative</td><td class="chars"><span class="ch">non-contrastive</span>; <span class="ch">contrastive</span></td></tr>
-<tr><td class="num">4</td><td class="name">Ordering</td><td class="def">Position of the conclusion relative to the reasons</td><td class="chars"><span class="ch">conclusion first</span>; <span class="ch">reasons first</span>; <span class="ch">interleaved</span></td></tr>
-<tr><td class="num">5</td><td class="name">Trace form</td><td class="def">Relation of the shown text to the model&#39;s reasoning process</td><td class="chars"><span class="ch">full trace</span>; <span class="ch">summarized trace</span>; <span class="ch">post-hoc rationale</span></td></tr>
+<tr><td class="num">1</td><td class="name">Reasoning form</td><td class="def">The path of the reasoning</td><td class="chars"><span class="ch">linear</span>, <span class="ch">branching (alternatives considered)</span></td></tr>
+<tr><td class="num">2</td><td class="name">Completeness</td><td class="def">Whether every claim in the answer has a stated reason</td><td class="chars"><span class="ch">full</span>, <span class="ch">partial</span></td></tr>
+<tr><td class="num">3</td><td class="name">Contrastive form</td><td class="def">Whether the explanation says why this rather than an alternative</td><td class="chars"><span class="ch">non-contrastive</span>, <span class="ch">contrastive</span></td></tr>
+<tr><td class="num">4</td><td class="name">Ordering</td><td class="def">Position of the conclusion relative to the reasons</td><td class="chars"><span class="ch">conclusion first</span>, <span class="ch">reasons first</span>, <span class="ch">interleaved</span></td></tr>
+<tr><td class="num">5</td><td class="name">Trace form</td><td class="def">Relation of the shown text to the model&#39;s reasoning process</td><td class="chars"><span class="ch">full trace</span>, <span class="ch">summarized trace</span>, <span class="ch">post-hoc rationale</span></td></tr>
         </tbody>
       </table>
     </section>
@@ -206,11 +207,11 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
         <caption>Subdimensions of Delivery</caption>
         <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Values</th></tr></thead>
         <tbody>
-<tr><td class="num">1</td><td class="name">Timing</td><td class="def">When the explanation appears relative to the answer</td><td class="chars"><span class="ch">before answer</span>; <span class="ch">with answer</span>; <span class="ch">after answer, on request</span>; <span class="ch">adaptive to user state</span></td></tr>
-<tr><td class="num">2</td><td class="name">Availability</td><td class="def">Whether the explanation is shown by default</td><td class="chars"><span class="ch">always shown</span>; <span class="ch">on request</span></td></tr>
-<tr><td class="num">3</td><td class="name">Progressive disclosure</td><td class="def">Whether more detail can be revealed in steps</td><td class="chars"><span class="ch">single level</span>; <span class="ch">expandable</span></td></tr>
-<tr><td class="num">4</td><td class="name">Modality</td><td class="def">The channel of the explanation</td><td class="chars"><span class="ch">text</span>; <span class="ch">voice</span>; <span class="ch">text with confidence indicator</span></td></tr>
-<tr><td class="num">5</td><td class="name">Interactivity</td><td class="def">What the user can do with the shown reasoning</td><td class="chars"><span class="ch">read-only</span>; <span class="ch">navigable</span>; <span class="ch">editable</span></td></tr>
+<tr><td class="num">1</td><td class="name">Timing</td><td class="def">When the explanation appears relative to the answer</td><td class="chars"><span class="ch">before answer</span>, <span class="ch">with answer</span>, <span class="ch">after answer, on request</span>, <span class="ch">adaptive to user state</span></td></tr>
+<tr><td class="num">2</td><td class="name">Availability</td><td class="def">Whether the explanation is shown by default</td><td class="chars"><span class="ch">always shown</span>, <span class="ch">on request</span></td></tr>
+<tr><td class="num">3</td><td class="name">Progressive disclosure</td><td class="def">Whether more detail can be revealed in steps</td><td class="chars"><span class="ch">single level</span>, <span class="ch">expandable</span></td></tr>
+<tr><td class="num">4</td><td class="name">Modality</td><td class="def">The channel of the explanation</td><td class="chars"><span class="ch">text</span>, <span class="ch">voice</span>, <span class="ch">text with confidence indicator</span></td></tr>
+<tr><td class="num">5</td><td class="name">Interactivity</td><td class="def">What the user can do with the shown reasoning</td><td class="chars"><span class="ch">read-only</span>, <span class="ch">navigable</span>, <span class="ch">editable</span></td></tr>
         </tbody>
       </table>
     </section>
@@ -222,8 +223,8 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
         <caption>Subdimensions of Source</caption>
         <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Values</th></tr></thead>
         <tbody>
-<tr><td class="num">1</td><td class="name">Provenance</td><td class="def">How the explanation relates to the process that produced the answer</td><td class="chars"><span class="ch">from reasoning trace</span>; <span class="ch">post hoc</span>; <span class="ch">verified against the process</span></td></tr>
-<tr><td class="num">2</td><td class="name">Citations and grounding</td><td class="def">How external evidence is linked</td><td class="chars"><span class="ch">none</span>; <span class="ch">attribution (source named)</span>; <span class="ch">citation (source linked)</span>; <span class="ch">quotation with link (verbatim passage, source linked)</span></td></tr>
+<tr><td class="num">1</td><td class="name">Provenance</td><td class="def">How the explanation relates to the process that produced the answer</td><td class="chars"><span class="ch">from reasoning trace</span>, <span class="ch">post hoc</span>, <span class="ch">verified against the process</span></td></tr>
+<tr><td class="num">2</td><td class="name">Citations and grounding</td><td class="def">How external evidence is linked</td><td class="chars"><span class="ch">none</span>, <span class="ch">attribution (source named)</span>, <span class="ch">citation (source linked)</span>, <span class="ch">quotation with link (verbatim passage, source linked)</span></td></tr>
         </tbody>
       </table>
     </section>
@@ -234,8 +235,8 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
         <caption>Subdimensions of Semantic</caption>
         <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Values</th></tr></thead>
         <tbody>
-<tr><td class="num">1</td><td class="name">Correctness of reasoning</td><td class="def">Whether the stated reasons are true and support the answer</td><td class="chars"><span class="ch">correct</span>; <span class="ch">partially correct</span>; <span class="ch">incorrect</span></td></tr>
-<tr><td class="num">2</td><td class="name">Consistency with answer</td><td class="def">Whether the explanation and the answer agree</td><td class="chars"><span class="ch">consistent</span>; <span class="ch">contradicts</span></td></tr>
+<tr><td class="num">1</td><td class="name">Correctness of reasoning</td><td class="def">Whether the stated reasons are true and support the answer</td><td class="chars"><span class="ch">correct</span>, <span class="ch">partially correct</span>, <span class="ch">incorrect</span></td></tr>
+<tr><td class="num">2</td><td class="name">Consistency with answer</td><td class="def">Whether the explanation and the answer agree</td><td class="chars"><span class="ch">consistent</span>, <span class="ch">contradicts</span></td></tr>
         </tbody>
       </table>
     </section>
