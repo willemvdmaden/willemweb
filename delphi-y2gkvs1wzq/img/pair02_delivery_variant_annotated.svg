@@ -8,9 +8,9 @@ text{font-family:'Lato','Source Sans 3','Inter',sans-serif;}
 <rect x="40" y="40" width="1120" height="1362" rx="16" fill="#FFFFFF" stroke="#E5E7EB"/>
 <rect x="72" y="262" width="1056" height="1108.0" rx="12" fill="#FFFFFF" stroke="#D1D5DB"/>
 <text x="72" y="94.4" font-size="28" font-weight="700" fill="#111827">Variation B</text>
-<rect x="72.0" y="118" width="324.4" height="36" rx="18.0" fill="#DBEAFE"/><text x="90.0" y="142.5" font-size="20" fill="#1D4ED8">timing: after answer (on request)</text>
-<rect x="410.4" y="118" width="236.3" height="36" rx="18.0" fill="#FEF3C7"/><text x="428.4" y="142.5" font-size="20" fill="#B45309">availability: on request</text>
-<rect x="660.7" y="118" width="344.6" height="36" rx="18.0" fill="#D1FAE5"/><text x="678.7" y="142.5" font-size="20" fill="#047857">progressive disclosure: expandable</text>
+<rect x="72.0" y="118" width="324.3" height="36" rx="18.0" fill="#DBEAFE"/><text x="90.0" y="142.5" font-size="20" fill="#1D4ED8">timing: after answer (on request)</text>
+<rect x="410.3" y="118" width="236.3" height="36" rx="18.0" fill="#FEF3C7"/><text x="428.3" y="142.5" font-size="20" fill="#B45309">availability: on request</text>
+<rect x="660.6" y="118" width="344.6" height="36" rx="18.0" fill="#D1FAE5"/><text x="678.6" y="142.5" font-size="20" fill="#047857">progressive disclosure: expandable</text>
 <rect x="72.0" y="166" width="386.7" height="36" rx="18.0" fill="#FCE7F3"/><text x="90.0" y="190.5" font-size="20" fill="#BE185D">modality: text with confidence indicator</text>
 <rect x="472.7" y="166" width="225.9" height="36" rx="18.0" fill="#EDE9FE"/><text x="490.7" y="190.5" font-size="20" fill="#6D28D9">interactivity: editable</text>
 <line x1="40" y1="228" x2="1160" y2="228" stroke="#E5E7EB"/>
