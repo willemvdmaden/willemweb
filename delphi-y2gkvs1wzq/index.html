@@ -226,7 +226,7 @@ blockquote {
 code, kbd, samp { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; }
 .lede { font-size: 1.05rem; color: var(--text); }
 .working-definition {
-  max-width: 34rem;
+  max-width: 40rem;
   margin: 1.25rem auto 1.5rem;
   padding: .9rem 1.25rem;
   text-align: center;
@@ -1111,9 +1111,9 @@ sup.fn a { color: var(--accent); text-decoration: none; }
 <section data-page="briefing" hidden>
 <h1>Briefing</h1>
 <h3>What we are evaluating</h3>
-<p>We are evaluating a taxonomy of the properties of the explanations that LLM-based systems give for their outputs. The taxonomy takes the perspective of the people who design and build such systems: designers, developers, prompt authors, and researchers who configure these systems for studies. Its scope is set by one inclusion criterion:</p>
-<p class="working-definition">A property belongs in the taxonomy if it is visible in the explanation as shown to the user, and a designer can set it through prompt, pipeline, or interface choices.</p>
-<p>The taxonomy is therefore limited to the design space that a product or research team controls without retraining the model or intervening in its internals. The examples in this survey are set in a chat interface for familiarity, but the taxonomy is intended for any interface in which an LLM-based system explains its output, such as coding tools in an editor, AI-generated summaries in search results, recommender systems that justify their suggestions, decision-support tools in clinical or financial settings, and voice interfaces.</p>
+<p>We are evaluating a taxonomy of the properties of the explanations that LLM-based systems give for their outputs. The taxonomy takes the perspective of the people who design and build such systems: designers, developers, prompt authors, and researchers who configure these systems for studies. Its scope is defined as follows:</p>
+<p class="working-definition">The taxonomy characterizes the explanation as delivered to the user, in its content, form, and presentation. It is restricted to properties that can be configured without modifying the model, whether through the prompt, the surrounding pipeline, or the interface.</p>
+<p>The examples in this survey are set in a chat interface for familiarity, but the taxonomy is intended for any interface in which an LLM-based system explains its output, such as coding tools in an editor, AI-generated summaries in search results, recommender systems that justify their suggestions, decision-support tools in clinical or financial settings, and voice interfaces.</p>
 <p>It comprises 7 dimensions and 25 subdimensions. The reference sheet, linked at the top of every page, lists all of them and explains the three levels of the taxonomy.</p>
 <h3>Why a taxonomy</h3>
 <p>How LLM-based systems explain their outputs is a young area of research. Many of the properties covered here have been studied before (see <a href="https://zenodo.org/records/19700263" target="_blank" rel="noopener">our position paper</a>, HCXAI workshop at CHI 2026), but the terminology is inconsistent: a single term often covers several distinct properties, and a single property appears under several terms. This presents an opportunity to consolidate prior work into a common vocabulary.</p>
