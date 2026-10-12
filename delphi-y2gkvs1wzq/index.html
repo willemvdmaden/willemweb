@@ -1088,13 +1088,11 @@ sup.fn a { color: var(--accent); text-decoration: none; }
 <section data-page="consent" hidden>
 <h1>Information and consent</h1>
 <p><strong>Study title:</strong> Evaluating a taxonomy of LLM self-explanations as design material</p>
-<p><strong>Researchers:</strong> {names}, {institution}. Contact: {email}.</p>
-<p><strong>What the study is about.</strong> We have developed a taxonomy that describes the properties of explanations that LLM-based assistants give for their answers, from the point of view of a designer who can set those properties. We are asking experts in explainable AI, human-computer interaction, and LLM product design to evaluate it in two survey rounds.</p>
-<p><strong>What you will do.</strong> In round 1 you read a short briefing, look at seven pairs of example explanations, and rate statements about the taxonomy&#39;s dimensions and subdimensions. You can add comments throughout. Round 1 takes about 25 to 30 minutes. About four weeks later you receive round 2, in which you see the group&#39;s anonymized results and re-rate only the items where the panel did not agree. Round 2 takes about 15 to 20 minutes.</p>
-<p><strong>Anonymity.</strong> Your identity is known to the research team so we can send you round 2. It is not shown to other panelists. Results are reported in aggregate and by subgroup (researchers, practitioners). Free-text comments may be quoted in publications in anonymized form. Your name may be listed in the acknowledgments if you opt in at the end of round 2.</p>
-<p><strong>Data.</strong> Responses are stored on {server location} and retained for {period}. You can withdraw at any time before publication by emailing {email}; your data will then be deleted.</p>
-<p><strong>Approval.</strong> {Ethics body and reference number}.</p>
-<p><strong>Compensation.</strong> {none / voucher / other}.</p><form><div class="item consent-item" data-item="X_1" data-required="true"><label class="check" id="X_1-wording" for="X_1"><input type="checkbox" id="X_1" name="X_1" value="yes"><span class="check-text">I have read the information above and agree to take part.<span class="req">(required)</span></span></label><p class="item-error">Please tick the box to continue.</p></div></form>
+<p><strong>Researchers:</strong> Willem van der Maden, IT University of Copenhagen.</p>
+<p><strong>What this round is.</strong> A pilot of the expert survey, completed by members of the research team before it goes to the expert panel. Your answers help us check and refine the taxonomy, the example pairs and the survey itself. They are not part of the expert panel&#39;s results.</p>
+<p><strong>What you will do.</strong> Read a short briefing, look at seven pairs of example explanations, and rate statements about the taxonomy&#39;s dimensions and subdimensions, with room for comments. It takes about 25 to 30 minutes, by 22 October 2026. You can pause and come back with the same link.</p>
+<p><strong>Data.</strong> Your answers are stored in a database hosted in Frankfurt, Germany, under your personal link rather than your name. You can withdraw them at any time by telling Willem van der Maden.</p>
+<p><strong>Ethics.</strong> This pilot follows the Danish Code of Conduct for Research Integrity (January 2026), as IT University of Copenhagen requires of its researchers. Institutional ethics approval for the expert study is being sought.</p><form><div class="item consent-item" data-item="X_1" data-required="true"><label class="check" id="X_1-wording" for="X_1"><input type="checkbox" id="X_1" name="X_1" value="yes"><span class="check-text">I have read the information above and agree to take part.<span class="req">(required)</span></span></label><p class="item-error">Please tick the box to continue.</p></div></form>
 <div class="actions nav"><button type="button" class="btn btn-next">Continue</button><button type="button" class="btn btn-quiet btn-back">Back</button><span class="gate-hint"></span></div></section>
 <section data-page="background" hidden>
 <h1>About you</h1>
@@ -1113,9 +1111,9 @@ sup.fn a { color: var(--accent); text-decoration: none; }
 <h3>The example pairs</h3>
 <p>Each dimension page shows two such cards side by side. Both answer the same question with the same response and the same reasons; they differ only on that dimension&#39;s subdimensions. Chips in the card header name each card&#39;s characteristic on each subdimension, and shaded spans in the text show where that subdimension appears. Read both, then rate the definitions.</p>
 <h3>How your answers are used</h3>
-<p>An item counts as agreed when at least 70 percent choose agree or strongly agree, or when the middle half of the panel sits within one scale point. Items that are not agreed come back in round 2 with the panel&#39;s distribution, your own answer, a summary of the arguments, and any change we made. Disagreement is informative.</p>
-<h3>Two rounds</h3>
-<p>Round 1: about 25 to 30 minutes, by 22 October 2026. Round 2: about 15 to 20 minutes, sent by {date}. You can pause and resume with your personal link.</p>
+<p>In the expert study, an item counts as agreed when at least 70 percent choose agree or strongly agree, or when the middle half of the panel sits within one scale point; items that are not agreed go back to the panel in a second round. In this pilot, your ratings and comments show us where the definitions and the examples need work.</p>
+<h3>This pilot round</h3>
+<p>About 25 to 30 minutes, by 22 October 2026. You can pause and resume with your personal link. The expert panel takes part later, in two rounds.</p>
 <form><div class="item consent-item" data-item="X_7" data-required="true"><label class="check" id="X_7-wording" for="X_7"><input type="checkbox" id="X_7" name="X_7" value="yes"><span class="check-text">I have read the briefing.<span class="req">(required)</span></span></label><p class="item-error">Please tick the box to continue.</p></div></form>
 <div class="actions nav"><button type="button" class="btn btn-next">Continue</button><button type="button" class="btn btn-quiet btn-back">Back</button><span class="gate-hint"></span></div></section>
 <section data-page="d1" hidden>
@@ -1422,6 +1420,7 @@ sup.fn a { color: var(--accent); text-decoration: none; }
   var PREVIEW = false;
   var WEB = true;
   var ENDPOINT = "https://delphi-collector.vercel.app/api/collect";
+  var PILOT = true;
   // Web: the personal token comes from the link (?t=...). It is the only identifier sent.
   var TOKEN = WEB ? ((location.search.match(/[?&]t=([A-Za-z0-9_-]{16,64})(?:&|$)/) || [])[1] || null) : null;
   var d = document, KEY = PREVIEW ? 'delphi-round1-preview' : WEB ? 'delphi-r1-' + (TOKEN || 'none') : 'delphi-round1';
@@ -1657,7 +1656,9 @@ sup.fn a { color: var(--accent); text-decoration: none; }
   }
   function renderDone(sec) {
     if (WEB) {
-      $('.done-body', sec).innerHTML = '<p class="lede">Thank you. Your answers have been received, and round 1 is complete. You can close this page.</p><p>We will send you round 2 by email.</p>';
+      $('.done-body', sec).innerHTML = PILOT
+        ? '<p class="lede">Thank you. Your answers have been received. You can close this page.</p><p>We will use them, together with the other pilot responses, to refine the taxonomy and the survey before it goes to the expert panel.</p>'
+        : '<p class="lede">Thank you. Your answers have been received, and round 1 is complete. You can close this page.</p><p>We will send you round 2 by email.</p>';
       var dl = $('.btn-download', sec); if (dl) dl.hidden = true;
       return;
     }
