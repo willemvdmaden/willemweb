@@ -263,6 +263,24 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
   // Subdimensions are collapsed; the dimension the reader came from (#d3) is
   // opened and marked "this page". The survey reuses one tab for the sheet, so
   // a later page just changes the hash.
+  // ?o=1,4,7,5,6,2,3 : the panelist's own dimension order. The sheet is
+  // shown, and numbered, in that order; without it, in the canonical order.
+  (function reorder() {
+    var m = /[?&]o=([0-9,]+)/.exec(location.search);
+    if (!m) return;
+    var order = m[1].split(',');
+    var secs = document.querySelectorAll('section.dim');
+    if (order.length !== secs.length) return;
+    var byId = {};
+    for (var i = 0; i < secs.length; i++) byId[secs[i].id] = secs[i];
+    var list = [];
+    for (var j = 0; j < order.length; j++) { var s = byId['d' + order[j]]; if (!s || list.indexOf(s) !== -1) return; list.push(s); }
+    var anchor = secs[0].parentNode.querySelector('section.howto');
+    for (var k = 0; k < list.length; k++) {
+      list[k].parentNode.insertBefore(list[k], anchor);
+      var n = list[k].querySelector('h2 .n'); if (n) n.textContent = String(k + 1);
+    }
+  })();
   function here() {
     var id = (location.hash || '').slice(1);
     var all = document.querySelectorAll('section.dim');
