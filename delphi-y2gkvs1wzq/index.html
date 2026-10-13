@@ -1447,6 +1447,7 @@ sup.fn a { color: var(--accent); text-decoration: none; }
   var TOTAL = 7;
   var PREVIEW = false;
   var WEB = true;
+  var DEV_PREFIXES = ["OpKnWEKV","XmgT3k1v","2Nd_xHjb"];
   var ENDPOINT = "https://delphi-collector.vercel.app/api/collect";
   var PILOT = true;
   // Web: the personal token comes from the link (?t=...). It is the only identifier sent.
@@ -1469,6 +1470,13 @@ sup.fn a { color: var(--accent); text-decoration: none; }
 
   function start(name) {
     var rest = shuffle(DIMS.map(function (x) { return x.number; }).filter(function (n) { return n !== 1; }));
+    // A study-team test link may fix the order (&order=1,7,6,...) to check the shuffle.
+    var fixed = WEB && TOKEN && DEV_PREFIXES.indexOf(TOKEN.slice(0, 8)) !== -1 && /[?&]order=([0-9,]+)/.exec(location.search);
+    if (fixed) {
+      var want = fixed[1].split(',').map(Number), all = DIMS.map(function (x) { return x.number; });
+      var ok = want.length === all.length && want[0] === 1 && all.every(function (n) { return want.indexOf(n) !== -1; });
+      if (ok) rest = want.slice(1);
+    }
     var pairLeft = {};
     DIMS.forEach(function (x) { pairLeft[x.pair] = 'A'; }); // Variation A always on the left (v1.3)
     state = { name: name, started: now(), order: [1].concat(rest), pairLeft: pairLeft, answers: {}, savedAt: {}, page: 'consent', times: {}, completed: null };
