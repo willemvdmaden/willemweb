@@ -85,7 +85,7 @@ td.name { width: 14em; font-weight: 600; }
 td.def { width: 32%; }
 td.chars .ch { display: inline-block; }
 td.chars .sep { color: var(--muted); padding: 0 0.35em; }
-section.howto { margin: 18px 0 8px; padding: 12px 16px; border: 1px solid var(--rule); border-radius: 8px; }
+section.howto { margin: 28px 0 8px; padding: 12px 16px; border: 1px solid var(--rule); border-radius: 8px; }
 section.howto h2 { margin: 0 0 6px; font-size: 1rem; }
 section.howto ul { margin: 0 0 8px 1.1rem; padding: 0; }
 section.howto p { margin: 0; }
@@ -134,19 +134,8 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
   <main class="sheet">
     <header class="sheet-head">
       <h1>Taxonomy of LLM self-explanations: reference sheet</h1>
-      <p class="lede">The taxonomy characterizes the explanation as delivered to the user, in its content, form, and presentation. It is restricted to properties that can be configured without modifying the model, whether through the prompt, the surrounding pipeline, or the interface.</p>
-      <p class="counts"><strong>7</strong> dimensions, <strong>28</strong> subdimensions.</p>
       <div class="sheet-actions"></div>
     </header>
-    <section class="howto">
-      <h2>How to read this sheet</h2>
-      <ul>
-        <li><strong>Dimension:</strong> a group of related properties. There are 7. Example: Surface.</li>
-        <li><strong>Subdimension:</strong> one property. There are 28. Example: length.</li>
-        <li><strong>Characteristic:</strong> one of the few options a subdimension sorts an explanation into, exactly one of which applies. Example: short, medium, long for length.</li>
-      </ul>
-      <p><strong>Reading the example pairs.</strong> Each dimension page shows two examples built from the same baseline, which differ only on the subdimensions of that dimension. Labels at the top of each example give its characteristic on each subdimension; shaded phrases in the text show where each subdimension appears.</p>
-    </section>
     <section class="dim" id="d1">
       <h2><span class="n">1</span> Surface<span class="here">this page</span></h2>
       <p class="desc">Surface covers how the explanation looks on the page before its content is read: how much text there is, what kind of words it uses, how it is laid out, and how much detail each reason gets.</p>
@@ -258,6 +247,15 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
         </tbody>
       </table>
       </details>
+    </section>
+    <section class="howto">
+      <h2>How to read this sheet</h2>
+      <ul>
+        <li><strong>Dimension:</strong> a group of related properties. There are 7. Example: Surface.</li>
+        <li><strong>Subdimension:</strong> one property. There are 28. Example: length.</li>
+        <li><strong>Characteristic:</strong> one of the few options a subdimension sorts an explanation into, exactly one of which applies. Example: short, medium, long for length.</li>
+      </ul>
+      <p><strong>Reading the example pairs.</strong> Each dimension page shows two examples built from the same baseline, which differ only on the subdimensions of that dimension. Labels at the top of each example give its characteristic on each subdimension; shaded phrases in the text show where each subdimension appears.</p>
     </section>
   </main>
 <script>
