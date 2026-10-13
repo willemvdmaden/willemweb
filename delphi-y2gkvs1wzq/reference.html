@@ -89,6 +89,13 @@ section.howto { margin: 18px 0 8px; padding: 12px 16px; border: 1px solid var(--
 section.howto h2 { margin: 0 0 6px; font-size: 1rem; }
 section.howto ul { margin: 0 0 8px 1.1rem; padding: 0; }
 section.howto p { margin: 0; }
+details.subs { margin: 6px 0 0; }
+details.subs > summary { cursor: pointer; color: var(--accent); font-size: 0.9rem; padding: 2px 0; }
+details.subs > summary::marker { color: var(--accent); }
+details.subs[open] > summary { margin-bottom: 2px; }
+section.dim .here { display: none; margin-left: 8px; padding: 1px 7px; border-radius: 10px; font-size: 0.72rem; font-weight: 600; vertical-align: middle; background: var(--panel); color: var(--accent); border: 1px solid var(--accent); }
+section.dim.is-here .here { display: inline-block; }
+section.dim.is-here { scroll-margin-top: 12px; }
 footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 0.82rem; }
 @media (max-width: 720px) {
   td.name, td.def { width: auto; }
@@ -140,9 +147,10 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
       </ul>
       <p><strong>Reading the example pairs.</strong> Each dimension page shows two examples built from the same baseline, which differ only on the subdimensions of that dimension. Labels at the top of each example give its characteristic on each subdimension; shaded phrases in the text show where each subdimension appears.</p>
     </section>
-    <section class="dim">
-      <h2><span class="n">1</span> Surface</h2>
+    <section class="dim" id="d1">
+      <h2><span class="n">1</span> Surface<span class="here">this page</span></h2>
       <p class="desc">Surface covers how the explanation looks on the page before its content is read: how much text there is, what kind of words it uses, how it is laid out, and how much detail each reason gets.</p>
+      <details class="subs"><summary>Show subdimensions (4)</summary>
       <table>
         <caption>Subdimensions of Surface</caption>
         <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
@@ -153,10 +161,12 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
 <tr><td class="num">4</td><td class="name">Detail</td><td class="def">How much supporting detail each reason gets</td><td class="chars"><span class="ch">low (reasons stated without support)</span>, <span class="ch">medium (one supporting detail per reason)</span>, <span class="ch">high (several supporting details per reason)</span></td></tr>
         </tbody>
       </table>
+      </details>
     </section>
-    <section class="dim">
-      <h2><span class="n">2</span> Epistemic stance</h2>
+    <section class="dim" id="d2">
+      <h2><span class="n">2</span> Epistemic stance<span class="here">this page</span></h2>
       <p class="desc">Epistemic stance covers how the explanation positions the system toward its own claims: how sure it says it is, whether that certainty attaches to the whole answer or to individual claims, whether individual reasons are softened, and whether it states its own limits.</p>
+      <details class="subs"><summary>Show subdimensions (4)</summary>
       <table>
         <caption>Subdimensions of Epistemic stance</caption>
         <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
@@ -167,10 +177,12 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
 <tr><td class="num">4</td><td class="name">Disclaimer</td><td class="def">Whether the explanation includes a separate statement of the system&#39;s limits or of the need to verify, apart from how confident it sounds</td><td class="chars"><span class="ch">none</span>, <span class="ch">present</span></td></tr>
         </tbody>
       </table>
+      </details>
     </section>
-    <section class="dim">
-      <h2><span class="n">3</span> Interpersonal stance</h2>
+    <section class="dim" id="d3">
+      <h2><span class="n">3</span> Interpersonal stance<span class="here">this page</span></h2>
       <p class="desc">Interpersonal stance covers how the explanation positions the system toward the user: who is presented as doing the reasoning, how formal and how warm the address is, whether the system sides with what the user brought to the interaction, and whether it uses rhetorical devices beyond stating reasons.</p>
+      <details class="subs"><summary>Show subdimensions (5)</summary>
       <table>
         <caption>Subdimensions of Interpersonal stance</caption>
         <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
@@ -182,10 +194,12 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
 <tr><td class="num">5</td><td class="name">Persuasive appeals</td><td class="def">Whether the text uses rhetorical devices beyond stating reasons (authority, social proof, urgency, emotion)</td><td class="chars"><span class="ch">none</span>, <span class="ch">present</span></td></tr>
         </tbody>
       </table>
+      </details>
     </section>
-    <section class="dim">
-      <h2><span class="n">4</span> Structural</h2>
+    <section class="dim" id="d4">
+      <h2><span class="n">4</span> Structural<span class="here">this page</span></h2>
       <p class="desc">Structural covers the form of the reasoning as it appears on the page: whether it follows one path or weighs alternatives, whether every claim gets a reason, whether it says why this rather than something else, where the conclusion sits, and how much of the reasoning process is shown.</p>
+      <details class="subs"><summary>Show subdimensions (5)</summary>
       <table>
         <caption>Subdimensions of Structural</caption>
         <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
@@ -197,10 +211,12 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
 <tr><td class="num">5</td><td class="name">Trace form</td><td class="def">How much of the reasoning process is shown</td><td class="chars"><span class="ch">rationale only (reasons without the process that produced them)</span>, <span class="ch">summarized trace</span>, <span class="ch">full trace</span></td></tr>
         </tbody>
       </table>
+      </details>
     </section>
-    <section class="dim">
-      <h2><span class="n">5</span> Delivery</h2>
+    <section class="dim" id="d5">
+      <h2><span class="n">5</span> Delivery<span class="here">this page</span></h2>
       <p class="desc">Delivery covers when and how the explanation reaches the user: whether it comes before, with, or after the answer; whether it is shown by default or on request; whether more can be revealed in steps; through which channel; and what the user can do with it.</p>
+      <details class="subs"><summary>Show subdimensions (5)</summary>
       <table>
         <caption>Subdimensions of Delivery</caption>
         <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
@@ -212,10 +228,12 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
 <tr><td class="num">5</td><td class="name">Interactivity</td><td class="def">What the user can do with the shown reasoning</td><td class="chars"><span class="ch">read-only</span>, <span class="ch">navigable (the user can expand, collapse, or move between steps)</span>, <span class="ch">editable</span></td></tr>
         </tbody>
       </table>
+      </details>
     </section>
-    <section class="dim">
-      <h2><span class="n">6</span> Source</h2>
+    <section class="dim" id="d6">
+      <h2><span class="n">6</span> Source<span class="here">this page</span></h2>
       <p class="desc">Source covers what the explanation rests on and how the user can check it: whether the shown reasons come from the process that produced the answer or were generated afterward, and how external evidence is linked.</p>
+      <details class="subs"><summary>Show subdimensions (2)</summary>
       <table>
         <caption>Subdimensions of Source</caption>
         <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
@@ -224,10 +242,12 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
 <tr><td class="num">2</td><td class="name">Citations and grounding</td><td class="def">How external evidence is linked; if several forms occur, the strongest</td><td class="chars"><span class="ch">none</span>, <span class="ch">attribution (source named)</span>, <span class="ch">citation (source linked)</span>, <span class="ch">quotation with link (verbatim passage, source linked)</span></td></tr>
         </tbody>
       </table>
+      </details>
     </section>
-    <section class="dim">
-      <h2><span class="n">7</span> Semantic</h2>
+    <section class="dim" id="d7">
+      <h2><span class="n">7</span> Semantic<span class="here">this page</span></h2>
       <p class="desc">Semantic covers what the explanation claims and for whom: whether the reasons are true and support the answer, whether the explanation and the answer agree, and whether the explanation is adapted to the user.</p>
+      <details class="subs"><summary>Show subdimensions (3)</summary>
       <table>
         <caption>Subdimensions of Semantic</caption>
         <thead><tr><th scope="col">#</th><th scope="col">Subdimension</th><th scope="col">Definition</th><th scope="col">Characteristics</th></tr></thead>
@@ -237,9 +257,32 @@ footer.sheet-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid v
 <tr><td class="num">3</td><td class="name">Tailoring to the user</td><td class="def">Whether the explanation is adapted to what the system knows about the user</td><td class="chars"><span class="ch">generic</span>, <span class="ch">tailored to the user</span></td></tr>
         </tbody>
       </table>
+      </details>
     </section>
   </main>
 <script>
+(function () {
+  // Subdimensions are collapsed; the dimension the reader came from (#d3) is
+  // opened and marked "this page". The survey reuses one tab for the sheet, so
+  // a later page just changes the hash.
+  function here() {
+    var id = (location.hash || '').slice(1);
+    var all = document.querySelectorAll('section.dim');
+    for (var i = 0; i < all.length; i++) all[i].classList.remove('is-here');
+    var sec = /^d[0-9]+$/.test(id) && document.getElementById(id);
+    if (!sec) return;
+    sec.classList.add('is-here');
+    var det = sec.querySelector('details.subs'); if (det) det.open = true;
+    sec.scrollIntoView({ block: 'start' });
+  }
+  here();
+  window.addEventListener('hashchange', here);
+  // Printing shows every table.
+  window.addEventListener('beforeprint', function () {
+    var d = document.querySelectorAll('details.subs');
+    for (var i = 0; i < d.length; i++) d[i].open = true;
+  });
+})();
 (function () {
   var slot = document.querySelector('.sheet-actions');
   if (!slot || typeof window.print !== 'function') return;
