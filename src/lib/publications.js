@@ -124,22 +124,40 @@ function getLink(entry) {
     return entry.fields.url || '';
 }
 
+// Awards recognised in the `note` field, in display order
+const awardPatterns = [
+    [/best pictorial/i, 'Best Pictorial'],
+    [/best paper/i, 'Best Paper'],
+    [/honou?rable mention/i, 'Honorable Mention'],
+];
+
 // Parse note field for badges
 function parseBadges(note) {
     if (!note) return [];
     const badges = [];
 
-    const lowerNote = note.toLowerCase();
-    if (lowerNote.includes('honorable mention')) {
-        badges.push({ text: 'Honorable Mention', type: 'award' });
+    for (const [pattern, text] of awardPatterns) {
+        if (pattern.test(note)) badges.push({ text, type: 'award' });
     }
     // "Under review" is filtered out, so we don't need a badge for it
 
-    if (lowerNote.includes('accepted') || lowerNote.includes('revise')) {
+    if (/accepted|revise/i.test(note)) {
         badges.push({ text: 'Accepted', type: 'status' });
     }
 
     return badges;
+}
+
+// BibTeX `month`: a number (1-12) or an English month name / abbreviation; 0 when unknown
+const monthNames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+
+function parseMonth(value) {
+    if (!value) return 0;
+    const v = value.trim().toLowerCase();
+    const n = parseInt(v, 10);
+    if (n >= 1 && n <= 12) return n;
+    const idx = monthNames.findIndex(name => v.startsWith(name));
+    return idx === -1 ? 0 : idx + 1;
 }
 
 // Map thumbnail field names to actual existing image files
@@ -169,6 +187,7 @@ export async function loadPublications() {
             type: getType(entry),
             title: cleanTitle(entry.fields.title || ''),
             year: parseInt(entry.fields.year) || 0,
+            month: parseMonth(entry.fields.month),
             authors: formatAuthors(entry.fields.author),
             venue: getVenue(entry),
             link: getLink(entry),
@@ -177,15 +196,13 @@ export async function loadPublications() {
             badges: parseBadges(entry.fields.note),
         })));
 
-    // Sort by year descending, then by title
+    // Newest first: year, then month; within the same month full papers before workshops
+    // and preprints, then title. `featured` only affects the front page.
     return publications.sort((a, b) => {
         if (b.year !== a.year) return b.year - a.year;
+        if (b.month !== a.month) return b.month - a.month;
         const rankCompare = (typeRank[a.type] ?? 1) - (typeRank[b.type] ?? 1);
         if (rankCompare !== 0) return rankCompare;
-        if (a.featured !== b.featured) return a.featured ? -1 : 1;
-        // Group by venue within same year
-        const venueCompare = (a.venue || '').localeCompare(b.venue || '');
-        if (venueCompare !== 0) return venueCompare;
         return a.title.localeCompare(b.title);
     });
 }
