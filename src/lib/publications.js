@@ -52,14 +52,24 @@ function isPreprint(entry) {
         (entry.fields.journal?.toLowerCase().includes('arxiv'));
 }
 
-// Workshop proposals and workshop papers: explicit `kind = {workshop}`, or "workshop" in title/venue
+// Workshop proposals and workshop papers: "workshop" in title/venue
 function isWorkshopEntry(entry) {
-    if (entry.fields.kind) return entry.fields.kind.toLowerCase() === 'workshop';
     const text = `${entry.fields.title || ''} ${entry.fields.booktitle || ''}`.toLowerCase();
     return text.includes('workshop');
 }
 
+// An explicit `kind` field wins over the heuristics below, e.g. a preprint presented at a workshop
+const kindLabels = {
+    'journal': 'Journal',
+    'conference': 'Conference',
+    'dissertation': 'Dissertation',
+    'workshop': 'Workshop',
+    'preprint': 'Preprint',
+};
+
 function getType(entry) {
+    const kind = entry.fields.kind?.toLowerCase();
+    if (kind && kindLabels[kind]) return kindLabels[kind];
     if (isPreprint(entry)) return 'Preprint';
     if (isWorkshopEntry(entry)) return 'Workshop';
     return getTypeLabel(entry.type);
