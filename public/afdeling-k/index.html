@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Afdeling K · Dossier 1126/26</title>
+<meta property="og:title" content="Afdeling K · Dossier 1126/26">
+<meta property="og:description" content="Verzegeld. Gesloten in 1996. Heropend.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Special+Elite&display=swap">
+<style>
+  /* Afdeling K: nattasfalt, bone, één rood, natrium. Dark-only by design. */
+  :root {
+    --bg: #0B0F13;
+    --surface: #151B21;
+    --bone: #ECE7DC;
+    --muted: #8A9399;
+    --red: #C8362E;
+    --amber: #D99A3D;
+    --paper: #E3D7BB;
+    --ink: #2A2318;
+    --display: 'Archivo Narrow', 'Arial Narrow', sans-serif;
+    --mono: 'IBM Plex Mono', 'Courier New', monospace;
+    --type: 'Special Elite', 'Courier New', monospace;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--bone);
+    font-family: var(--mono);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .stage {
+    position: relative;
+    min-height: 100%;
+    overflow: hidden;
+    padding-block: max(48px, env(safe-area-inset-top, 0px)) 40px;
+    padding-left: max(24px, env(safe-area-inset-left, 0px));
+    padding-right: max(24px, env(safe-area-inset-right, 0px));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .light, .rain, .spine, .watermark { position: fixed; pointer-events: none; }
+  .light { inset: 0; background:
+    radial-gradient(130% 70% at 115% -15%, rgba(217,154,61,0.26), rgba(217,154,61,0) 60%),
+    radial-gradient(100% 55% at -25% 115%, rgba(63,85,97,0.45), rgba(63,85,97,0) 60%); }
+  .rain { inset: 0; background: repeating-linear-gradient(104deg, rgba(236,231,220,0.04) 0 1px, transparent 1px 9px); animation: drift 18s linear infinite; }
+  @keyframes drift { from { background-position: 0 0; } to { background-position: -180px 0; } }
+  .spine { left: 0; top: 0; bottom: 0; width: 3px; background: var(--red); }
+  .watermark { right: -30px; bottom: 90px; font-family: var(--display); font-weight: 700; font-size: 44vh; line-height: 1; letter-spacing: -0.02em; color: rgba(236,231,220,0.035); transform: rotate(-90deg); transform-origin: right bottom; }
+
+  .wrap { position: relative; width: 100%; max-width: 420px; min-height: calc(100vh - 88px); display: flex; flex-direction: column; gap: 28px; }
+  .bar { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: 0.16em; color: var(--muted); }
+
+  /* seal */
+  .seal-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
+  .seal {
+    position: relative; width: 210px; height: 210px; border-radius: 50%;
+    border: 1.5px solid var(--red);
+    display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px;
+    text-align: center; padding: 22px;
+    box-shadow: 0 0 60px rgba(200,54,46,0.18), inset 0 0 40px rgba(200,54,46,0.08);
+    transition: transform 0.5s cubic-bezier(.2,.8,.2,1), opacity 0.6s;
+  }
+  .seal .s1 { font-family: var(--display); font-weight: 500; font-size: 11px; letter-spacing: 0.22em; color: var(--red); }
+  .seal .s2 { font-family: var(--display); font-weight: 700; font-size: 30px; letter-spacing: 0.12em; }
+  .seal .s3 { font-size: 11px; letter-spacing: 0.1em; }
+  .seal .s4 { font-family: var(--display); font-weight: 500; font-size: 10px; letter-spacing: 0.26em; color: var(--red); }
+  .seal .rule { width: 100px; height: 1px; background: var(--red); }
+  .seal .ring { position: absolute; inset: -8px; border-radius: 50%; }
+  .seal .ring circle { fill: none; stroke: var(--red); stroke-width: 2; stroke-dasharray: 710; stroke-dashoffset: 710; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 0.12s linear; }
+  .seal.broken { transform: rotate(-14deg) scale(0.92); opacity: 0.25; }
+  .title { display: flex; flex-direction: column; gap: 8px; align-self: stretch; }
+  .t1 { font-family: var(--display); font-weight: 400; font-size: 30px; letter-spacing: 0.16em; line-height: 1; }
+  .t2 { font-family: var(--display); font-weight: 700; font-size: 44px; letter-spacing: 0.06em; line-height: 0.95; }
+  .amber-rule { width: 48px; height: 1px; background: var(--amber); margin-top: 6px; }
+  .sub { font-size: 13px; color: var(--muted); }
+
+  .btn {
+    display: flex; justify-content: space-between; align-items: center; width: 100%; height: 64px; padding: 0 20px;
+    border: 1px solid rgba(236,231,220,0.5); background: transparent; color: var(--bone);
+    font-family: var(--display); font-weight: 600; font-size: 16px; letter-spacing: 0.18em; text-transform: uppercase;
+    cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none;
+  }
+  .btn .dot { width: 10px; height: 10px; background: var(--red); }
+  .btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+  .btn.primary { background: var(--bone); color: var(--bg); border-color: var(--bone); }
+  .hint { font-size: 11px; letter-spacing: 0.08em; color: var(--muted); text-align: center; }
+
+  /* file */
+  .file { display: none; flex-direction: column; gap: 22px; }
+  .file.show { display: flex; }
+  .paper {
+    position: relative; background: radial-gradient(120% 90% at 30% 15%, #EEE5CD 0%, var(--paper) 55%, #D6C6A2 100%);
+    color: var(--ink); padding: 22px 20px 20px 34px; font-family: var(--type); font-size: 14px; line-height: 1.6;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.6), inset 0 0 50px rgba(90,60,20,0.2);
+    transform: rotate(-0.6deg);
+  }
+  .paper::before, .paper::after { content: ""; position: absolute; left: 10px; width: 13px; height: 13px; border-radius: 50%; background: var(--bg); box-shadow: inset 0 1px 3px rgba(0,0,0,0.8); }
+  .paper::before { top: 28%; } .paper::after { bottom: 28%; }
+  .tab { position: relative; align-self: flex-start; background: #D9C79E; color: #4A3A20; padding: 5px 12px; font-size: 10px; letter-spacing: 0.14em; clip-path: polygon(0 0, 94% 0, 100% 100%, 0 100%); margin-bottom: -16px; margin-left: 6px; z-index: 1; }
+  .meta { display: grid; grid-template-columns: 64px 1fr; gap: 3px 10px; font-size: 11px; color: #6A5A40; border-bottom: 1px solid #5A4A30; padding-bottom: 10px; margin-bottom: 12px; }
+  .meta b { color: var(--ink); font-weight: 400; }
+  .lines p { margin: 0 0 10px; min-height: 1.6em; }
+  .cursor::after { content: "▌"; animation: blink 1s steps(1) infinite; color: #2A3A6A; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .stamp { position: absolute; right: 14px; bottom: 14px; display: flex; flex-direction: column; align-items: center; gap: 2px; border: 2px solid rgba(200,54,46,0.85); color: rgba(200,54,46,0.9); font-family: var(--display); font-weight: 700; font-size: 12px; letter-spacing: 0.18em; padding: 5px 9px; transform: rotate(-7deg) scale(1.6); opacity: 0; mix-blend-mode: multiply; transition: transform 0.18s cubic-bezier(.2,1.4,.4,1), opacity 0.18s; }
+  .stamp small { font-family: var(--mono); font-weight: 400; font-size: 8px; letter-spacing: 0.1em; }
+  .stamp.on { transform: rotate(-7deg) scale(1); opacity: 1; }
+  .old { position: absolute; left: 34px; bottom: 12px; border: 1.5px solid rgba(60,60,120,0.5); color: rgba(60,60,120,0.6); font-size: 8px; letter-spacing: 0.12em; padding: 3px 6px; transform: rotate(4deg); font-family: var(--mono); }
+
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .label { font-size: 11px; letter-spacing: 0.16em; color: var(--amber); }
+  .q { font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: 0.04em; line-height: 1.1; }
+  .input { display: flex; gap: 10px; }
+  .input input {
+    flex: 1; min-width: 0; height: 60px; padding: 0 16px; background: rgba(27,33,39,0.85); border: 1px solid rgba(236,231,220,0.2); border-bottom: 2px solid rgba(236,231,220,0.35);
+    color: var(--bone); font-family: var(--mono); font-size: 20px; letter-spacing: 0.2em; text-transform: uppercase;
+  }
+  .input input:focus { outline: none; border-bottom-color: var(--red); }
+  .input button { width: 64px; height: 60px; flex: none; }
+  .msg { font-size: 12px; min-height: 1.4em; }
+  .msg.bad { color: var(--red); }
+  .shake { animation: shake 0.12s linear 2; }
+  @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+  .role { display: none; flex-direction: column; gap: 14px; }
+  .role.show { display: flex; }
+  .card { background: rgba(27,33,39,0.9); border: 1px solid rgba(236,231,220,0.14); padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .big { font-family: var(--display); font-weight: 700; font-size: 44px; letter-spacing: 0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; }
+  .foot { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: 0.14em; color: var(--muted); margin-top: auto; padding-top: 10px; }
+  .sound { background: none; border: 0; color: var(--muted); font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; cursor: pointer; padding: 0; }
+  .sound:focus-visible { outline: 2px solid var(--amber); }
+  @media (prefers-reduced-motion: reduce) { .rain { animation: none; } .shake { animation: none; } .seal, .stamp { transition: none; } }
+</style>
+</head>
+<body>
+<div class="light" aria-hidden="true"></div>
+<div class="rain" aria-hidden="true"></div>
+<div class="spine" aria-hidden="true"></div>
+<div class="watermark" aria-hidden="true">1126</div>
+
+<main class="stage">
+  <div class="wrap">
+    <div class="bar"><span>KBH · AFDELING K</span><span id="clock">14.11.1996 · 23:40</span></div>
+
+    <section class="seal-wrap" id="sealWrap">
+      <div class="seal" id="seal">
+        <svg class="ring" viewBox="0 0 226 226" aria-hidden="true"><circle id="ring" cx="113" cy="113" r="113"></circle></svg>
+        <div class="s1">KØBENHAVNS POLITI</div>
+        <div class="rule"></div>
+        <div class="s2">AFD. K</div>
+        <div class="s3">DOSSIER 1126/26</div>
+        <div class="rule"></div>
+        <div class="s4">VERZEGELD</div>
+      </div>
+      <div class="title">
+        <div class="t1">EEN ZAAK</div>
+        <div class="t2">GESLOTEN<br>IN 1996.</div>
+        <div class="amber-rule"></div>
+        <div class="sub">Vandaag heropend. Dit bericht is voor één persoon.</div>
+      </div>
+      <div style="width:100%; display:flex; flex-direction:column; gap:10px">
+        <button class="btn" id="hold" aria-label="Houd ingedrukt om het zegel te breken"><span>BREEK HET ZEGEL</span><span class="dot"></span></button>
+        <div class="hint">houd ingedrukt tot de ring rond is</div>
+      </div>
+    </section>
+
+    <section class="file" id="file">
+      <div class="tab">1126/26 · BRASK</div>
+      <div class="paper">
+        <div class="meta">
+          <span>VAN</span><b>Commissaris E. Brask (gepensioneerd)</b>
+          <span>BETREFT</span><b>Dossier 1126/26 · aanstelling</b>
+          <span>DATUM</span><b id="today"></b>
+        </div>
+        <div class="lines" id="lines">
+          <p data-t="Ik heb negen jaar aan dit dossier gezeten en ben nergens gekomen."></p>
+          <p data-t="Ik ben te oud om de stad nog een keer af te lopen. Jullie niet."></p>
+          <p data-t="Twee rechercheurs. Eén van hen weet het al. De ander leest dit nu."></p>
+          <p data-t="Aan: Chanelle. Bevestig je aanstelling hieronder."></p>
+        </div>
+        <div class="old">ARKIVERET 12.03.1997</div>
+        <div class="stamp" id="stamp"><span>AANGESTELD</span><small id="stampDate"></small></div>
+      </div>
+
+      <div class="field" id="field" hidden>
+        <div class="label">VELD 00 · REGISTER</div>
+        <div class="q">Typ je voornaam om je aanstelling te bevestigen.</div>
+        <form class="input" id="form" autocomplete="off">
+          <input id="name" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" aria-label="Voornaam" maxlength="24">
+          <button class="btn primary" type="submit" aria-label="Check in het register" style="justify-content:center"><span class="dot" style="background:var(--bg)"></span></button>
+        </form>
+        <div class="msg" id="msg">Hoofdletters en spaties maken niet uit.</div>
+      </div>
+
+      <section class="role" id="role">
+        <div class="card">
+          <div class="label">JOUW ROL</div>
+          <div class="big">TECHNISCH</div>
+          <div class="sub">Foto's, tekeningen, gebouwen. Hij doet de codes en de kaart.</div>
+        </div>
+        <div class="card">
+          <div class="label">HET DOSSIER GAAT OPEN OVER</div>
+          <div class="row"><div class="big" id="count">—</div><div class="sub" id="countSub"></div></div>
+          <div class="sub">Twee dagen. Eén stad. Vier verdachten. Kleed je warm aan. Neem je ogen mee.</div>
+        </div>
+        <div class="card">
+          <div class="label">VOLGENDE BERICHT</div>
+          <div class="sub">Morgen, 21:00. Vragen worden niet beantwoord. Regel 4: open nooit een envelop voordat het dossier erom vraagt.</div>
+        </div>
+      </section>
+    </section>
+
+    <div class="foot">
+      <span>INTERN · NIET DOORSTUREN</span>
+      <button class="sound" id="sound" aria-pressed="false">GELUID: UIT</button>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  // ===== INSTELLINGEN (pas hier aan) =====
+  var OPENING = '2026-11-12T09:00:00+01:00';   // moment waarop het dossier opengaat (dag 1, 09:00 Kopenhagen)
+  var NAMEN = ['CHANELLE', 'CHAN', 'CHANEL'];    // geaccepteerde antwoorden, genormaliseerd
+  // =======================================
+
+  var $ = function (id) { return document.getElementById(id); };
+  var store = {
+    get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  };
+  function norm(s) {
+    return (s || '').toUpperCase().replace(/\s+/g, '').replace(/Æ/g, 'AE').replace(/Ø/g, 'OE').replace(/Å/g, 'AA').replace(/[^A-Z0-9]/g, '');
+  }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function dmy(d) { return pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.' + d.getFullYear(); }
+
+  var now = new Date();
+  $('today').textContent = dmy(now);
+  $('stampDate').textContent = dmy(now) + ' · AFD. K';
+
+  // --- geluid: lage toon, pas na een tik ---
+  var ctx = null, gain = null, on = false;
+  function toggleSound() {
+    try {
+      if (!ctx) {
+        ctx = new (window.AudioContext || window.webkitAudioContext)();
+        var o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), f = ctx.createBiquadFilter();
+        gain = ctx.createGain();
+        o1.type = 'sawtooth'; o1.frequency.value = 48; o2.type = 'sine'; o2.frequency.value = 48.7;
+        f.type = 'lowpass'; f.frequency.value = 140; gain.gain.value = 0;
+        o1.connect(f); o2.connect(f); f.connect(gain); gain.connect(ctx.destination); o1.start(); o2.start();
+      }
+      on = !on;
+      if (ctx.state === 'suspended') ctx.resume();
+      gain.gain.setTargetAtTime(on ? 0.12 : 0, ctx.currentTime, 0.4);
+      $('sound').textContent = on ? 'GELUID: AAN' : 'GELUID: UIT';
+      $('sound').setAttribute('aria-pressed', on ? 'true' : 'false');
+    } catch (e) {}
+  }
+  $('sound').addEventListener('click', toggleSound);
+  function thud() {
+    if (!ctx || !on) return;
+    try {
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine'; o.frequency.setValueAtTime(110, ctx.currentTime); o.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.25);
+      g.gain.setValueAtTime(0.5, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + 0.32);
+    } catch (e) {}
+  }
+
+  // --- zegel: ingedrukt houden ---
+  var HOLD = 1500, start = 0, raf = 0, broken = false;
+  var ring = $('ring'), hold = $('hold');
+  function frame() {
+    var p = Math.min(1, (performance.now() - start) / HOLD);
+    ring.style.strokeDashoffset = String(710 * (1 - p));
+    if (p >= 1) { breakSeal(); return; }
+    raf = requestAnimationFrame(frame);
+  }
+  function down(e) { if (broken) return; e.preventDefault(); start = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); }
+  function up() { if (broken) return; cancelAnimationFrame(raf); ring.style.strokeDashoffset = '710'; }
+  hold.addEventListener('pointerdown', down);
+  hold.addEventListener('pointerup', up);
+  hold.addEventListener('pointercancel', up);
+  hold.addEventListener('pointerleave', up);
+  hold.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!start) down(e); } });
+  hold.addEventListener('keyup', function (e) { if (e.key === 'Enter' || e.key === ' ') { up(); start = 0; } });
+
+  function breakSeal(instant) {
+    broken = true;
+    store.set('k.seal', '1');
+    $('seal').classList.add('broken');
+    thud();
+    setTimeout(function () {
+      $('sealWrap').style.display = 'none';
+      $('file').classList.add('show');
+      $('clock').textContent = dmy(now) + ' · ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+      typeLines(instant);
+    }, instant ? 0 : 700);
+  }
+
+  // --- typemachine ---
+  function typeLines(instant) {
+    var ps = Array.prototype.slice.call($('lines').querySelectorAll('p'));
+    var i = 0;
+    function next() {
+      if (i >= ps.length) { $('field').hidden = false; if (!store.get('k.name')) $('name').focus(); return; }
+      var p = ps[i++], t = p.getAttribute('data-t'), j = 0;
+      if (instant) { p.textContent = t; next(); return; }
+      p.classList.add('cursor');
+      (function tick() {
+        p.textContent = t.slice(0, ++j);
+        if (j < t.length) setTimeout(tick, 28 + Math.random() * 40);
+        else { p.classList.remove('cursor'); setTimeout(next, 420); }
+      })();
+    }
+    next();
+  }
+
+  // --- register ---
+  $('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = norm($('name').value);
+    if (NAMEN.indexOf(v) !== -1) { confirm(); return; }
+    var msg = $('msg'); msg.textContent = 'Geen match in het register. Probeer het opnieuw.'; msg.className = 'msg bad';
+    var f = $('field'); f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake');
+  });
+  function confirm(instant) {
+    store.set('k.name', '1');
+    $('msg').textContent = 'Match. Aanstelling geregistreerd.'; $('msg').className = 'msg';
+    $('name').disabled = true;
+    setTimeout(function () { $('stamp').classList.add('on'); thud(); }, instant ? 0 : 300);
+    setTimeout(function () { $('field').hidden = true; $('role').classList.add('show'); tickCount(); }, instant ? 0 : 1400);
+  }
+
+  // --- aftelklok ---
+  function tickCount() {
+    var target = new Date(OPENING).getTime();
+    function render() {
+      var d = target - Date.now();
+      if (d <= 0) { $('count').textContent = 'NU'; $('countSub').textContent = 'het dossier ligt op tafel'; return; }
+      var days = Math.floor(d / 86400000), h = Math.floor(d / 3600000) % 24, m = Math.floor(d / 60000) % 60, s = Math.floor(d / 1000) % 60;
+      $('count').textContent = days + 'd ' + pad(h) + ':' + pad(m) + ':' + pad(s);
+      $('countSub').textContent = 'tot ' + new Date(OPENING).toLocaleString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+      setTimeout(render, 1000);
+    }
+    render();
+  }
+
+  // --- terugkomen: niet alles opnieuw ---
+  if (store.get('k.seal')) {
+    breakSeal(true);
+    if (store.get('k.name')) { $('name').value = 'CHANELLE'; confirm(true); }
+  }
+})();
+</script>
+</body>
+</html>
