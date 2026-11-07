@@ -41,7 +41,7 @@
   .hint { font-size:11px; letter-spacing:0.08em; color: var(--muted); text-align:center; }
   .view { display:none; flex-direction:column; gap:18px; flex:1; } .view.show { display:flex; }
   @media (prefers-reduced-motion: reduce) { .rain { animation:none; } .shake { animation:none; } .stamp { transition:none; } }
-.chk { display:flex; flex-direction:column; gap:8px; } .chk label { display:flex; gap:12px; align-items:center; padding:12px 14px; border:1px solid rgba(236,231,220,0.14); background: rgba(27,33,39,0.6); font-size:14px; cursor:pointer; } .chk input { width:22px; height:22px; accent-color: var(--red); } .chk label.on { border-color: var(--amber); }</style>
+.chk { display:flex; flex-direction:column; gap:8px; } .chk label { display:flex; gap:12px; align-items:center; min-height:56px; padding:12px 14px; border:1px solid rgba(236,231,220,0.14); background: rgba(27,33,39,0.6); font-size:14px; cursor:pointer; } .chk input { width:22px; height:22px; accent-color: var(--red); } .chk label.on { border-color: var(--amber); }</style>
 </head>
 <body>
 <div class="light" aria-hidden="true"></div><div class="rain" aria-hidden="true"></div><div class="spine" aria-hidden="true"></div><div class="watermark" aria-hidden="true">1126</div>
@@ -77,7 +77,7 @@
   }
   $('open').classList.add('show');
   
-    var ITEMS = ['Powerbank en kabel','Warme jas, handschoenen, muts','Schoenen voor elf kilometer','Pen en de twee werkbladen (verdachten, tijdlijn)','De vijf enveloppen, dicht, in een map','Rejsekort of metrokaartje (M1 en M3)','Telefoon met het dossier (link op de kaart)','Een lege bewijszak met label','Honger om 13:00 en dorst om 15:00'];
+    var ITEMS = ['Powerbank en kabel','Warme jas, handschoenen, muts','Schoenen voor elf kilometer','De werkbladen: die staan in het dossier, onder BORD','De vijf konvoluten: die liggen op het bureau van de afdeling, in het dossier','Rejsekort of metrokaartje (M1 en M3)','Allebei een telefoon met het dossier (de link komt donderdag om 09:00)','Een tas voor één fles (bewijsstuk 7)','Honger om 13:00 en dorst om 15:00'];
     var box=$('chk'); var st = JSON.parse(store.get('items')||'[]');
     ITEMS.forEach(function(t,i){ var l=document.createElement('label'); var c=document.createElement('input'); c.type='checkbox'; c.checked=!!st[i]; l.className=c.checked?'on':''; c.addEventListener('change', function(){ st[i]=c.checked?1:0; l.className=c.checked?'on':''; store.set('items', JSON.stringify(st)); }); l.appendChild(c); l.appendChild(document.createTextNode(t)); box.appendChild(l); });
     $('qf').addEventListener('submit', function(e){ e.preventDefault(); var q=$('q').value.toLowerCase(); var a='Vragen worden niet beantwoord.'; if (/\bwie\b/.test(q) && /(jij|je\b|u\b|brask|ben jij|bent u)/.test(q)) a='Iemand die negen jaar te lang heeft gewacht. E.B.'; $('qa').textContent=a; $('qa').className = a.length>30 ? 'msg ok' : 'msg'; $('q').value=''; });
