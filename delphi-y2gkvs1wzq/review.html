@@ -1,0 +1,1293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Pilot review - LLM self-explanations</title>
+<style>
+/* ---- tokens ---------------------------------------------------- */
+:root {
+  color-scheme: light dark;
+
+  --bg: #f7f7f5;
+  --surface: #ffffff;
+  --surface-2: #f0f0ed;
+  --surface-3: #e7e7e3;
+  --text: #16181c;
+  --muted: #575c63;
+  --border: #dcdcd7;
+  --border-strong: #b3b5b0;
+
+  --accent: #1a4fd0;
+  --accent-hover: #143da6;
+  --accent-weak: #e9effc;
+  --on-accent: #ffffff;
+  --focus: #1a4fd0;
+
+  --danger: #a5251c;
+  --danger-weak: #fdecea;
+  --danger-border: #e0a49e;
+
+  --warn-bg: #fdf5e4;
+  --warn-border: #e0c384;
+  --warn-text: #6a4c11;
+
+  --seg-1: #dfe3e8;
+  --seg-2: #ccd8ea;
+  --seg-3: #b6c8e8;
+  --seg-4: #93b0e4;
+  --seg-5: #6f96de;
+  --seg-text: #16181c;
+
+  --radius: 10px;
+  --radius-sm: 7px;
+  --maxw: 880px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14161a;
+    --surface: #1b1e24;
+    --surface-2: #22262d;
+    --surface-3: #2a2f37;
+    --text: #e8eaee;
+    --muted: #a5adb8;
+    --border: #313640;
+    --border-strong: #4a515c;
+
+    --accent: #8ab0ff;
+    --accent-hover: #a7c3ff;
+    --accent-weak: #1d2740;
+    --on-accent: #10131a;
+    --focus: #8ab0ff;
+
+    --danger: #ff9b92;
+    --danger-weak: #3a1f1d;
+    --danger-border: #6e3a35;
+
+    --warn-bg: #2e2716;
+    --warn-border: #6b5a2c;
+    --warn-text: #f0d79a;
+
+    --seg-1: #2f3540;
+    --seg-2: #34405a;
+    --seg-3: #3a4d74;
+    --seg-4: #41598d;
+    --seg-5: #4766a6;
+    --seg-text: #e8eaee;
+  }
+}
+
+/* ---- base ------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.wrap {
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+a { color: var(--accent); text-underline-offset: 2px; }
+a:hover { color: var(--accent-hover); }
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 0 0 var(--radius-sm) 0;
+  padding: .6rem 1rem;
+  z-index: 40;
+}
+.skip:focus { left: 0; }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- header / footer -------------------------------------------- */
+.site-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1.25rem;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-block: .85rem;
+}
+.brand {
+  font-size: .95rem;
+  font-weight: 600;
+  letter-spacing: .01em;
+  color: var(--text);
+}
+.brand .round-tag,
+.brand .pilot-tag {
+  display: inline-block;
+  margin-left: .55rem;
+  padding: .05rem .45rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 500;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+}
+.brand .pilot-tag { border-color: var(--warn-border); background: var(--warn-bg); color: var(--warn-text); }
+.header-nav a {
+  font-size: .9rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.site-footer {
+  margin-top: 3.5rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: .85rem;
+}
+.site-footer .wrap { padding-block: 1.1rem 1.6rem; }
+.site-footer p { margin: .2rem 0; }
+
+/* ---- main / typography ------------------------------------------ */
+main { display: block; padding-top: 2rem; padding-bottom: 1rem; }
+main:focus { outline: none; }
+
+h1 {
+  font-size: 1.6rem;
+  line-height: 1.3;
+  font-weight: 650;
+  letter-spacing: -.01em;
+  margin: 0 0 1.5rem;
+}
+h2 {
+  font-size: 1.17rem;
+  line-height: 1.35;
+  font-weight: 650;
+  margin: 0 0 .7rem;
+}
+h3 {
+  font-size: 1.02rem;
+  line-height: 1.4;
+  font-weight: 650;
+  margin: 0 0 .4rem;
+}
+p { margin: 0 0 1rem; }
+main section { margin-bottom: 2.25rem; }
+main section > h2:first-child { margin-top: 0; }
+ul, ol { margin: 0 0 1rem; padding-left: 1.4rem; }
+li { margin-bottom: .3rem; }
+strong { font-weight: 650; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 2rem 0; }
+blockquote {
+  margin: 0 0 1rem;
+  padding-left: 1rem;
+  border-left: 3px solid var(--border-strong);
+  color: var(--text);
+}
+code, kbd, samp { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; }
+.lede { font-size: 1.05rem; color: var(--text); }
+.working-definition {
+  max-width: 40rem;
+  margin: 1.25rem auto 1.5rem;
+  padding: .9rem 1.25rem;
+  text-align: center;
+  font-size: 1.05rem;
+  font-style: italic;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+}
+.muted { color: var(--muted); }
+.small { font-size: .88rem; }
+
+/* ---- panels ------------------------------------------------------ */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.3rem 1.35rem .8rem;
+  margin-bottom: 2rem;
+}
+.panel > :last-child { margin-bottom: .5rem; }
+.panel-title {
+  font-size: .78rem;
+  font-weight: 650;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 .75rem;
+}
+
+.notice {
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  padding: .8rem 1rem;
+  margin: 0 0 1.25rem;
+}
+.notice > :last-child { margin-bottom: 0; }
+.notice-info { border-left-color: var(--accent); }
+.notice-warn { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); }
+.notice-error { background: var(--danger-weak); border-color: var(--danger-border); border-left-color: var(--danger); color: var(--danger); }
+.notice-title { font-weight: 650; margin: 0 0 .25rem; }
+
+.instruction {
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--accent-weak);
+  border-radius: var(--radius-sm);
+  padding: .7rem .9rem;
+  margin: 0 0 1.5rem;
+}
+
+/* ---- items ------------------------------------------------------- */
+.item {
+  border-top: 1px solid var(--border);
+  padding: 1.35rem 0 1.4rem;
+}
+.item:first-of-type, .item:first-child { border-top: 0; }
+.item-wording {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 .3rem;
+}
+.item-helper {
+  margin: 0 0 .55rem;
+  color: var(--muted);
+  font-size: .9rem;
+}
+.item-hint {
+  margin: .4rem 0 0;
+  color: var(--muted);
+  font-size: .85rem;
+}
+.req {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: .85rem;
+  margin-left: .3rem;
+}
+.item-error {
+  display: none;
+  margin: .55rem 0 0;
+  color: var(--danger);
+  font-size: .88rem;
+  font-weight: 600;
+}
+.item.missing {
+  background: var(--danger-weak);
+  border-left: 4px solid var(--danger);
+  border-radius: var(--radius-sm);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  margin-left: -1rem;
+  margin-right: -1rem;
+}
+.item.missing .item-error { display: block; }
+
+/* ---- likert ------------------------------------------------------ */
+.likert-row {
+  display: flex;
+  align-items: stretch;
+  gap: 1.4rem;
+  margin-top: .65rem;
+}
+.likert-scale {
+  display: flex;
+  flex: 1 1 auto;
+  gap: .4rem;
+  min-width: 0;
+}
+.lk-opt,
+.lk-cj {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: .35rem;
+  text-align: center;
+  padding: .6rem .45rem .55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+  transition: background-color .12s ease, border-color .12s ease;
+}
+.lk-opt { flex: 1 1 0; min-width: 0; }
+.lk-opt:hover { background: var(--accent-weak); border-color: var(--border-strong); }
+.lk-opt input, .lk-cj input {
+  margin: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.lk-num { font-weight: 650; font-size: .95rem; line-height: 1; }
+.lk-txt { font-size: .82rem; line-height: 1.25; color: var(--muted); }
+.lk-opt:has(input:checked) {
+  background: var(--accent-weak);
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.lk-opt:has(input:checked) .lk-txt { color: var(--text); }
+
+/* Cannot judge: own surface, own border, a real gap, never the accent. */
+.likert-cj {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: stretch;
+  padding-left: 1.4rem;
+  border-left: 1px dashed var(--border-strong);
+}
+.lk-cj {
+  width: 9.5rem;
+  background: var(--surface-2);
+  border: 1px dashed var(--border-strong);
+  justify-content: center;
+}
+.lk-cj input { accent-color: var(--muted); }
+.lk-cj .lk-txt { color: var(--muted); font-size: .85rem; font-weight: 600; }
+.lk-cj:hover { background: var(--surface-3); }
+.lk-cj:has(input:checked) {
+  background: var(--surface-3);
+  border-style: solid;
+  border-color: var(--border-strong);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+.lk-cj:has(input:checked) .lk-txt { color: var(--text); }
+
+@media (max-width: 760px) {
+  .likert-row { flex-direction: column; gap: .8rem; }
+  .likert-scale { flex-direction: column; gap: .35rem; }
+  .lk-opt {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    gap: .6rem;
+    padding: .55rem .7rem;
+  }
+  .lk-opt .lk-txt { font-size: .92rem; }
+  .likert-cj {
+    padding-left: 0;
+    padding-top: .8rem;
+    border-left: 0;
+    border-top: 1px dashed var(--border-strong);
+  }
+  .lk-cj {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: .6rem;
+    padding: .55rem .7rem;
+  }
+  .lk-cj .lk-txt { font-size: .92rem; }
+}
+
+/* ---- select-all (Q2) --------------------------------------------- */
+.checklist {
+  margin: .7rem 0 0;
+  padding: 0;
+  list-style: none;
+  columns: 1;
+  column-gap: 2.2rem;
+}
+@media (min-width: 700px) { .checklist { columns: 2; } }
+.checklist li {
+  margin: 0 0 .15rem;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+}
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: .6rem;
+  padding: .3rem .45rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  line-height: 1.45;
+}
+.check:hover { background: var(--surface-2); }
+.check input {
+  margin: .25rem 0 0;
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: 0 0 auto;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.check-text { font-size: .95rem; }
+.check-other { margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--border); }
+.other-box { margin: .45rem 0 0 1.65rem; }
+.other-box input[type="text"] { max-width: 34rem; }
+
+/* ---- text inputs ------------------------------------------------- */
+textarea,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="search"],
+select {
+  width: 100%;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: .55rem .7rem;
+}
+textarea { line-height: 1.55; resize: vertical; min-height: 4.5rem; }
+textarea:focus, input:focus, select:focus { border-color: var(--accent); }
+::placeholder { color: var(--muted); opacity: .8; }
+
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+legend { padding: 0; }
+label { cursor: pointer; }
+
+.choices { list-style: none; margin: .6rem 0 0; padding: 0; }
+.choices li { margin-bottom: .15rem; }
+
+/* ---- buttons ----------------------------------------------------- */
+.btn,
+button,
+input[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: .7rem 1.35rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn:hover,
+button:hover,
+input[type="submit"]:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: var(--on-accent); }
+.btn[disabled],
+button[disabled],
+input[type="submit"][disabled] {
+  background: var(--surface-3);
+  border-color: var(--border);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+.btn-secondary,
+button.btn-secondary {
+  background: var(--surface);
+  color: var(--accent);
+  border-color: var(--border-strong);
+}
+.btn-secondary:hover,
+button.btn-secondary:hover { background: var(--surface-2); color: var(--accent-hover); border-color: var(--border-strong); }
+.btn-quiet,
+button.btn-quiet {
+  background: transparent;
+  color: var(--muted);
+  border-color: transparent;
+  padding-inline: .6rem;
+  font-weight: 500;
+}
+.btn-quiet:hover,
+button.btn-quiet:hover { background: var(--surface-2); color: var(--text); border-color: transparent; }
+.btn-danger,
+button.btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+.btn-danger:hover,
+button.btn-danger:hover { filter: brightness(1.08); background: var(--danger); border-color: var(--danger); }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .85rem;
+  margin: 2rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.gate-hint { color: var(--muted); font-size: .88rem; }
+.save-status { margin: .5rem 0 0; font-size: .88rem; color: var(--muted); }
+.save-status-warn { color: var(--danger); font-weight: 600; }
+
+/* ---- progress ---------------------------------------------------- */
+.progress-bar { background: var(--surface); border-bottom: 1px solid var(--border); }
+.progress-bar .wrap { padding-block: .7rem .8rem; }
+.progress-track {
+  height: 7px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+.progress-fill { height: 100%; background: var(--accent); border-radius: 999px; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: .4rem 0 0;
+  font-size: .82rem;
+  color: var(--muted);
+}
+.progress-label strong { color: var(--text); font-weight: 600; }
+
+/* ---- example pair ------------------------------------------------ */
+.pair { margin: 0 0 2rem; }
+.pair-details {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: .3rem .9rem;
+  margin: 0 0 2rem;
+}
+.pair-details > summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: .95rem;
+  padding: .6rem .1rem;
+  list-style-position: outside;
+}
+.pair-details[open] > summary { border-bottom: 1px solid var(--border); margin-bottom: .9rem; }
+.pair-details .pair { margin-bottom: .9rem; }
+
+/* conditional reason boxes (change list, item 4): hidden only when JS runs. */
+.js .cond:not(.cond-open) { display: none; }
+.cond { margin: -.25rem 0 1.25rem; padding: .75rem 1rem; border-left: 3px solid var(--accent); background: var(--surface-2, var(--surface)); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+.cond .item { margin-bottom: 0; }
+.no-js .cond .item-wording::after { content: " (only if you rated it 3 or lower)"; font-weight: 400; color: var(--muted); }
+
+/* subdimension accordion (change list, item 2) */
+.acc-heading { font-size: 1.15rem; margin: 2rem 0 .75rem; }
+details.acc { border: 1px solid var(--border); border-radius: var(--radius); margin: 0 0 .75rem; background: var(--surface); }
+details.acc > summary { cursor: pointer; padding: .8rem 1rem; list-style: none; display: flex; flex-wrap: wrap; gap: .25rem .75rem; align-items: baseline; }
+details.acc > summary::-webkit-details-marker { display: none; }
+details.acc > summary::before { content: "▸"; display: inline-block; width: 1rem; color: var(--muted); }
+details.acc[open] > summary::before { content: "▾"; }
+details.acc > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--radius); }
+.acc-name { font-weight: 600; }
+.acc-def { color: var(--muted); font-size: .92rem; flex: 1 1 18rem; }
+.acc-body { padding: 0 1rem 1rem; border-top: 1px solid var(--border); }
+.acc-body .subblock { border: 0; padding: 0; margin-top: .75rem; }
+
+/* ================================================================
+   v1.2 survey UI spec: 15px base, white, 860px, no cards, a rating grid.
+   Appended last so it overrides the base rules above.
+   ================================================================ */
+html { color-scheme: light; }
+:root { --bg: #ffffff; --surface: #ffffff; --surface-2: #f6f6f6; --surface-3: #efefef; --maxw: 860px; --radius: 4px; --radius-sm: 3px; --border: #e3e3e3; --muted: #6b6b6b; }
+@media (prefers-color-scheme: dark) {
+  :root, :root:not([data-theme="light"]), :root[data-theme="dark"] {
+    --bg: #ffffff; --surface: #ffffff; --surface-2: #f6f6f6; --surface-3: #efefef; --text: #16181c; --muted: #6b6b6b;
+    --border: #e3e3e3; --border-strong: #b9b9b9; --accent: #1a4fd0; --accent-hover: #143da6; --accent-weak: #eef2fc; --on-accent: #fff; --focus: #1a4fd0;
+    --danger: #a5251c; --danger-weak: #fdecea; --danger-border: #e0a49e; --warn-bg: #fdf5e4; --warn-border: #e0c384; --warn-text: #6a4c11;
+    --seg-1: #dfe3e8; --seg-2: #ccd8ea; --seg-3: #b6c8e8; --seg-4: #93b0e4; --seg-5: #6f96de; --seg-text: #16181c;
+  }
+}
+body { font-size: 15px; line-height: 1.4; background: #fff; }
+h1, h2 { font-size: 20px; line-height: 1.3; font-weight: 600; margin: 24px 0 8px; }
+h3 { font-size: 16px; line-height: 1.3; font-weight: 600; margin: 28px 0 8px; }
+.item-helper, .small, .muted, .lede { font-size: 13px; color: var(--muted); }
+.lede { font-size: 15px; color: var(--text); }
+.req { display: none; }
+.topline { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 13px; color: var(--muted); padding: 12px 0 10px; border-bottom: 1px solid var(--border); }
+/* spec 06: the progress line and its reference link stay in view while the page scrolls */
+.topline { position: sticky; top: 0; z-index: 40; background: #fff; }
+.topline .header-nav { display: flex; gap: 16px; }
+.topline a { color: var(--muted); }
+.topline .round-tag, .topline .pilot-tag, .topline .dev-tag { margin-left: 8px; }
+main.wrap { padding-top: 8px; }
+/* the annotated pair */
+.pair-grid { gap: 16px; }
+.pair-card { border: 0; padding: 0; background: transparent; }
+.pair-cap { font-variant: all-small-caps; letter-spacing: .04em; font-size: 14px; color: var(--muted); text-align: center; margin-top: 6px; }
+/* definition block */
+.def-name { margin-top: 24px; }
+.def-text { margin: 0 0 12px; }
+.def-note { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
+.sub-heading { margin-top: 28px; }
+/* rating grid */
+.lg { margin: 4px 0 8px; }
+.lg-head, .lg-row { display: flex; align-items: center; }
+.lg-head { min-height: 22px; }
+.lg-row { min-height: 40px; border-bottom: 1px solid var(--border); margin: 0; padding: 2px 0; }
+.lg-stmt { flex: 0 0 45%; margin: 0; padding-right: 12px; font-size: 15px; font-weight: 400; }
+.lg-help { display: block; font-size: 13px; color: var(--muted); }
+.lg-opts { margin-left: auto; display: grid; grid-template-columns: repeat(5, 40px) 24px 40px; align-items: end; }
+.lg-opt { grid-column: auto; display: flex; flex-direction: column; align-items: center; cursor: pointer; margin: 0; }
+.lg-opt.lg-cj { grid-column: 7; }
+.lg-opt input { width: 20px; height: 20px; margin: 0; accent-color: #333; }
+.lg-num { font-size: 12px; color: #888; line-height: 1; height: 12px; margin-top: 2px; }
+/* All three header labels on one row, bottom-aligned, over their own columns:
+   "Strongly disagree" starts over point 1, "Strongly agree" ends over point 5,
+   "Cannot judge" sits over its own button. Non-overlapping spans, pinned to
+   row 1, so the grid can never push one of them onto a second line. */
+.lg-lab {
+  grid-row: 1; width: 64px; justify-self: center; text-align: center;
+  font-size: 11px; line-height: 1.15; color: #888; white-space: normal;
+  padding-bottom: 6px; align-self: end;
+}
+.lg-lab-l { grid-column: 1; }
+.lg-lab-r { grid-column: 5; }
+.lg-lab-cj { grid-column: 7; }
+.lg-row.missing { background: var(--danger-weak); box-shadow: inset 3px 0 0 var(--danger); }
+.lg-row .item-error { display: none; }
+/* subdimension blocks */
+.sd { margin: 0 0 22px; }
+.sd-name { margin: 0; font-size: 15px; }
+.sd-chars { color: var(--muted); font-weight: 400; }
+.sd-def { margin: 2px 0 6px; }
+/* inline reason box */
+.cond { margin: 0 0 10px; padding: 8px 0 2px; border-left: 0; background: transparent; border-radius: 0; }
+.text-compact .item-wording { font-size: 13px; color: var(--muted); font-weight: 400; margin-bottom: 4px; }
+.text-compact textarea { min-height: 3.2em; }
+/* candidate checklist */
+.select-item .checklist { columns: 1; column-count: 1; display: block; }
+.select-item .checklist li { margin: 0; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.select-item fieldset { border: 0; padding: 0; }
+.select-item legend:empty { display: none; }
+/* the briefing figure (stimuli v2.4) */
+.briefing-figure { margin: 16px 0 20px; }
+.briefing-figure img { display: block; width: 100%; height: auto; max-width: 760px; margin: 0 auto; border: 1px solid var(--border); border-radius: 8px; }
+
+/* the briefing's worked example, styled like the annotated stimulus cards:
+   one assistant message, the response and the explanation shaded in place
+   with a small tag after each, in the cards' blue / amber annotation colours. */
+.anatomy { margin: 16px 0 20px; }
+.anatomy-card { border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; background: #fff; box-shadow: 0 0 0 8px #f3f4f6; margin: 8px; }
+.anatomy-user { max-width: 75%; margin: 0 0 16px auto; padding: 10px 14px; background: #e5e7eb; border-radius: 12px; font-size: 14px; line-height: 1.45; }
+.anatomy-reply { display: flex; gap: 10px; align-items: flex-start; }
+.anatomy-avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%; background: #1f2328; display: inline-flex; align-items: center; justify-content: center; margin-top: 1px; }
+.anatomy-msg { flex: 1 1 auto; min-width: 0; font-size: 14px; line-height: 1.5; }
+.anatomy-msg p { margin: 0 0 6px; }
+.anatomy-msg ul { margin: 0 0 6px; padding-left: 20px; }
+.anatomy-msg li { margin: 0 0 2px; }
+mark.span-response { background: #fef3c7; color: inherit; padding: 1px 2px; border-bottom: 3px solid #b45309; }
+.span-explanation { background: #dbeafe; border-bottom: 3px solid #1d4ed8; padding: 6px 8px 2px; margin: 4px 0 0; }
+.span-explanation p:last-child { margin-bottom: 4px; }
+.span-tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: 11px; line-height: 1.5; vertical-align: 1px; font-weight: 600; }
+.tag-response { background: #fef3c7; color: #b45309; border: 1px solid #f5d88a; }
+.tag-explanation { background: #fff; color: #1d4ed8; border: 1px solid #bfd3f7; }
+.anatomy figcaption { font-size: 13px; color: var(--muted); margin: 10px 8px 0; }
+
+/* the review page */
+.review-table { width: 100%; border-collapse: collapse; margin: 4px 0 8px; }
+.review-table th, .review-table td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--border); font-size: 15px; vertical-align: top; }
+.review-table thead th { font-size: 12px; color: #888; font-weight: 400; border-bottom-color: #ccc; }
+.review-table tr.review-dim th { font-weight: 600; padding-top: 16px; border-bottom-color: #ccc; }
+.review-table tr.missing td { background: var(--danger-weak); }
+.review-table td:last-child { text-align: right; white-space: nowrap; }
+.review-pages { list-style: none; padding: 0; margin: 0 0 8px; }
+.review-pages li { padding: 8px 6px; border-bottom: 1px solid var(--border); }
+.review-pages li.missing { background: var(--danger-weak); }
+/* actions right-aligned */
+.actions { display: flex; flex-direction: row-reverse; justify-content: flex-start; gap: 12px; margin-top: 24px; }
+.actions .gate-hint { margin-right: auto; font-size: 13px; color: var(--danger); }
+@media (max-width: 700px) {
+  .lg-head, .lg-row { flex-wrap: wrap; }
+  .lg-stmt { flex: 1 1 100%; padding: 4px 0; }
+  .lg-opts { margin-left: 0; }
+}
+
+/* dev session: deliberately loud, so it is never mistaken for a real run. */
+.dev-banner {
+  background: #7a2d12;
+  color: #fff6ee;
+  border-bottom: 2px solid #f0a06a;
+  font-size: .9rem;
+}
+.dev-banner-inner {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .6rem .9rem;
+  padding: .55rem 0;
+}
+.dev-banner-label {
+  font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  font-size: .72rem; background: #f0a06a; color: #4a1b09;
+  padding: .12rem .45rem; border-radius: 3px; white-space: nowrap;
+}
+.dev-banner-text { flex: 1 1 22rem; min-width: 0; }
+.dev-jump { display: flex; align-items: center; gap: .4rem; margin-left: auto; }
+.dev-jump label { font-size: .8rem; opacity: .9; }
+.dev-jump select {
+  font: inherit; font-size: .82rem; padding: .18rem .3rem; max-width: 15rem;
+  border-radius: 4px; border: 1px solid #f0a06a; background: #fff6ee; color: #4a1b09;
+}
+.dev-tag {
+  display: inline-block; margin-left: .45rem; padding: .05rem .4rem;
+  font-size: .68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .05em; border-radius: 3px;
+  background: #7a2d12; color: #fff6ee;
+}
+.btn-sm { padding: .2rem .55rem; font-size: .8rem; }
+@media (max-width: 700px) { .dev-jump { margin-left: 0; } }
+
+.pair-grid { display: flex; gap: 1rem; align-items: flex-start; }
+.pair-card {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #ffffff;
+  padding: .5rem;
+  overflow: hidden;
+}
+.pair-open { display: block; line-height: 0; border-radius: var(--radius-sm); }
+.pair-card img { display: block; width: 100%; height: auto; border-radius: 4px; }
+
+@media (max-width: 899px) {
+  .pair-grid { flex-direction: column; }
+  /* spec 4.8: A above B, whatever the left/right randomization was. */
+  .pair-card[data-variant="A"] { order: 1; }
+  .pair-card[data-variant="B"] { order: 2; }
+  /*
+   * "flex: 1 1 0" above sets a flex-basis of 0 on the MAIN axis. Once the grid
+   * becomes a column that main axis is the height, and in an auto-height
+   * container there is no free space to grow into, so both cards resolved to
+   * roughly zero height and "overflow: hidden" clipped the images away
+   * entirely: on a phone the example pair was invisible. Back to content
+   * height here (spec 4.8).
+   */
+  .pair-card { width: 100%; flex: 0 0 auto; }
+}
+
+.lightbox {
+  border: 0;
+  padding: 0;
+  max-width: 96vw;
+  max-height: 96vh;
+  background: transparent;
+  color: var(--text);
+  overflow: visible;
+}
+.lightbox::backdrop { background: rgba(8, 10, 14, .72); }
+.lightbox-inner {
+  background: #ffffff;
+  border-radius: var(--radius);
+  padding: .5rem;
+  max-height: 96vh;
+  overflow: auto;
+}
+.lightbox-bar { display: flex; justify-content: flex-end; }
+.lightbox img { display: block; max-width: 100%; height: auto; }
+
+/* ---- taxonomy tables and blocks ---------------------------------- */
+.table-wrap { overflow-x: auto; margin: 0 0 1.2rem; }
+table.tax-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: .93rem;
+  min-width: 34rem;
+}
+table.tax-table caption { text-align: left; color: var(--muted); font-size: .85rem; padding-bottom: .4rem; }
+table.tax-table th, table.tax-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: .55rem .7rem;
+  border-bottom: 1px solid var(--border);
+}
+table.tax-table thead th {
+  font-size: .75rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border-strong);
+  white-space: nowrap;
+}
+table.tax-table tbody tr:last-child th,
+table.tax-table tbody tr:last-child td { border-bottom: 0; }
+table.tax-table .col-num { width: 2.2rem; color: var(--muted); }
+table.tax-table .col-name { font-weight: 600; white-space: nowrap; }
+
+.chips { list-style: none; display: flex; flex-wrap: wrap; gap: .35rem; margin: 0; padding: 0; }
+.chips li {
+  margin: 0;
+  font-size: .82rem;
+  line-height: 1.35;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: .12rem .6rem;
+}
+
+.subblock {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 1.1rem 1.2rem;
+  margin: 0 0 .9rem;
+}
+.subblock-head { display: flex; align-items: baseline; gap: .55rem; flex-wrap: wrap; }
+.subblock-num { color: var(--muted); font-size: .85rem; font-weight: 600; }
+.subblock-def { margin: .35rem 0 .6rem; }
+.subblock-chars { margin: 0; }
+.subblock-chars .chips-label {
+  display: block;
+  font-size: .75rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .3rem;
+}
+
+/* ---- round 2 results row ----------------------------------------- */
+.results {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: .8rem .9rem .7rem;
+  margin: .7rem 0 1rem;
+}
+.results-title {
+  font-size: .75rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 .5rem;
+}
+.dist {
+  display: flex;
+  width: 100%;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface);
+}
+.dist-seg {
+  flex-basis: 0;
+  min-width: 2.4rem;
+  padding: .3rem .2rem;
+  text-align: center;
+  font-size: .85rem;
+  font-weight: 650;
+  color: var(--seg-text);
+  border-right: 1px solid var(--surface);
+}
+.dist-seg:last-child { border-right: 0; }
+.dist-seg[data-point="1"] { background: var(--seg-1); }
+.dist-seg[data-point="2"] { background: var(--seg-2); }
+.dist-seg[data-point="3"] { background: var(--seg-3); }
+.dist-seg[data-point="4"] { background: var(--seg-4); }
+.dist-seg[data-point="5"] { background: var(--seg-5); }
+.dist-empty { padding: .3rem .5rem; color: var(--muted); font-size: .85rem; }
+.dist-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem .9rem;
+  list-style: none;
+  margin: .45rem 0 0;
+  padding: 0;
+  font-size: .78rem;
+  color: var(--muted);
+}
+.dist-key li { display: flex; align-items: center; gap: .3rem; margin: 0; }
+.dist-key i {
+  display: inline-block;
+  width: .7rem;
+  height: .7rem;
+  border-radius: 2px;
+  border: 1px solid var(--border-strong);
+}
+.dist-key li[data-point="1"] i { background: var(--seg-1); }
+.dist-key li[data-point="2"] i { background: var(--seg-2); }
+.dist-key li[data-point="3"] i { background: var(--seg-3); }
+.dist-key li[data-point="4"] i { background: var(--seg-4); }
+.dist-key li[data-point="5"] i { background: var(--seg-5); }
+.results-meta { margin: .55rem 0 0; font-size: .88rem; color: var(--muted); }
+.results-meta strong { color: var(--text); font-weight: 600; }
+.results-meta .sep { padding: 0 .45rem; }
+
+/* ---- round 2 per-item extras ------------------------------------- */
+.own-answer, .r2-block { margin: .6rem 0 1rem; font-size: .95rem; }
+.r2-label {
+  display: block;
+  font-size: .75rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .2rem;
+}
+.tag-updated {
+  display: inline-block;
+  margin-left: .45rem;
+  padding: .05rem .45rem;
+  border-radius: 999px;
+  background: var(--accent-weak);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-size: .72rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  vertical-align: 1px;
+}
+
+/* ---- v1.3: the wide pair and the edge dock ----------------------- */
+/* The pair breaks out of the 860px text column and uses the screen width, so
+   the cards are readable without opening them. Negative margin, not a
+   transform, so it never creates horizontal scroll. */
+.pair.pair-wide {
+  width: min(calc(100vw - 48px), 1760px);
+  margin-left: calc(50% - min(calc(50vw - 24px), 880px));
+  margin-bottom: 28px;
+}
+.pair.pair-wide .pair-grid { gap: 24px; align-items: flex-start; }
+.pair.pair-wide .pair-card { border: 1px solid var(--border); border-radius: 8px; padding: 10px; background: #fff; overflow: visible; }
+.pair.pair-wide .pair-card img { width: 100%; height: auto; }
+.pair.pair-wide .pair-open { cursor: zoom-in; }
+
+/* Once the pair has scrolled out of view, each card docks as a tab on its own
+   screen edge (left card left, right card right). A tab slides its card out
+   as a drawer; both can be open at once to compare. Built by pairDockJs(). */
+.pdock { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
+.pdock-side {
+  position: absolute; top: 0; bottom: 0; width: min(46vw, 860px);
+  transition: transform .3s cubic-bezier(.2, .7, .2, 1);
+}
+.pdock-left { left: 0; transform: translateX(-100%); }
+.pdock-right { right: 0; transform: translateX(100%); }
+.pdock-side.is-open { transform: translateX(0); }
+.pdock:not(.is-shown) .pdock-left { transform: translateX(calc(-100% - 72px)); }
+.pdock:not(.is-shown) .pdock-right { transform: translateX(calc(100% + 72px)); }
+.pdock-panel {
+  pointer-events: auto; position: absolute; inset: 0; background: #fff;
+  display: flex; flex-direction: column; outline: none;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .08), 0 18px 48px rgba(0, 0, 0, .22);
+}
+.pdock-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+  font-variant: all-small-caps; letter-spacing: .05em; font-size: 15px; color: var(--muted);
+}
+.pdock-close { font: inherit; font-size: 20px; line-height: 1; background: none; border: 0; cursor: pointer; color: var(--text); padding: 2px 6px; border-radius: 4px; font-variant: normal; }
+.pdock-close:hover { background: #f0f0f0; }
+.pdock-body { flex: 1 1 auto; overflow-y: auto; padding: 14px; overscroll-behavior: contain; }
+.pdock-body img { display: block; width: 100%; height: auto; }
+.pdock-tab {
+  pointer-events: auto; position: absolute; top: 50%; transform: translateY(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 14px 9px; background: #fff; color: var(--text);
+  border: 1px solid var(--border); cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .14);
+  font: 600 13px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.pdock-left .pdock-tab { left: 100%; border-left: 0; border-radius: 0 10px 10px 0; }
+.pdock-right .pdock-tab { right: 100%; border-right: 0; border-radius: 10px 0 0 10px; }
+.pdock-tab-letter { font-size: 18px; }
+.pdock-tab-word { writing-mode: vertical-rl; letter-spacing: .08em; font-weight: 500; font-size: 12px; color: var(--muted); }
+.pdock-left .pdock-tab-word { transform: rotate(180deg); }
+.pdock-tab:hover { background: #f6f7f9; }
+.pdock-tab:focus-visible, .pdock-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pdock-side.is-open .pdock-tab { background: #f1f4fb; }
+@media (max-width: 700px) { .pdock-side { width: min(88vw, 860px); } }
+.pdock-ghost {
+  position: fixed; z-index: 59; pointer-events: none; overflow: hidden;
+  transform-origin: 0 0; background: #fff; border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
+}
+.pdock-ghost img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; display: block; }
+@keyframes pdock-pulse { 0% { box-shadow: 0 0 0 0 rgba(26, 79, 208, .45); } 100% { box-shadow: 0 0 0 14px rgba(26, 79, 208, 0); } }
+.pdock-tab.pdock-pulse { animation: pdock-pulse .9s ease-out 2; }
+.pdock-hint {
+  position: fixed; z-index: 61; left: 50%; bottom: 24px; transform: translateX(-50%);
+  max-width: min(92vw, 520px); padding: 10px 16px; border-radius: 8px;
+  background: #1f2328; color: #fff; font-size: 14px; line-height: 1.35; text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .25); transition: opacity .6s ease;
+}
+.pdock-hint.is-gone { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .pdock-side { transition: none; } }
+
+/* subdimension blocks: name, definition, the values it can take */
+.sub-lead { margin: 0 0 16px; font-size: 13px; color: var(--muted); }
+.sd-def { margin: 2px 0 2px; }
+p.sd-chars { margin: 0 0 6px; font-size: 13px; color: var(--muted); }
+.sd-chars-label { font-weight: 600; color: var(--text); margin-right: 2px; }
+
+/* closing page: the taxonomy at a glance */
+.tax-overview { margin: 12px 0 8px; padding: 14px 0 10px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.tax-overview-title { margin: 0 0 10px; font-weight: 600; }
+.tax-overview-title span { font-weight: 400; font-size: 13px; color: var(--muted); margin-left: 6px; }
+.tax-overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px 28px; margin: 0; }
+.tax-dim dt { font-weight: 600; font-size: 14px; }
+.tax-dim dd { margin: 1px 0 0; font-size: 13px; color: var(--muted); line-height: 1.45; }
+.tax-overview-foot { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
+
+/* closing page: plain lead, attribution, references */
+.closing-lead { margin: 0 0 8px; }
+.refs { margin: 28px 0 0; padding: 12px 0 0 1.4em; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+.refs li { margin: 0 0 6px; padding-left: 2px; }
+.refs a { color: var(--muted); text-decoration: none; }
+sup.fn { font-size: 11px; font-weight: 500; margin-left: 2px; }
+sup.fn a { color: var(--accent); text-decoration: none; }
+
+/* the dimension page title and subtitle */
+.dim-head { margin: 18px 0 16px; }
+.dim-head .dim-title { font-size: 20px; margin: 0 0 4px; }
+.dim-head .dim-subs { margin: 0; font-size: 15px; color: var(--muted); }
+
+/* ---- print ------------------------------------------------------- */
+@media print {
+  .pdock { display: none !important; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .site-header, .site-footer, .progress-bar, .skip, .actions, .lightbox { display: none !important; }
+  main { padding-top: 0; }
+  .panel, .subblock, .pair-card { border-color: #999; break-inside: avoid; }
+  a { color: #000; text-decoration: underline; }
+}
+.rv { max-width: 860px; margin: 0 auto; padding: 0 16px 64px; }
+.rv h1 { font-size: 20px; margin: 24px 0 6px; }
+.rv .intro { color: var(--muted); max-width: 70ch; }
+.rv .tools { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 14px 0 6px; font-size: 13px; color: var(--muted); }
+.rv .tools label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; color: var(--text); }
+.rv section.sec { margin-top: 32px; }
+.rv section.sec > h2 { font-size: 17px; margin: 0 0 2px; }
+.rv section.sec > p { margin: 0 0 12px; color: var(--muted); font-size: 13px; }
+.rv .card { border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; margin: 0 0 12px; display: grid; gap: 10px; background: #fff; }
+.rv .card.mine { border-left: 4px solid #2b6cb0; }
+.rv .card h3 { font-size: 15px; margin: 0; }
+.rv .diff { display: grid; gap: 6px; font-size: 14px; }
+.rv .diff .lbl { font-size: 12px; font-weight: 600; color: var(--muted); }
+.rv .diff .old { text-decoration: line-through; color: #8a3b36; }
+.rv .diff .new { color: #1d6b3d; }
+.rv .diff .row { display: grid; gap: 1px; }
+.rv .diff .row b { font-size: 12px; font-weight: 600; color: var(--muted); }
+.rv .why { font-size: 14px; }
+.rv .why b, .rv .said b { font-size: 12px; color: var(--muted); }
+.rv .said { display: grid; gap: 6px; font-size: 14px; }
+.rv .mine-text { background: #eef4fb; border-radius: 4px; padding: 6px 10px; white-space: pre-line; }
+.rv .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.rv .chip { position: relative; }
+.rv .chip > button { font: inherit; font-size: 13px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--text); padding: 2px 10px; cursor: pointer; min-height: 0; box-shadow: none; }
+.rv .chip > button[aria-expanded="true"] { background: #eef4fb; border-color: #2b6cb0; }
+.rv .pop { display: none; position: absolute; z-index: 20; left: 0; top: calc(100% + 6px); width: min(26rem, 80vw); background: #fff; border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 6px 24px rgba(0,0,0,.14); padding: 8px 10px; font-size: 13px; white-space: pre-line; }
+.rv .chip.open .pop { display: block; }
+.rv .answer { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; border-top: 1px solid var(--border); padding-top: 10px; }
+.rv .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.rv .seg button { font: inherit; font-size: 14px; border: 0; border-radius: 0; background: #fff; color: var(--text); padding: 5px 14px; cursor: pointer; min-height: 0; box-shadow: none; }
+.rv .seg button + button { border-left: 1px solid var(--border); }
+.rv .seg button[aria-pressed="true"].c0 { background: #e4f3ea; color: #1d6b3d; font-weight: 600; }
+.rv .seg button[aria-pressed="true"].c1 { background: #f8e4e2; color: #8a3b36; font-weight: 600; }
+.rv textarea { font: inherit; font-size: 14px; width: 100%; min-height: 2.4rem; padding: 6px 8px; border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
+.rv .final { margin-top: 36px; border-top: 2px solid var(--border); padding-top: 16px; display: grid; gap: 10px; }
+.rv .status { font-size: 13px; color: var(--muted); }
+.rv .err { color: #8a3b36; }
+.rv [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="topline wrap"><span class="topline-text">Pilot review</span><nav class="header-nav"><a href="reference.html" target="delphi-reference" rel="noopener">Revised taxonomy</a></nav></div>
+<main class="rv" id="rv">
+  <p id="nolink" hidden>Please open this page through your personal survey link.</p>
+  <div id="app" hidden>
+    <h1 id="hello"></h1>
+    <p class="intro" id="intro"></p>
+    <div class="tools">
+      <label id="mine-only-wrap" hidden><input type="checkbox" id="mine-only"> Only items with my comments</label>
+      <span id="progress"></span>
+    </div>
+    <div id="sections"></div>
+    <div class="final">
+      <label for="overall"><b>Anything else about the revision?</b> <span class="status">Optional.</span></label>
+      <textarea id="overall" rows="3"></textarea>
+      <div class="answer"><button type="button" class="btn" id="submit">Send my review</button><span class="status" id="sent"></span></div>
+    </div>
+  </div>
+</main>
+<script>
+(function () {
+  var DATA = {"sections":[{"key":"taxonomy","title":"Changes to the taxonomy","note":"Applied in the revised survey. Old wording is struck through, new wording follows.","choices":["Accept","Decline"]},{"key":"pairs","title":"Planned changes to the example pairs","note":"Not drawn yet. The example images are redone once these are agreed.","choices":["Accept","Decline"]},{"key":"survey","title":"Changes to the survey","note":"Applied in the revised survey.","choices":["Accept","Decline"]},{"key":"experts","title":"Suggestions left to the expert round","note":"Structural questions the expert panel exists to judge. We propose to leave the taxonomy as it is here and let the experts decide.","choices":["Leave to experts","Change it now"]},{"key":"kept","title":"Comments we did not act on","note":"Each with the reason. Tell us if you disagree.","choices":["Fine","Disagree"]}],"items":[{"id":"t01","section":"taxonomy","title":"Provenance in plain words","why":"The old definition made \"post hoc\" true of every self-explanation, and its words were hard to follow. The new one names the actual difference: reasoning written before the answer, or a justification written after it.","old":"","change":"","diff":[{"label":"Provenance (Source)","rows":[{"field":"Definition","old":"How the explanation relates to the process that produced the answer","now":"Whether the explanation is the reasoning produced before the answer, or a justification written after it"},{"field":"Characteristics","old":"from reasoning trace, post hoc, post hoc and verified","now":"reasoning produced before the answer, justification written after the answer, justification written after and checked against the reasoning"}]}],"comments":[{"key":"Jichen:D6_S1_Q12","who":"Jichen","text":"\"post hoc\" caught my attention here --- every self-explanation is post hoc, isn't it? In addition, I couldn't tell the difference between the examples in var A & B."},{"key":"Wendy:D6_S1_Q12","who":"Wendy","text":"A bit hard to understand - mostly because there are many specialized technical words in the definition: provenance, \"relates to the process that produces the answer\", reasoning trace, etc. Perhaps it could be reformatted a bit with easier-to-understand wording, which would help people who are not extremely familiar with these terms."},{"key":"Emil:D6_Q15","who":"Emil","text":"Maybe \"How the explanation relates to the process that produced the answer\" could be reformulated as in the dimension description \"whether the shown reasons come from the process that produced the answer or were generated afterward\""}]},{"id":"t02","section":"taxonomy","title":"Register and Warmth made independent","why":"Both shared \"neutral\" and read as one scale. Register is now only how formal the language is; Warmth is only whether the text expresses care. Whether to merge them is left to the experts (below).","old":"","change":"","diff":[{"label":"Register (Interpersonal stance)","rows":[{"field":"Definition","old":"Formality toward the user","now":"How formal the language is"}]},{"label":"Warmth (Interpersonal stance)","rows":[{"field":"Definition","old":"Affective stance toward the user","now":"Whether the text expresses care for the user (empathy, praise, reassurance)"},{"field":"Characteristics","old":"warm, neutral (no affective cues)","now":"warm, none"}]}],"comments":[{"key":"Wendy:D3_S2_Q12","who":"Wendy","text":"I think the subdimensions \"Register\" and \"Warmth\" are closely related and could overlap. Both, for example, have \"neutral\" as an example. And for me, formal is one end of the spectrum, neutral is in the middle, and warm/casual is on the other end. In my mind, I would refer to both subdimensions as \"tone of voice\""},{"key":"Wendy:D3_S3_Q12","who":"Wendy","text":"I think the subdimensions \"Register\" and \"Warmth\" are closely related and could overlap. Both, for example, have \"neutral\" as an example. And for me, formal is one end of the spectrum, neutral is in the middle, and warm/casual is on the other end. In my mind, I would refer to both subdimensions as \"tone of voice\""},{"key":"Pelin:D3_S3_Q12","who":"Pelin","text":"Warmth and register sound similar, although I understand they are different. Maybe better definitions?"},{"key":"Emil:D3_S2_Q12","who":"Emil","text":"I feel Framing (if includes the tool voice) Register and Warmth have an overlapping/intersection"},{"key":"Emil:D3_S3_Q12","who":"Emil","text":"Maybe could be reframed as \"Whether and how the explanation directs emotional or relational cues at the user\". I had to search what 'stance' mean and maybe 'approach' or 'attituted' is a more know one?\nI feel Framing (if includes the tool voice) Register and Warmth have an overlapping/intersection"}]},{"id":"t03","section":"taxonomy","title":"Tailoring moved to Interpersonal stance","why":"Tailoring is about the relation to the user, not about what the explanation claims. Semantic loses \"for whom\"; Interpersonal stance gains Tailoring as its last subdimension.","old":"","change":"","diff":[{"label":"Tailoring to the user (Interpersonal stance)","rows":[{"field":"Dimension","old":"Semantic","now":"Interpersonal stance"}]},{"label":"Semantic (dimension)","rows":[{"field":"Definition","old":"Semantic covers what the explanation claims and for whom: whether the reasons are true and support the answer, whether the explanation and the answer agree, and whether the explanation is adapted to the user.","now":"Semantic covers what the explanation claims: whether its reasons are correct and support the answer, and whether the explanation agrees with the answer."},{"field":"Subdimensions","old":"Correctness of reasoning, Consistency with answer, Tailoring to the user","now":"Correctness of reasoning, Consistency with answer"}]},{"label":"Interpersonal stance (dimension)","rows":[{"field":"Definition","old":"Interpersonal stance covers how the explanation positions the system toward the user: who is presented as doing the reasoning, how formal and how warm the address is, whether the system sides with what the user brought to the interaction, and whether it uses rhetorical devices beyond stating reasons.","now":"Interpersonal stance covers how the explanation positions the system toward the user: who is presented as doing the reasoning, how formal and how warm the address is, whether the system sides with what the user brought to the interaction, whether it uses rhetorical devices beyond stating reasons, and whether it is adapted to what the system knows about the user."},{"field":"Subdimensions","old":"Framing, Register, Warmth, Agreement with user's position, Persuasive appeals","now":"Framing, Register, Warmth, Agreement with user's position, Persuasive appeals, Tailoring to the user"}]}],"comments":[{"key":"Wendy:D7_LOW","who":"Wendy","text":"I think the \"for whom\" part of the definition is a different question and a bit out of scope for me; it's a bit confusing. It would be clearer if the \"Dimension: Semantic\" focused on the explanation's claim, its truthfulness, reasoning, and support for the answer. The \"for whom\" part, I think, is more for the \"Dimension: Interpersonal\"\n\n- This \"Dimension: Semantic\" for me is also very related/might overlap with both \"Dimension: Epistemic stance\" (also about claims, reasoning, how sure it is) and \"Dimension: Structural\" (that also deals with claims, reasoning, one path/multiple paths). Variation A, for example, could also be about the dimensions: Structural, Semantic, and Epistemic. \n\nI almost feel like the dimensions Semantic and Epistemic stance could be combined. This may be because both terms are related linguistically and philosophically, and it is hard to separate a semantic issue from an epistemic one, especially for AI explanations."},{"key":"Emil:D7_LOW","who":"Emil","text":"\"for whom\" I don't see how.. and it looks a bit of pragmatic instead of Semantic, maybe could be reformulated as \"and wether the content is tailored to the user\".. also being tailored is a part of the semantic?"},{"key":"Pelin:D7_Q15","who":"Pelin","text":"It is not clear to me why tailoring is part of semantics. Secondly unclear to me why an incorrect reasoning would be a design decision"},{"key":"Jichen:D7_LOW","who":"Jichen","text":"- The term \"Semantics\" is very broad, covering anything related to the meaning of explanations. The three sub-dimensions seem to point to the quality of the explanations. Perhaps it's worth rethinking how we name this category?"}]},{"id":"t04","section":"taxonomy","title":"Correctness and Consistency sharpened","why":"Correctness now concerns whether the reasons are factually right (\"true\" was ambiguous); Consistency concerns whether the explanation agrees with its own answer. Merging them is not proposed: an explanation can be correct and still contradict its answer.","old":"","change":"","diff":[{"label":"Correctness of reasoning (Semantic)","rows":[{"field":"Definition","old":"Whether the stated reasons are true and support the answer","now":"Whether the stated reasons are factually correct and support the answer"}]},{"label":"Consistency with answer (Semantic)","rows":[{"field":"Definition","old":"Whether the explanation and the answer agree","now":"Whether the explanation agrees with the answer it accompanies or contradicts it"}]}],"comments":[{"key":"Wendy:D7_S1_Q12","who":"Wendy","text":"I think \"Correctness of reasoning\" and \"Consistency with answer\" are closely related and may overlap."},{"key":"Wendy:D7_S2_Q12","who":"Wendy","text":"I think \"Correctness of reasoning\" and \"Consistency with answer\" are closely related and may overlap."},{"key":"Wendy:D7_Q15","who":"Wendy","text":"I would merge the first two subdimensions."},{"key":"Jichen:D7_Q8","who":"Jichen","text":"- correctness of reasoning: Whether the stated reasons are true and support the answer. The word \"true\" here is a bit unclear. True as in it matches the model's underlying process (i.e., fidelity)? Perhaps you only care about  whether the explanations \"support the answer\"? If so, I'd remove \" are true\"\n- Consistency with answer -> Consistency with the answer the explanations are about. (See below about shaded phrase)\n- Tailoring to the user: \"Whether the explanation is adapted to what the system knows about the user\" -> \"Whether the explanation HIGHLIGHTS THAT IT IS adapted to what the system knows about the user\". The reason is that sometimes an explanation is implicitly personalized. Unless the explanation highlights that, it is hard to know."}]},{"id":"t05","section":"taxonomy","title":"\"No position stated\" added to Agreement","why":"Users often ask without taking a position, as in the example. Every explanation must still fall into exactly one characteristic.","old":"","change":"","diff":[{"label":"Agreement with user's position (Interpersonal stance)","rows":[{"field":"Characteristics","old":"challenges, neutral, accommodates, actively affirms","now":"no position stated, challenges, neutral, accommodates, actively affirms"}]}],"comments":[{"key":"Jichen:D3_S4_Q12","who":"Jichen","text":"I'm not sure that users always come with a position. IN this example, the user asks the LLM a question, without necessarily having a position."},{"key":"Emil:D3_Q15","who":"Emil","text":"Maybe \"Stance toward the premise or view the user brought\" could be reframed as \"Attitude toward the view/position of the user\""}]},{"id":"t06","section":"taxonomy","title":"Hedging separated from Expressed confidence","why":"Expressed confidence is about the conclusion; Hedging is about individual reasons. The definition now says so. Disclaimer stays separate: it is a statement of limits, not a softened reason.","old":"","change":"","diff":[{"label":"Hedging (Epistemic stance)","rows":[{"field":"Definition","old":"Whether individual reasons carry mitigating words (appears to, possibly, seems)","now":"Whether individual reasons, not the conclusion, are softened (appears to, possibly, seems)"}]}],"comments":[{"key":"Jichen:D2_S3_Q12","who":"Jichen","text":"Hedging seems very related to \"Expressed confidence\". Some clarification of the differences would be super helpful - or merge them?"},{"key":"Jichen:D2_S4_Q12","who":"Jichen","text":"Also seems related to \"hedging\"?"}]},{"id":"t07","section":"taxonomy","title":"Confidence granularity renamed Confidence scope","why":"The old name was hard to read; the definition now says what it means.","old":"","change":"","diff":[{"label":"Confidence scope (Epistemic stance)","rows":[{"field":"Name","old":"Confidence granularity","now":"Confidence scope"},{"field":"Definition","old":"The level at which confidence is attached","now":"Whether confidence is stated for the whole answer, for individual claims, or both"}]}],"comments":[{"key":"Emil:D2_Q15","who":"Emil","text":"Maybe \"The level at which confidence is attached\" could be formulated as \"Whether the confidence is attached to the whole answer or to individual claims\" or \"The unit that each confidence estimate refers to\" or \"The scope of each confidence estimate\""},{"key":"Jichen:D2_Q15","who":"Jichen","text":"\"confidence granularity\" sounds a bit odd. But I don't think I understand it enough to suggest alternatives."}]},{"id":"t08","section":"taxonomy","title":"Framing characteristics with examples","why":"It was unclear what \"tool voice\" and \"user-directed\" mean; each characteristic now carries a short example.","old":"","change":"","diff":[{"label":"Framing (Interpersonal stance)","rows":[{"field":"Characteristics","old":"first person, impersonal, tool voice, user-directed","now":"first person (I checked), impersonal (The domain is…), tool voice (The scan found…), user-directed (You can see…)"}]}],"comments":[{"key":"Pelin:D3_S1_Q12","who":"Pelin","text":"Characteristics are rather unclear. Are they examples, or categories? In the examples as well, user-directed is still reading as first-person..."},{"key":"Emil:D3_S1_Q12","who":"Emil","text":"I think this could really benefit a reformulation but I'm not sure how. Maybe \"The person in which the explanation is written\" but then the 'tool voice' would be lost, what about maybe here it is kinda exiting the boundaries and entering the territory of the Register and Warmth.. Or maybe I'm just not understanding tool voice"},{"key":"Emil:D3_Q8","who":"Emil","text":"See above. Maybe reformulating Framing as \"The person in which the explanation is written\" and \"Formality toward the user\" as \"Language formality\" (taking out the specific reference to the interpersonal relationship, conserving it implicitly) would leave the space for all of them (like in the example given)"},{"key":"Jichen:D3_Q15","who":"Jichen","text":"Some renaming suggestions: Feel free to ignore any or all of these\n- \"framing\" could be \"perspective\"? -> AI's perspective, user's perspective\n- \"warmth\" could be \"affective tone\"? \"validating\"?\n- \"agreement\", \"persuasive appeals\" (see my comments above)\nperhaps we could benefit from someone who has expertise in linguistics or rhetoric to look at these taxonomy"}]},{"id":"t09","section":"taxonomy","title":"Trace form defined in plain words","why":"\"Trace\" was not defined. Trace form is how much of the reasoning is shown; where the explanation comes from is Provenance.","old":"","change":"","diff":[{"label":"Trace form (Reasoning structure)","rows":[{"field":"Dimension","old":"Structural","now":"Reasoning structure"},{"field":"Definition","old":"How much of the reasoning process is shown","now":"How much of the step-by-step reasoning that produced the answer is shown"}]}],"comments":[{"key":"Jichen:D4_S5_Q12","who":"Jichen","text":"Similar as before, given the probabilistic nature of LLMs, how we can know what is \"full trace\"? (Also, the word trace could be defined... Personally I don't know what precise it is)"},{"key":"Pelin:D4_S5_Q12","who":"Pelin","text":"Trace form looks similar to Provenance, at least in the example"}]},{"id":"t10","section":"taxonomy","title":"Reasoning form reworded","why":"\"The path of the reasoning\" was unclear.","old":"","change":"","diff":[{"label":"Reasoning form (Reasoning structure)","rows":[{"field":"Dimension","old":"Structural","now":"Reasoning structure"},{"field":"Definition","old":"The path of the reasoning","now":"Whether the reasoning follows one line or weighs alternatives"}]}],"comments":[{"key":"Emil:D4_Q15","who":"Emil","text":"I think \"The path of the reasoning\" could be formulated as \"Whether it follows one path or weighs alternatives\" (taking the sentence structure from Completeness) and \"Whether the explanation says why this rather than an alternative\" could be formulated as \"Whether the explanation accounts for why this outcome occurred and not another\" or \"Whether the explanation addresses the counterfactual, i.e. why not the alternative.\"\n\nIt is not very important tho, that is why I kept 4 and not 3"},{"key":"Jichen:D4_S1_Q12","who":"Jichen","text":"I struggle a bit to understand what \"linear\" and \"branching\" refer to in the two examples.  I'm also not sure about the term \"path of reasoning\" here..."}]},{"id":"t11","section":"taxonomy","title":"Vocabulary says what \"specialized\" means","why":"It was unclear what counts as specialized.","old":"","change":"","diff":[{"label":"Vocabulary (Surface)","rows":[{"field":"Definition","old":"How specialized the words are","now":"How much domain-specific terminology (jargon) the words use"}]}],"comments":[{"key":"Jichen:D1_S2_Q12","who":"Jichen","text":"A few things that are unclear to me: \n- what constitutes as \"specialized\"? Jargon? \n- how do you define \"mostly\"? \n- This subdimension seems to overlap a bit with \"tone\" or \"register\" from some of the previous dimensions, at least just looking at the terminologies themselves."}]},{"id":"t12","section":"taxonomy","title":"Progressive disclosure separated from Availability","why":"Availability is whether the explanation is shown at all by default; Progressive disclosure is whether, once shown, more can be opened in steps.","old":"","change":"","diff":[{"label":"Progressive disclosure (Delivery)","rows":[{"field":"Definition","old":"Whether more detail can be revealed in steps","now":"Once shown, whether more detail can be opened in steps"}]}],"comments":[{"key":"Jichen:D5_S3_Q12","who":"Jichen","text":"I am not sure I can tell the difference between \"progressive disclosure\" and \"on request\"."},{"key":"Emil:D5_Q8","who":"Emil","text":"I guess \"Timing\" could be equally reframed as \"Placing\" and then it would become a bit blurry between Delivery and Surface. \n\"Progressive disclosure\" isn't it a sub-subdimension of \"Interactivity\"?"}]},{"id":"t13","section":"taxonomy","title":"Modality: \"medium\" instead of \"channel\"","why":"\"Channel\" was ambiguous.","old":"","change":"","diff":[{"label":"Modality (Delivery)","rows":[{"field":"Definition","old":"The channel of the explanation","now":"The medium through which the explanation is delivered"}]}],"comments":[{"key":"Emil:D5_Q15","who":"Emil","text":"Maybe \"The channel of the explanation\" should be formulated as \"The form in which the explanation is presented\" or \"The medium through which the explanation is delivered\" (channel is an ambiguous word). Also maybe \"What the user can do with the shown reasoning\" could be formulated as \"How far the user can go beyond reading the explanation\" or \"The actions the interface offers on the explanation\""}]},{"id":"t14","section":"taxonomy","title":"Structural renamed Reasoning structure","why":"The label \"Structural\" did not say what the dimension holds; all five subdimensions concern the form of the reasoning.","old":"","change":"","diff":[{"label":"Reasoning structure (dimension)","rows":[{"field":"Name","old":"Structural","now":"Reasoning structure"},{"field":"Definition","old":"Structural covers the form of the reasoning as it appears on the page: whether it follows one path or weighs alternatives, whether every claim gets a reason, whether it says why this rather than something else, where the conclusion sits, and how much of the reasoning process is shown.","now":"Reasoning structure covers the form of the reasoning as it appears on the page: whether it follows one path or weighs alternatives, whether every claim gets a reason, whether it says why this rather than something else, where the conclusion sits, and how much of the reasoning process is shown."}]}],"comments":[{"key":"Jichen:D4_LOW","who":"Jichen","text":"I am a bit confused about the label \"structural\" and the subdimensions it contains."},{"key":"Jichen:D4_Q8","who":"Jichen","text":"Hmmm....  The connection between the subdimensions is slightly unclear to me. Some explanations of how you picked these specific ones could be helpful."}]},{"id":"e01","section":"pairs","title":"Interpersonal stance: a clear Register contrast","why":"Both variations read as casual.","old":"","change":"Variation A clearly neutral or formal, Variation B clearly casual.","diff":[],"comments":[{"key":"Jichen:D3_Q16","who":"Jichen","text":"Register: I don't perceive a big difference between the two variations. I might call both casual."}]},{"id":"e02","section":"pairs","title":"Interpersonal stance: user-directed Framing throughout","why":"User-directed still read as first person.","old":"","change":"The variant addresses the reasoning to the user (\"You can see…\") throughout.","diff":[],"comments":[{"key":"Pelin:D3_S1_Q12","who":"Pelin","text":"Characteristics are rather unclear. Are they examples, or categories? In the examples as well, user-directed is still reading as first-person..."}]},{"id":"e03","section":"pairs","title":"Source: Provenance visible","why":"The two examples looked the same.","old":"","change":"A visible cue, for example a \"Reasoned for 8 seconds\" trace before the answer versus a \"Why?\" justification written afterwards.","diff":[],"comments":[{"key":"Jichen:D6_S1_Q12","who":"Jichen","text":"\"post hoc\" caught my attention here --- every self-explanation is post hoc, isn't it? In addition, I couldn't tell the difference between the examples in var A & B."}]},{"id":"e04","section":"pairs","title":"Epistemic stance: confidence for the whole answer","why":"Response-level confidence was not visible in Variation B.","old":"","change":"Variation B gets one statement of confidence about the whole answer, so \"both\" is visible.","diff":[],"comments":[{"key":"Jichen:D2_S2_Q12","who":"Jichen","text":"I am having trouble seeing the response-level confidence granularity in Variation B..."}]},{"id":"e05","section":"pairs","title":"Delivery: progressive disclosure and multimodal","why":"Progressive disclosure could not be told from \"on request\", and it was unclear why Variation B is multimodal.","old":"","change":"An expandable second level inside the opened explanation, and the confidence bar marked as the visual part.","diff":[],"comments":[{"key":"Jichen:D5_S3_Q12","who":"Jichen","text":"I am not sure I can tell the difference between \"progressive disclosure\" and \"on request\"."},{"key":"Jichen:D5_Q16","who":"Jichen","text":"I'm not sure on how Var B is multi-model."}]},{"id":"e06","section":"pairs","title":"Reasoning structure: branching and completeness visible","why":"Linear and branching were hard to see, and why Variation A counts as partial was unclear.","old":"","change":"The variant explicitly weighs a second reading before concluding, and the claim without a stated reason is marked.","diff":[],"comments":[{"key":"Jichen:D4_S1_Q12","who":"Jichen","text":"I struggle a bit to understand what \"linear\" and \"branching\" refer to in the two examples.  I'm also not sure about the term \"path of reasoning\" here..."},{"key":"Jichen:D4_S2_Q12","who":"Jichen","text":"I would rate \"4\" based on the definition. However, I do not understand why Variation A is considered \"partial\" completion. Is it because it only lists 2 out of 3 reasons? But how would you (as designer/dev) know what is complete, since self-explanation may generate different answers each time?"}]},{"id":"e07","section":"pairs","title":"Semantic: contradict the classification itself","why":"The contradiction was with the recommended action, and the Correctness marks differed between the two examples.","old":"","change":"The variant’s explanation contradicts \"phishing\" itself, and Correctness is marked on the same reasons in both examples. Tailoring moves to the Interpersonal stance pair.","diff":[],"comments":[{"key":"Jichen:D7_Q16","who":"Jichen","text":"- Correctness (blue) in var A contains 1 reason and var B includes all 3. Should it be consistent?\n- consistency (yellow): I see the contradiction in var A. But in both cases, these are NOT the ML decision being explained (i.e., this is a phishing email). As I see it, to click or not to click is the action the LLM suggests based on that phishing decision."}]},{"id":"s01","section":"survey","title":"Time estimate: about an hour","why":"The pilot took about 63 to 175 minutes (long idle visits not counted).","old":"About 25 to 30 minutes.","change":"About an hour; you can pause and come back with your link.","diff":[],"comments":[]},{"id":"s02","section":"survey","title":"The taxonomy is open to extension","why":"This only became clear late, from one closing question.","old":"","change":"Briefing: \"The taxonomy is not meant to be complete: if a property is missing, please tell us.\"","diff":[],"comments":[{"key":"Jichen:Z_10","who":"Jichen","text":"Overall thought: I had an aha moment when one question said \"this taxonomy\" is meant to be expandable. It's worth telling people up front that these dimensions and subdimensions are not meant to be complete (or am I wrong?)"}]},{"id":"s03","section":"survey","title":"Some properties cannot be seen in the text","why":"Provenance, Trace form and Correctness were hard to judge from the examples alone.","old":"","change":"Briefing: \"Some properties, such as where an explanation comes from, cannot be seen in the text itself; the labels at the top of each example say which characteristic it has.\"","diff":[],"comments":[{"key":"Pelin:D4_S4_Q12","who":"Pelin","text":"Again, a bit confusing with \"Provenance\""}]},{"id":"s04","section":"survey","title":"Consensus needs a median of at least agree","why":"Four ratings of \"neither\" sit close together and counted as consensus. On the pilot data the stricter rule leaves out exactly the five weakest items.","old":"At least 70% agree, or an IQR of at most one point.","change":"At least 70% agree, or an IQR of at most one point with a median of at least 4.","diff":[],"comments":[]},{"id":"s05","section":"survey","title":"Optional boxes can stay empty","why":"Many optional boxes held \"No\" or \"No further comment\".","old":"","change":"Under each optional comment box: \"Optional. Leave empty if you have nothing to add.\"","diff":[],"comments":[]},{"id":"x01","section":"experts","title":"Merge Semantic with Epistemic stance","why":"Both concern the claim, which makes them hard to tell apart when classifying. The revised definitions separate them (what is claimed versus how sure it sounds); whether that holds is the experts’ call.","old":"","change":"","diff":[],"comments":[{"key":"Wendy:D2_LOW","who":"Wendy","text":"I think the Dimensions \"Semantic\" and \"Epistemic stance\" are closely related, since both concern the claim and how AI explanations present their reasoning to the user. But the difference is that semantic seems to concern how \"true\"/correct the reasoning is, while epistemic stance concerns how confident the explanation sounds."},{"key":"Wendy:D2_Q8","who":"Wendy","text":"I would consider merging this dimension with the \"Semantic\" dimension."},{"key":"Wendy:D7_Q8","who":"Wendy","text":"I would merge this dimension with the Dimension Epistemic Stance"},{"key":"Wendy:Z_1_LOW","who":"Wendy","text":"I agree mostly, except as I've explained, I think the dimensions \"Semantic\" and \"Epistemic stance\" are very related and may overlap, and it is not clear to me what would fit in one but not the other."},{"key":"Wendy:Z_7_LOW","who":"Wendy","text":"If I were to \"tag\" different LLM explanations as belonging to different dimensions, I would struggle to distinguish between Structural, Semantic, and Epistemic stances. \n\nThis is because all three deal with the claim and its reasoning. \n- Structural has the subdimension \"reasoning form\"\n- Semantic has the subdimension \"Correctness of reasoning\"\n- Epistemic stance has \"expressed confidence\"\n\nFor example: To be able to classify a self-explanation between these three, I first need to very carefully read the claim, break down the reasoning (Structural: \"reasoning form\"), and reason myself on whether the claim is true/correct or not (Semantic: \"Correctness of reasoning\" and \"consistency with answer\"), and based on that decide if the LLM presents it in an appropriate tone of voice (Epistemic Stance: \"expressed confidence\").\n\nAs you can see, that would require me to traverse all three dimensions. It is possible, but it requires more thinking and reasoning than I'd probably like to invest. This is not the case with the other 4 dimensions, which are clearly different."}]},{"id":"x02","section":"experts","title":"Merge Register and Warmth into \"tone of voice\"","why":"Formality and care can vary independently (a formal text can be warm), so they are kept apart with sharper definitions for now.","old":"","change":"","diff":[],"comments":[{"key":"Wendy:D3_Q15","who":"Wendy","text":"I would merge the subdimensions \"Register\" and \"Warmth\" into a single dimension, \"tone of voice,\" or something similar. Where there could be different levels/aspects such as: formal/professional, neutral, warm/friendly/casual"},{"key":"Jichen:D7_Q15","who":"Jichen","text":"Other related semantic subdimensions to consider (feel free to ignore): tone of the voice, perspective (first person vs third person),"}]},{"id":"x03","section":"experts","title":"Make the taxonomy smaller","why":"Seven dimensions and 28 subdimensions is a lot to learn. Which to merge is what the expert ratings of \"belongs\" and \"clearly different\" are for.","old":"","change":"","diff":[],"comments":[{"key":"Jichen:Z_1_LOW","who":"Jichen","text":"I am split on this --- 7 dimensions and 28 subdimensions seem a lot. I am not sure whether they cannot be further consolidated (some suggests are in prev pages). Additional thoughts - \"Source\" could be merged under \"epistemic stance.\""},{"key":"Pelin:Z_1_LOW","who":"Pelin","text":"It is definitely comprehensive, but not, per se, concise, in my opinion. It would take a lot of time to familiarize ourselves, as it is very detailed"}]},{"id":"x04","section":"experts","title":"Rename Epistemic stance to Confidence","why":"The dimension also holds Hedging and Disclaimer, which are not confidence as such.","old":"","change":"","diff":[],"comments":[{"key":"Jichen:D2_Q8","who":"Jichen","text":"“Epistemic stance\" might be a bit abstract here. Have you considered \"confidence\"?"}]},{"id":"x05","section":"experts","title":"Move Detail to Reasoning structure","why":"Detail is about how much support each reason gets, which is visible before reading closely; the experts can judge whether it belongs to Surface.","old":"","change":"","diff":[],"comments":[{"key":"Emil:D1_Q8","who":"Emil","text":"Detail can be hard to actually code before the reading the content I think, and if it requires to read the content then it could be move to Structural as well..."}]},{"id":"x06","section":"experts","title":"Delivery and Surface: rename or redraw the line","why":"Surface is what the text looks like; Delivery is when and how the interface presents it. The experts’ distinctness ratings will show whether the line holds.","old":"","change":"","diff":[],"comments":[{"key":"Jichen:D5_LOW","who":"Jichen","text":"\"Delivery\" seems to be quite related to \"Surface\" - Perhaps you could name this \"Interactivity\"?"},{"key":"Emil:D5_Q8","who":"Emil","text":"I guess \"Timing\" could be equally reframed as \"Placing\" and then it would become a bit blurry between Delivery and Surface. \n\"Progressive disclosure\" isn't it a sub-subdimension of \"Interactivity\"?"}]},{"id":"k01","section":"kept","title":"Length thresholds stay fixed","why":"Fixed sentence counts keep coding the same across studies; what counts as long for a given decision is left to the study that uses the taxonomy.","old":"","change":"","diff":[],"comments":[{"key":"Jichen:D1_Q15","who":"Jichen","text":"- length: the definition is clear. What is long/medium/short can be contextual, depending on the decision being explained. So the hard limit on the number of sentences could be relaxed. \n-"}]},{"id":"k02","section":"kept","title":"Formatting does not mention \"layout\"","why":"\"Layout\" would pull in the interface around the text, which is Delivery.","old":"","change":"","diff":[],"comments":[{"key":"Emil:D1_Q15","who":"Emil","text":"\"The typographic structure of the text\" maybe could benefit of adding the word \"layout\""}]},{"id":"k03","section":"kept","title":"A standing product disclaimer is not a Disclaimer","why":"A fixed line under every answer (\"AI can make mistakes\") is part of the interface, not of this explanation. Disclaimer counts statements inside the explanation.","old":"","change":"","diff":[],"comments":[{"key":"Emil:D2_Q8","who":"Emil","text":"Isn't Disclaimer mandatory? Like \"Claude is an AI and can do mistake. Check the answers yourself\".. Or that doesn't count as explanation?"}]},{"id":"k04","section":"kept","title":"Persuasive appeals stays","why":"It covers rhetorical devices beyond stating reasons (authority, social proof, urgency, emotion), which Register and Warmth do not. Its distinctness is rated by the experts.","old":"","change":"","diff":[],"comments":[{"key":"Pelin:D2_Q8","who":"Pelin","text":"I wonder if some would coincide with \"Persuasive appeals\""},{"key":"Jichen:D3_S5_Q12","who":"Jichen","text":"Persuasive rhetoric can overlap with a mix of many things, such as \"register,\" \"warmth,\" \"persuasive appeals,\" possibly more just in this dimension. It seems to work at a higher level of abstraction than some of the other subdimensions here. A simpler solution is to just remove it to avoid the overlap, but maybe there are smarter solutions"}]},{"id":"k05","section":"kept","title":"Why these subdimensions","why":"Each comes from properties manipulated in prior studies (the position paper); the paper will say so per subdimension. Whether any are missing is a question in the expert round.","old":"","change":"","diff":[],"comments":[{"key":"Jichen:D3_Q8","who":"Jichen","text":"I like the name of this dimension. The 5 subdimensions are individually good, but I am missing why these particular 5. Could there be others? Are there existing linguistic/rhetoric theories and taxonomies that we can lean into?"}]},{"id":"k06","section":"kept","title":"General remarks","why":"Thank you.","old":"","change":"","diff":[],"comments":[{"key":"Wendy:Z_10","who":"Wendy","text":"Overall, I think the dimensions and subdimensions are very useful for describing the characteristics of LLM self-explanations. The examples are also very good for explaining AI explanations."}]}],"people":[{"hash":"98ca2f5838b5fa5b640ad283711b9107bb88b26dd63f675e53197ce2f7f36bf4","first":"Jichen","role":"coauthor"},{"hash":"4e41ddadd843ce14602ff0ef6c1ef91ac6fb88205958a0961b949cb70c4e7c75","first":"Wendy","role":"coauthor"},{"hash":"c523f2438da8f7906a70f121986d505049f2b461f1ede434cfca3214c3d1eb21","first":"Pelin","role":"coauthor"},{"hash":"b368c90d801cd0f8acb8f839f64469e6017478624433dbc38d8cfdb7d894029c","first":"Emil","role":"coauthor"},{"hash":"85083eda715832fd9d892af603864a168153f0d43e191b5c11476dd09e81a176","first":"Willem","role":"overview"}]};
+  var ENDPOINT = "https://delphi-collector.vercel.app/api/answers";
+  var TOKEN = (location.search.match(/[?&]t=([A-Za-z0-9_-]{16,64})(?:&|$)/) || [])[1] || null;
+  var KEY = 'delphi-review-' + (TOKEN || 'none');
+  var d = document, state = { answers: {}, overall: '', submittedAt: null }, me = null;
+  try { var s = JSON.parse(localStorage.getItem(KEY)); if (s && s.answers) state = s; } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function el(tag, cls, text) { var n = d.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+
+  var timer = null;
+  function send(kind) {
+    if (!ENDPOINT || !TOKEN) return Promise.reject(new Error('no address'));
+    var body = JSON.stringify({ v: 1, token: TOKEN, kind: kind, page: 'pilot-review', state: { review: state, who: me && me.first } });
+    return fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: body })
+      .then(function (r) { return r.json(); }).then(function (j) { if (!j || !j.ok) throw new Error((j && j.error) || 'not saved'); return j; });
+  }
+  function changed() { save(); progress(); clearTimeout(timer); timer = setTimeout(function () { send('progress').catch(function () {}); }, 800); }
+
+  function progress() {
+    var total = DATA.items.length, n = DATA.items.filter(function (it) { return state.answers[it.id] && state.answers[it.id].choice != null; }).length;
+    d.getElementById('progress').textContent = n + ' of ' + total + ' answered';
+  }
+
+  // One entry per person: their comments on this item, exact repeats dropped.
+  function byPerson(list) {
+    var out = [];
+    list.forEach(function (x) {
+      var p = out.filter(function (o) { return o.who === x.who; })[0];
+      if (!p) { p = { who: x.who, texts: [] }; out.push(p); }
+      if (p.texts.indexOf(x.text) === -1) p.texts.push(x.text);
+    });
+    return out.map(function (p) { return { who: p.who, text: p.texts.join('\n\n') }; });
+  }
+  function chip(c) {
+    var w = el('span', 'chip'), b = el('button', null, c.who); b.type = 'button'; b.setAttribute('aria-expanded', 'false');
+    var pop = el('span', 'pop', c.text);
+    function set(open) { w.classList.toggle('open', open); b.setAttribute('aria-expanded', String(open)); }
+    var pinned = false;
+    b.addEventListener('click', function () { pinned = !pinned; set(pinned); });
+    w.addEventListener('mouseenter', function () { set(true); });
+    w.addEventListener('mouseleave', function () { if (!pinned) set(false); });
+    w.append(b, pop);
+    return w;
+  }
+
+  function card(it, sec) {
+    var c = el('article', 'card'); c.id = it.id;
+    var mine = me.role === 'coauthor' && it.comments.some(function (x) { return x.who === me.first; });
+    if (mine) c.classList.add('mine');
+    c.dataset.mine = mine ? '1' : '';
+    c.append(el('h3', null, it.title));
+    if (it.diff.length || it.old || it.change) {
+      var df = el('div', 'diff');
+      it.diff.forEach(function (t) {
+        df.append(el('div', 'lbl', t.label));
+        t.rows.forEach(function (r) {
+          var row = el('div', 'row'); row.append(el('b', null, r.field));
+          if (r.old) row.append(el('span', 'old', r.old));
+          row.append(el('span', 'new', r.now));
+          df.append(row);
+        });
+      });
+      if (it.old) { var r1 = el('div', 'row'); r1.append(el('b', null, 'Was'), el('span', 'old', it.old)); df.append(r1); }
+      if (it.change) { var r2 = el('div', 'row'); r2.append(el('b', null, it.old ? 'Now' : 'Change'), el('span', 'new', it.change)); df.append(r2); }
+      c.append(df);
+    }
+    if (it.why) { var w = el('div', 'why'); w.append(el('b', null, sec.key === 'kept' || sec.key === 'experts' ? 'Why ' : 'Why: '), d.createTextNode(it.why)); c.append(w); }
+    if (it.comments.length) {
+      var said = el('div', 'said');
+      if (me.role === 'coauthor') {
+        var own = byPerson(it.comments.filter(function (x) { return x.who === me.first; }));
+        var others = byPerson(it.comments.filter(function (x) { return x.who !== me.first; }));
+        if (own.length) { said.append(el('b', null, 'You said')); own.forEach(function (x) { said.append(el('div', 'mine-text', x.text)); }); }
+        if (others.length) { var ch = el('div', 'chips'); ch.append(el('b', null, own.length ? 'Others said' : 'Comments')); others.forEach(function (x) { ch.append(chip(x)); }); said.append(ch); }
+      } else {
+        var ch2 = el('div', 'chips'); ch2.append(el('b', null, 'Comments')); byPerson(it.comments).forEach(function (x) { ch2.append(chip(x)); }); said.append(ch2);
+      }
+      c.append(said);
+    }
+    var a = state.answers[it.id] || {};
+    var ans = el('div', 'answer'), seg = el('div', 'seg');
+    sec.choices.forEach(function (label, i) {
+      var b = el('button', 'c' + i, label); b.type = 'button'; b.setAttribute('aria-pressed', String(a.choice === i));
+      b.addEventListener('click', function () {
+        var cur = state.answers[it.id] || {};
+        cur.choice = cur.choice === i ? null : i; cur.label = cur.choice == null ? null : label;
+        state.answers[it.id] = cur;
+        seg.querySelectorAll('button').forEach(function (x, j) { x.setAttribute('aria-pressed', String(cur.choice === j)); });
+        changed();
+      });
+      seg.append(b);
+    });
+    var note = el('textarea'); note.rows = 1; note.placeholder = 'Note (optional)'; note.setAttribute('aria-label', 'Note on ' + it.title); note.value = a.note || '';
+    note.addEventListener('change', function () { var cur = state.answers[it.id] || {}; cur.note = note.value.trim(); state.answers[it.id] = cur; changed(); });
+    ans.append(seg);
+    c.append(ans, note);
+    return c;
+  }
+
+  function render() {
+    var box = d.getElementById('sections');
+    DATA.sections.forEach(function (sec) {
+      var list = DATA.items.filter(function (it) { return it.section === sec.key; });
+      if (!list.length) return;
+      var s = el('section', 'sec'); s.append(el('h2', null, sec.title), el('p', null, sec.note));
+      list.forEach(function (it) { s.append(card(it, sec)); });
+      box.append(s);
+    });
+    var only = d.getElementById('mine-only');
+    only.addEventListener('change', function () {
+      d.querySelectorAll('.card').forEach(function (c) { c.hidden = only.checked && !c.dataset.mine; });
+      d.querySelectorAll('section.sec').forEach(function (s) { s.hidden = !s.querySelector('.card:not([hidden])'); });
+    });
+    var overall = d.getElementById('overall'); overall.value = state.overall || '';
+    overall.addEventListener('change', function () { state.overall = overall.value.trim(); changed(); });
+    var sent = d.getElementById('sent');
+    if (state.submittedAt) sent.textContent = 'Sent. You can still change answers and send again.';
+    d.getElementById('submit').addEventListener('click', function () {
+      var btn = this; btn.disabled = true; sent.classList.remove('err'); sent.textContent = 'Sending…';
+      state.submittedAt = new Date().toISOString(); save();
+      send('complete').then(function () { sent.textContent = 'Sent. Thank you. You can still change answers and send again.'; })
+        .catch(function () { sent.classList.add('err'); sent.textContent = 'Not sent. Your answers are kept in this browser; check your connection and try again.'; })
+        .then(function () { btn.disabled = false; });
+    });
+    progress();
+  }
+
+  function start(person) {
+    me = person;
+    d.getElementById('app').hidden = false;
+    var total = DATA.items.length;
+    if (me.role === 'coauthor') {
+      d.getElementById('hello').textContent = 'Hi ' + me.first + ', here is what changed after the pilot';
+      d.getElementById('intro').textContent = 'We went through every comment from the pilot. For each item below you see the change, why we made it, what you said about it, and what the others said (select a name to read it). Please accept or decline each one, with a note where useful. Items with your comments have a blue edge. It takes about 15 minutes; your answers are kept as you go.';
+      d.getElementById('mine-only-wrap').hidden = false;
+    } else {
+      d.getElementById('hello').textContent = 'All changes after the pilot, with every comment';
+      d.getElementById('intro').textContent = 'The overview: every change, its reason, and every co-author comment behind it (hover or select a name). You can accept or decline too; your answers are sent like the others.';
+    }
+    render();
+  }
+
+  if (!TOKEN || !window.crypto || !crypto.subtle) { d.getElementById('nolink').hidden = false; return; }
+  crypto.subtle.digest('SHA-256', new TextEncoder().encode(TOKEN)).then(function (buf) {
+    var hex = Array.prototype.map.call(new Uint8Array(buf), function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+    var person = DATA.people.filter(function (p) { return p.hash === hex; })[0];
+    if (!person) { d.getElementById('nolink').hidden = false; return; }
+    start(person);
+  });
+})();
+</script>
+</body>
+</html>
