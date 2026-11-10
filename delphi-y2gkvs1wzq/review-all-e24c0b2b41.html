@@ -1130,11 +1130,16 @@ a.pair-open.rv-marked { position: relative; }
 .rv-pin { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: #1b1b1b; color: #fff; font: 700 12px/1 system-ui, sans-serif; flex: none; }
 .rv-box .rv-pin { position: absolute; left: -10px; top: -13px; min-width: 18px; height: 18px; font-size: 11px; border: 1.5px solid #fff; pointer-events: auto; cursor: pointer; }
 .rv-box.hot .rv-pin, .rv-ask.hot .rv-pin { background: #d97706; }
-.rv-ask.hot { box-shadow: 0 0 0 3px rgba(224, 165, 44, .45); }
-.rv-ask.flash { animation: rv-flash 1.6s ease-out; }
-@keyframes rv-flash { 0%, 40% { box-shadow: 0 0 0 5px rgba(217, 119, 6, .7); } 100% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0); } }
+.rv-box.dim { opacity: .12; }
+.rv-ask.hot { box-shadow: 0 0 0 3px rgba(217, 119, 6, .55); }
+.rv-ask-head.rv-clickable { cursor: pointer; }
+.rv-pairq { margin: 0 0 18px; }
+button.rv-show { font: inherit; font-size: 13px; font-weight: 600; background: #1b1b1b; color: #fff; border: 1px solid #1b1b1b; border-radius: 6px; padding: 5px 12px; cursor: pointer; white-space: nowrap; min-height: 0; box-shadow: none; width: auto; margin: 0; }
+button.rv-show:hover { background: #3a3a3a; }
+button.rv-show[aria-pressed="true"] { background: #d97706; border-color: #d97706; }
+button.rv-show:focus-visible { outline: 2px solid #2b6cb0; outline-offset: 2px; }
 .rv-wires { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 30; }
-.rv-wires path { fill: none; stroke: #d97706; stroke-width: 2; stroke-linecap: round; }
+.rv-wires path { fill: none; stroke: #d97706; stroke-width: 1.75; stroke-linecap: round; opacity: .85; }
 
 /* redrawn examples, with the pilot version to compare */
 .rv-pilot { margin: 10px 0 12px; padding: 10px 12px; border: 1px solid #5fae7a; border-left: 6px solid #5fae7a; background: #f3f9f4; border-radius: 6px; font-size: 14px; }
@@ -1624,12 +1629,10 @@ window.REVIEW_ENDPOINT = "https://delphi-collector.vercel.app/api/answers";
     var bar = el('div', 'rv-ask'), head = el('div', 'rv-ask-head'), lab = el('span', 'rv-ask-lab'), what = el('span', 'rv-ask-what');
     what.append(d.createTextNode(kind + ': '), el('b', null, it.title));
     if (pinNo[it.id]) {
-      var badge = el('span', 'rv-pin', String(pinNo[it.id])); badge.title = 'Marked ' + pinNo[it.id] + ' on the examples above';
+      var badge = el('span', 'rv-pin', String(pinNo[it.id])); badge.title = 'Marked ' + pinNo[it.id] + ' on the examples';
       head.append(badge); badgeOf[it.id] = badge;
-      bar.addEventListener('mouseenter', function () { heat(it.id, null); });
-      bar.addEventListener('mouseleave', cool);
-      bar.addEventListener('focusin', function () { heat(it.id, null); });
-      bar.addEventListener('focusout', cool);
+      head.classList.add('rv-clickable');
+      head.addEventListener('click', function () { point(it.id); });
     }
     barOf[it.id] = bar;
     head.append(lab, what);
@@ -1650,6 +1653,11 @@ window.REVIEW_ENDPOINT = "https://delphi-collector.vercel.app/api/answers";
     why.addEventListener('click', function (e) { e.preventDefault(); if (popFor === why && pinned) closePop(); else openPop(why, it, true); });
     var note = el('input', 'rv-note-in'); note.type = 'text'; note.placeholder = 'Note (optional)'; note.setAttribute('aria-label', 'Note on ' + it.title);
     note.addEventListener('change', function () { var cur = state.answers[it.id] || {}; cur.note = note.value.trim(); state.answers[it.id] = cur; changed(it.id); });
+    if (pinNo[it.id]) {
+      var showBtn = el('button', 'rv-show', SHOW); showBtn.type = 'button'; showBtn.setAttribute('aria-pressed', 'false');
+      showBtn.addEventListener('click', function () { point(it.id); });
+      showOf[it.id] = showBtn; acts.append(showBtn);
+    }
     acts.append(why, note);
     bar.append(head, acts);
     onChange(it.id, function () {
@@ -1692,7 +1700,8 @@ window.REVIEW_ENDPOINT = "https://delphi-collector.vercel.app/api/answers";
   }
 
   /* numbered marks on the redrawn examples, each tied to the bar that asks about it */
-  var pinNo = {}, barOf = {}, badgeOf = {}, boxesOf = {}, hot = null, wires = null;
+  var pinNo = {}, barOf = {}, badgeOf = {}, boxesOf = {}, showOf = {}, hot = null, wires = null;
+  var SHOW = 'Show on the examples', HIDE = 'Stop showing';
   function markPair(pairEl, dm) {
     if (!dm.marks) return;
     itemsAt('pair:' + dm.id).forEach(function (it, i) { pinNo[it.id] = i + 1; });
@@ -1707,35 +1716,32 @@ window.REVIEW_ENDPOINT = "https://delphi-collector.vercel.app/api/answers";
         if (!seen[m.k]) {
           seen[m.k] = true;
           var pin = el('span', 'rv-pin', String(pinNo[m.id]));
-          pin.setAttribute('role', 'button'); pin.tabIndex = 0; pin.title = 'Go to the question about this change';
-          var go = function (e) {
-            e.preventDefault(); e.stopPropagation();
-            var bar = barOf[m.id]; if (!bar) return;
-            bar.scrollIntoView({ block: 'center', behavior: 'smooth' });
-            bar.classList.add('flash'); setTimeout(function () { bar.classList.remove('flash'); }, 1600);
-          };
+          pin.setAttribute('role', 'button'); pin.tabIndex = 0; pin.title = 'Show everything question ' + pinNo[m.id] + ' is about';
+          var go = function (e) { e.preventDefault(); e.stopPropagation(); point(m.id); };
           pin.addEventListener('click', go);
           pin.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') go(e); });
-          pin.addEventListener('mouseenter', function () { heat(m.id, pin); });
-          pin.addEventListener('mouseleave', cool);
           box.pin = pin; box.append(pin);
         }
         a.append(box);
       });
     });
   }
-  /* light up one change: its marks, its bar, and a line between them */
-  function heat(id, onlyPin) {
+  /* select one change: its marks stay lit and pointed at, the other marks fade, until it is selected again */
+  function point(id) {
+    var same = hot && hot.id === id;
     cool();
-    hot = { id: id, pin: onlyPin };
-    (boxesOf[id] || []).forEach(function (b) { b.classList.add('hot'); });
+    if (same) return;
+    hot = { id: id };
+    Object.keys(boxesOf).forEach(function (k) { boxesOf[k].forEach(function (b) { b.classList.add(k === id ? 'hot' : 'dim'); }); });
     if (barOf[id]) barOf[id].classList.add('hot');
+    if (showOf[id]) { showOf[id].setAttribute('aria-pressed', 'true'); showOf[id].textContent = HIDE; }
     wire();
   }
   function cool() {
     if (!hot) return;
-    (boxesOf[hot.id] || []).forEach(function (b) { b.classList.remove('hot'); });
+    Object.keys(boxesOf).forEach(function (k) { boxesOf[k].forEach(function (b) { b.classList.remove('hot', 'dim'); }); });
     if (barOf[hot.id]) barOf[hot.id].classList.remove('hot');
+    if (showOf[hot.id]) { showOf[hot.id].setAttribute('aria-pressed', 'false'); showOf[hot.id].textContent = SHOW; }
     hot = null;
     if (wires) wires.textContent = '';
   }
@@ -1746,14 +1752,28 @@ window.REVIEW_ENDPOINT = "https://delphi-collector.vercel.app/api/answers";
     wires.textContent = '';
     var from = badgeOf[hot.id].getBoundingClientRect(), fx = from.left + from.width / 2;
     if (from.width === 0) return;
+    var top = $('.topline').getBoundingClientRect().bottom, vh = window.innerHeight;
+    var barBox = barOf[hot.id].getBoundingClientRect(), group = barOf[hot.id].parentNode.getBoundingClientRect();
+    if (from.bottom < top || from.top > vh) return; // the question has scrolled away: its marks stay lit, without lines across the page
     (boxesOf[hot.id] || []).forEach(function (b) {
-      if (!b.pin || (hot.pin && b.pin !== hot.pin)) return;
-      var r = b.pin.getBoundingClientRect(); if (r.width === 0) return;
-      // from the edge of the bar's number to the edge of the mark's number, so both stay readable
-      var up = from.top > r.top ? -1 : 1, fy = up < 0 ? from.top : from.bottom, ty = up < 0 ? r.bottom : r.top;
+      if (!b.pin) return;
+      var r = b.pin.getBoundingClientRect();
+      if (r.width === 0 || r.bottom < top || r.top > vh) return; // only to marks that are on screen
+      // from the edge of the question's number to the edge of the mark's number, so both stay readable;
+      // when the question has scrolled away, the line comes in from the edge of the screen
+      var up = from.top > r.top ? -1 : 1, fy = Math.min(Math.max(up < 0 ? from.top : from.bottom, top + 2), vh - 2), ty = up < 0 ? r.bottom : r.top;
       var tx = r.left + r.width / 2, bend = Math.max(40, Math.abs(fy - ty) * 0.45);
-      var path = d.createElementNS(NS, 'path');
-      path.setAttribute('d', 'M' + fx + ',' + fy + ' C' + fx + ',' + (fy + up * bend) + ' ' + tx + ',' + (ty - up * bend) + ' ' + tx + ',' + ty);
+      var path = d.createElementNS(NS, 'path'), line;
+      var clamp = function (v) { return Math.min(Math.max(v, top + 2), vh - 2); };
+      var gx = barBox.left - 14, cy = clamp(from.top + from.height / 2), gy = clamp(group.bottom + 4);
+      if (r.top > gy) {
+        // the usual case, questions above the examples: out of the question to the left, down beside
+        // the questions, then across to the mark, so the line never runs over another question
+        var fall = Math.max(30, (r.top - gy) * 0.5);
+        line = 'M' + from.left + ',' + cy + ' C' + gx + ',' + cy + ' ' + gx + ',' + cy + ' ' + gx + ',' + Math.min(cy + 24, gy) +
+          ' L' + gx + ',' + gy + ' C' + gx + ',' + (gy + fall) + ' ' + tx + ',' + (r.top - fall) + ' ' + tx + ',' + r.top;
+      } else line = 'M' + fx + ',' + fy + ' C' + fx + ',' + (fy + up * bend) + ' ' + tx + ',' + (ty - up * bend) + ' ' + tx + ',' + ty;
+      path.setAttribute('d', line);
       wires.append(path);
     });
   }
@@ -1766,7 +1786,7 @@ window.REVIEW_ENDPOINT = "https://delphi-collector.vercel.app/api/answers";
     var names = dm.redrawn.map(function (yes, i) { return yes ? 'Variation ' + 'AB'[i] : null; }).filter(Boolean);
     var box = el('div', 'rv-pilot'), head = el('div', 'rv-pilot-head'), imgs = el('div', 'rv-pilot-imgs');
     var btn = el('button', 'rv-mk', 'Show the pilot version'); btn.type = 'button'; btn.setAttribute('aria-expanded', 'false');
-    head.append(el('span', 'rv-moved', 'remade after our meeting'), d.createTextNode(' ' + names.join(' and ') + (names.length > 1 ? ' are new.' : ' is new.') + ' The numbers on the examples show where each change below is. '), btn);
+    head.append(el('span', 'rv-moved', 'remade after our meeting'), d.createTextNode(' ' + names.join(' and ') + (names.length > 1 ? ' are new.' : ' is new.') + ' Each question below has a number. Select “Show on the examples” on a question to see what it changed. '), btn);
     imgs.hidden = true;
     dm.pilotPair.forEach(function (src, i) {
       var fig = el('figure'), a = el('a'), im = el('img'), cap = 'Pilot version, Variation ' + 'AB'[i] + (dm.redrawn[i] ? '' : ' (not changed)');
@@ -1788,10 +1808,15 @@ window.REVIEW_ENDPOINT = "https://delphi-collector.vercel.app/api/answers";
     h.textContent = ''; h.append(d.createTextNode('Dimension “'), segs(dm.name, ' '), d.createTextNode('”'));
     def.textContent = ''; def.append(d.createTextNode('Definition: '), segs(dm.def, ' '));
     addAsks(def, 'dim:' + dm.id);
-    var pairEl = $('.pair', sec), was = pilotPair(dm);
-    if (was) pairEl.after(was);
+    // the questions about the examples sit above them, so they are read before the examples
+    var pairEl = $('.pair', sec), was = pilotPair(dm), asks = itemsAt('pair:' + dm.id);
     markPair(pairEl, dm);
-    addAsks(was || pairEl, 'pair:' + dm.id);
+    if (was || asks.length) {
+      var q = el('div', 'rv-pairq');
+      if (was) q.append(was);
+      asks.forEach(function (it) { q.append(ask(it)); });
+      pairEl.before(q);
+    }
     dm.subs.forEach(function (sb) {
       var box = d.getElementById(sb.key); if (!box) return;
       sb.statements.forEach(function (st, i) { pidMap[sb.key + (i ? '_Q10' : '_Q9')] = st.pid; });
@@ -1884,7 +1909,7 @@ window.REVIEW_ENDPOINT = "https://delphi-collector.vercel.app/api/answers";
     });
   }
   function show(key) {
-    closePop();
+    closePop(); cool();
     state.page = key; save();
     PAGES.forEach(function (p) { sectionOf(p).hidden = p.key !== key; });
     renderBar();
