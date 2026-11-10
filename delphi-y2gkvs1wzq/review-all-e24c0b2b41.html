@@ -1092,7 +1092,7 @@ sup.fn a { color: var(--accent); text-decoration: none; }
 .pagenav .nav-st { color: var(--muted); white-space: nowrap; }
 .pagenav .nav-st.todo { color: #7c4a08; }
 .pagenav .nav-st.ok { color: #1f6a3b; }
-.rv-pill { background: #e6f0fa; color: #0f4a80; padding: 1px 9px; border-radius: 8px; white-space: nowrap; margin-right: 14px; }
+.rv-pill { background: #f6c453; color: #3d2a00; font-weight: 600; padding: 1px 9px; border-radius: 8px; white-space: nowrap; margin-right: 14px; }
 .rv-pill.done { background: #e3f1e6; color: #1f6a3b; }
 
 .rv-note { margin: 8px 0 20px; padding: 10px 14px; border: 1px solid #e6b566; background: #fdf6e7; border-radius: 6px; font-size: 14px; }
@@ -1103,16 +1103,25 @@ del.rv-del { color: #a2332b; text-decoration: line-through; }
 ins.rv-ins { background: #e3f1e6; color: #1f6a3b; text-decoration: none; border-radius: 3px; padding: 0 2px; }
 .rv-moved { font-size: 12px; font-weight: 400; background: #e3f1e6; color: #1f6a3b; border-radius: 8px; padding: 1px 8px; margin-left: 6px; white-space: nowrap; }
 
-/* the marker on a change */
-button.rv-mk { display: inline-flex; align-items: center; gap: 4px; font: inherit; font-size: 12px; font-weight: 400; line-height: 1.5; background: #faeeda; color: #7c4a08; border: 0; border-radius: 8px; padding: 1px 8px; margin: 0 0 0 6px; cursor: pointer; white-space: nowrap; vertical-align: 1px; min-height: 0; box-shadow: none; width: auto; }
-button.rv-mk svg { width: 13px; height: 13px; flex: none; }
-button.rv-mk.quiet { background: #eeede8; color: #55534e; }
-button.rv-mk.yes { background: #e3f1e6; color: #1f6a3b; }
-button.rv-mk.no { background: #f8e5e3; color: #a2332b; }
-button.rv-mk.on { box-shadow: 0 0 0 2px #e6b566; }
-button.rv-mk:focus-visible { outline: 2px solid #2b6cb0; outline-offset: 2px; }
-.rv-pairline { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
-.rv-pairline button.rv-mk:first-of-type { margin-left: 4px; }
+/* the bar that asks for input */
+.rv-ask { margin: 8px 0 12px; padding: 10px 12px; border: 1px solid #e0a52c; border-left: 6px solid #e0a52c; background: #fdf0cf; border-radius: 6px; display: grid; gap: 8px; }
+.rv-ask.yes { border-color: #5fae7a; background: #eaf5ed; }
+.rv-ask.no { border-color: #d98078; background: #fbeceb; }
+.rv-ask-head { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; font-size: 14px; color: var(--text); }
+.rv-ask-lab { font-weight: 700; color: #7a4a00; text-transform: none; white-space: nowrap; }
+.rv-ask.yes .rv-ask-lab { color: #1f6a3b; }
+.rv-ask.no .rv-ask-lab { color: #a2332b; }
+.rv-ask-acts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button.rv-choice { font: inherit; font-size: 14px; font-weight: 600; background: #fff; color: var(--text); border: 1px solid #8a8880; border-radius: 6px; padding: 5px 14px; cursor: pointer; white-space: nowrap; min-height: 0; box-shadow: none; width: auto; margin: 0; }
+button.rv-choice:hover { background: #f6f5f0; }
+button.rv-choice[aria-pressed="true"].c0 { background: #1f6a3b; color: #fff; border-color: #1f6a3b; }
+button.rv-choice[aria-pressed="true"].c1 { background: #a2332b; color: #fff; border-color: #a2332b; }
+button.rv-mk { display: inline-flex; align-items: center; gap: 5px; font: inherit; font-size: 13px; font-weight: 400; background: transparent; color: #5a3d00; border: 1px dashed #b98a2b; border-radius: 6px; padding: 4px 10px; margin: 0; cursor: help; white-space: nowrap; min-height: 0; box-shadow: none; width: auto; }
+.rv-ask.yes button.rv-mk, .rv-ask.no button.rv-mk { color: #55534e; border-color: #b9b6ac; }
+button.rv-mk svg { width: 14px; height: 14px; flex: none; }
+button.rv-mk.on { background: #fff; border-style: solid; }
+button.rv-mk:focus-visible, button.rv-choice:focus-visible { outline: 2px solid #2b6cb0; outline-offset: 2px; }
+input.rv-note-in { font: inherit; font-size: 13px; flex: 1; min-width: 9rem; border: 1px solid #b9b6ac; border-radius: 6px; padding: 5px 10px; background: #fff; color: var(--text); }
 
 /* the tooltip that opens from a marker */
 .rv-pop { position: absolute; z-index: 200; width: min(30rem, calc(100vw - 24px)); background: #fff; border: 1px solid #c9c6ba; border-radius: 10px; box-shadow: 0 10px 34px rgba(0, 0, 0, .18); padding: 12px 14px; font-size: 13px; line-height: 1.5; color: var(--text); }
@@ -1126,11 +1135,6 @@ button.rv-mk:focus-visible { outline: 2px solid #2b6cb0; outline-offset: 2px; }
 .rv-pop .txt { margin: 0 0 10px; color: #5d5b55; }
 .rv-pop .differ { margin: 0 0 10px; background: #faeeda; color: #7c4a08; border-radius: 8px; padding: 6px 10px; }
 .rv-pop .also { margin: 0 0 10px; font-size: 12px; color: #8b8982; }
-.rv-pop .ans { display: flex; gap: 8px; align-items: center; border-top: 1px solid var(--border); padding-top: 10px; }
-.rv-pop .ans button { font: inherit; font-size: 13px; background: #fff; color: var(--text); border: 1px solid #c9c6ba; border-radius: 8px; padding: 4px 12px; cursor: pointer; white-space: nowrap; min-height: 0; box-shadow: none; width: auto; margin: 0; }
-.rv-pop .ans button[aria-pressed="true"].c0 { background: #e3f1e6; color: #1f6a3b; border-color: #9fcfb0; font-weight: 600; }
-.rv-pop .ans button[aria-pressed="true"].c1 { background: #f8e5e3; color: #a2332b; border-color: #e3aaa5; font-weight: 600; }
-.rv-pop .ans input { font: inherit; font-size: 13px; flex: 1; min-width: 0; border: 1px solid #c9c6ba; border-radius: 8px; padding: 4px 10px; }
 .rv-pop .hint { margin: 8px 0 0; font-size: 12px; color: #8b8982; }
 
 /* pilot ratings on the survey's own rating rows */
@@ -1139,9 +1143,6 @@ button.rv-mk:focus-visible { outline: 2px solid #2b6cb0; outline-offset: 2px; }
 .rv-rating { display: block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 2px; }
 
 .rv-rows { margin: 8px 0 0; }
-.rv-rows .rv-row { border-top: 1px solid var(--border); padding: 10px 0; margin: 0; }
-.rv-rows .rv-row .ttl { font-weight: 600; }
-.rv-rows .rv-row .was { display: block; margin-top: 2px; }
 .rv-final { margin-top: 24px; display: grid; gap: 8px; }
 .rv-final textarea { font: inherit; width: 100%; min-height: 4.5rem; padding: 8px 10px; border: 1px solid var(--border-strong); border-radius: 4px; box-sizing: border-box; }
 .rv-final .ans { display: flex; gap: 12px; align-items: center; }
@@ -1574,21 +1575,6 @@ window.REVIEW_ENDPOINT = "https://delphi-collector.vercel.app/api/answers";
     if (it.why) pop.append(el('p', 'k', it.section === 'kept' ? 'Why we left it' : it.section === 'experts' ? 'Why we leave it to the experts' : 'Why we changed it'), el('p', 'txt', it.why));
     if (it.conflict) pop.append(el('p', 'differ', 'Views differed. ' + it.conflict));
     if (it.at.length > 1) pop.append(el('p', 'also', 'This change shows in ' + it.at.length + ' places; one answer covers all of them.'));
-    var ans = el('div', 'ans'), a = state.answers[it.id] || {};
-    choicesOf(it).forEach(function (label, i) {
-      var b = el('button', 'c' + i, label); b.type = 'button'; b.setAttribute('aria-pressed', String(a.choice === i));
-      b.addEventListener('click', function () {
-        var cur = state.answers[it.id] || {};
-        cur.choice = cur.choice === i ? null : i; cur.label = cur.choice == null ? null : label;
-        state.answers[it.id] = cur; pinned = true; changed(it.id);
-        $$('button', ans).forEach(function (x, j) { x.setAttribute('aria-pressed', String(cur.choice === j)); });
-      });
-      ans.append(b);
-    });
-    var note = el('input'); note.type = 'text'; note.placeholder = 'Note (optional)'; note.value = a.note || ''; note.setAttribute('aria-label', 'Note on ' + it.title);
-    note.addEventListener('focus', function () { pinned = true; });
-    note.addEventListener('change', function () { var cur = state.answers[it.id] || {}; cur.note = note.value.trim(); state.answers[it.id] = cur; changed(it.id); });
-    ans.append(note); pop.append(ans);
   }
   function openPop(mk, it, pin) {
     clearTimeout(closeTimer);
@@ -1606,36 +1592,49 @@ window.REVIEW_ENDPOINT = "https://delphi-collector.vercel.app/api/answers";
   d.addEventListener('keydown', function (e) { if (e.key === 'Escape' && pop) { var m = popFor; closePop(); if (m) m.focus(); } });
   window.addEventListener('resize', function () { if (pop && popFor) place(popFor); });
 
-  function marker(it) {
-    var b = el('button', 'rv-mk'); b.type = 'button'; b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-haspopup', 'dialog');
-    var n = it.comments.length, quiet = it.section === 'kept' || it.section === 'experts';
-    var what = it.section === 'pairs' ? 'Planned change' : it.section === 'experts' ? 'Left to the experts' : it.section === 'kept' ? 'Not changed' : 'Changed';
-    onChange(it.id, function () {
-      var a = state.answers[it.id], on = b.classList.contains('on');
-      if (a && a.choice != null) {
-        b.className = 'rv-mk ' + (a.choice === 0 ? 'yes' : 'no');
-        b.textContent = (a.choice === 0 ? '✓ ' : '✗ ') + (DONE[choicesOf(it)[a.choice]] || choicesOf(it)[a.choice]);
-      } else {
-        b.className = 'rv-mk' + (quiet ? ' quiet' : '');
-        b.innerHTML = ICON;
-        b.append(d.createTextNode(it.section === 'pairs' || quiet ? what + (n ? ' · ' + n : '') : n ? String(n) : 'Changed'));
-      }
-      if (on) b.classList.add('on');
-      b.setAttribute('aria-label', what + ': ' + it.title + (n ? ', ' + n + (n === 1 ? ' comment' : ' comments') : ''));
+  /* the bar that asks for input on one item */
+  function ask(it) {
+    var n = uniqueTexts(it.comments).length;
+    var kind = it.section === 'pairs' ? 'Planned change to this example' : it.section === 'experts' ? 'Suggestion left to the experts' : it.section === 'kept' ? 'Comment we did not act on' : 'Change';
+    var bar = el('div', 'rv-ask'), head = el('div', 'rv-ask-head'), lab = el('span', 'rv-ask-lab'), what = el('span', 'rv-ask-what');
+    what.append(d.createTextNode(kind + ': '), el('b', null, it.title));
+    head.append(lab, what);
+    var acts = el('div', 'rv-ask-acts'), btns = [];
+    choicesOf(it).forEach(function (label, i) {
+      var b = el('button', 'rv-choice c' + i, label); b.type = 'button';
+      b.addEventListener('click', function () {
+        var cur = state.answers[it.id] || {};
+        cur.choice = cur.choice === i ? null : i; cur.label = cur.choice == null ? null : label;
+        state.answers[it.id] = cur; changed(it.id);
+      });
+      btns.push(b); acts.append(b);
     });
-    b.addEventListener('mouseenter', function () { if (!pinned || popFor === b) openPop(b, it, false); });
-    b.addEventListener('mouseleave', leave);
-    b.addEventListener('click', function (e) { e.preventDefault(); if (popFor === b && pinned) closePop(); else openPop(b, it, true); });
-    return b;
+    var why = el('button', 'rv-mk'); why.type = 'button'; why.setAttribute('aria-expanded', 'false'); why.setAttribute('aria-haspopup', 'dialog');
+    why.innerHTML = ICON; why.append(d.createTextNode(n ? (n === 1 ? '1 comment' : n + ' comments') + ' and why' : 'Why'));
+    why.addEventListener('mouseenter', function () { if (!pinned || popFor === why) openPop(why, it, false); });
+    why.addEventListener('mouseleave', leave);
+    why.addEventListener('click', function (e) { e.preventDefault(); if (popFor === why && pinned) closePop(); else openPop(why, it, true); });
+    var note = el('input', 'rv-note-in'); note.type = 'text'; note.placeholder = 'Note (optional)'; note.setAttribute('aria-label', 'Note on ' + it.title);
+    note.addEventListener('change', function () { var cur = state.answers[it.id] || {}; cur.note = note.value.trim(); state.answers[it.id] = cur; changed(it.id); });
+    acts.append(why, note);
+    bar.append(head, acts);
+    onChange(it.id, function () {
+      var a = state.answers[it.id] || {}, done = a.choice != null;
+      bar.className = 'rv-ask' + (done ? (a.choice === 0 ? ' yes' : ' no') : '');
+      lab.textContent = done ? (a.choice === 0 ? '\u2713 ' : '\u2717 ') + (DONE[choicesOf(it)[a.choice]] || choicesOf(it)[a.choice]) : 'Your input needed';
+      btns.forEach(function (b, j) { b.setAttribute('aria-pressed', String(a.choice === j)); });
+      if (d.activeElement !== note) note.value = a.note || '';
+    });
+    return bar;
   }
-  function addMarkers(node, anchor) { itemsAt(anchor).forEach(function (it) { node.append(marker(it)); }); }
+  /* the bars for one place, put straight after `node` */
+  function addAsks(node, anchor) {
+    var last = node;
+    itemsAt(anchor).forEach(function (it) { var b = ask(it); last.after(b); last = b; });
+  }
   function rows(anchor) {
     var list = el('div', 'rv-rows');
-    itemsAt(anchor).forEach(function (it) {
-      var row = el('p', 'rv-row'); row.append(el('span', 'ttl', it.title), marker(it));
-      if (it.old || it.change) { var w = el('span', 'was'); if (it.old) w.append(el('del', 'rv-del', it.old), d.createTextNode(' ')); if (it.change) w.append(el('ins', 'rv-ins', it.change)); row.append(w); }
-      list.append(row);
-    });
+    itemsAt(anchor).forEach(function (it) { list.append(ask(it)); });
     return list;
   }
 
@@ -1664,8 +1663,8 @@ window.REVIEW_ENDPOINT = "https://delphi-collector.vercel.app/api/answers";
     var h = $('.def-name', sec), def = $('.def-text', sec);
     h.textContent = ''; h.append(d.createTextNode('Dimension “'), segs(dm.name, ' '), d.createTextNode('”'));
     def.textContent = ''; def.append(d.createTextNode('Definition: '), segs(dm.def, ' '));
-    addMarkers(differs(dm.name) ? h : def, 'dim:' + dm.id);
-    if (itemsAt('pair:' + dm.id).length) { var line = el('p', 'rv-pairline', 'Planned for this example pair:'); addMarkers(line, 'pair:' + dm.id); $('.pair', sec).after(line); }
+    addAsks(def, 'dim:' + dm.id);
+    addAsks($('.pair', sec), 'pair:' + dm.id);
     dm.subs.forEach(function (sb) {
       var box = d.getElementById(sb.key); if (!box) return;
       sb.statements.forEach(function (st, i) { pidMap[sb.key + (i ? '_Q10' : '_Q9')] = st.pid; });
@@ -1674,7 +1673,7 @@ window.REVIEW_ENDPOINT = "https://delphi-collector.vercel.app/api/answers";
       if (sb.moved) nm.append(el('span', 'rv-moved', sb.moved));
       df.textContent = ''; df.append(segs(sb.def, ' '));
       var label = $('.sd-chars-label', ch); ch.textContent = ''; if (label) ch.append(label, d.createTextNode(' ')); ch.append(segs(sb.chars, ', '));
-      addMarkers(differs(sb.name) || sb.moved ? nm : differs(sb.def) ? df : differs(sb.chars) ? ch : nm, 'sub:' + sb.key);
+      addAsks(ch, 'sub:' + sb.key);
     });
     lockRatings(sec, function (id) { return pidMap[id]; });
     /* where the survey asks for suggestions, the review lists the ones made */
@@ -1691,7 +1690,8 @@ window.REVIEW_ENDPOINT = "https://delphi-collector.vercel.app/api/answers";
       var i = node.nodeValue.indexOf(it.find);
       if (i === -1) continue;
       var rest = node.splitText(i); rest.splitText(it.find.length);
-      var ins = el('ins', 'rv-ins', it.find); rest.replaceWith(ins); ins.after(marker(it));
+      var ins = el('ins', 'rv-ins', it.find); rest.replaceWith(ins);
+      (ins.closest('p, li, blockquote') || ins).after(ask(it));
       return true;
     }
     return false;
@@ -1699,8 +1699,8 @@ window.REVIEW_ENDPOINT = "https://delphi-collector.vercel.app/api/answers";
   function decorateBriefing(p) {
     var sec = sectionOf(p), note = el('div', 'rv-note');
     note.append(el('p', null, DATA.overview
-      ? 'This is the revised survey, with every change after the pilot marked in place. Hover a marker to see the comments behind a change, by name, and why we made it; select it to keep it open and answer.'
-      : 'This is the revised survey, with every change after the pilot marked in place. Hover a marker to see what you said, what the other co-authors said, and why we changed it; select it to keep it open, then accept or decline. Your pilot ratings are shown and locked: you do not rate anything again. It takes about 15 minutes, and your answers are kept as you go.'));
+      ? 'This is the revised survey, with every change after the pilot marked in place. A yellow bar marks each place that needs input. Hover its comments button to see the comments behind it, by name, and why we did what we did.'
+      : 'This is the revised survey, with every change after the pilot marked in place. Wherever you see a yellow bar, we need your input: press one of its two buttons, and add a note if you like. Hover the comments button on the bar to see what you said, what the other co-authors said, and why. Your pilot ratings are shown and locked: you do not rate anything again. It takes about 15 minutes, and your answers are kept as you go.'));
     note.append(el('p', null, 'Struck through is the pilot wording, highlighted is the new wording.'));
     sec.prepend(note);
     var loose = [];
@@ -1708,7 +1708,7 @@ window.REVIEW_ENDPOINT = "https://delphi-collector.vercel.app/api/answers";
     $$('.consent-item, .item', sec).forEach(function (x) { x.classList.add('rv-hide'); });
     if (loose.length) {
       var list = el('div', 'rv-rows');
-      loose.forEach(function (it) { var row = el('p', 'rv-row'); row.append(el('span', 'ttl', it.title), marker(it)); if (it.change) { var w = el('span', 'was'); w.append(el('ins', 'rv-ins', it.change)); row.append(w); } list.append(row); });
+      loose.forEach(function (it) { list.append(ask(it)); });
       var h = el('h3', 'sub-heading', 'Also changed in the survey');
       (sec.querySelector('form') || sec).append(h, list);
     }
@@ -1743,14 +1743,16 @@ window.REVIEW_ENDPOINT = "https://delphi-collector.vercel.app/api/answers";
     var p = PAGES.filter(function (x) { return x.key === state.page; })[0];
     var its = itemsOn(p), n = its.filter(answered).length;
     $('#topline-text').textContent = p.title;
-    var pill = $('#rv-count'); pill.textContent = n + ' of ' + its.length + ' changes on this page answered'; pill.className = 'rv-pill' + (n === its.length ? ' done' : '');
+    var left = its.length - n, pill = $('#rv-count');
+    pill.textContent = left ? left + (left === 1 ? ' item' : ' items') + ' on this page still ' + (left === 1 ? 'needs' : 'need') + ' your input' : 'All answered on this page';
+    pill.className = 'rv-pill' + (left ? '' : ' done');
     var total = DATA.items.length, done = DATA.items.filter(answered).length;
-    $('#pagenav > summary').textContent = 'Pages (' + done + ' of ' + total + ')';
+    $('#pagenav > summary').textContent = 'Pages (' + (total - done) + ' to answer)';
     var list = $('#pagenav-list'); list.textContent = '';
     PAGES.forEach(function (x) {
       var xi = itemsOn(x), k = xi.filter(answered).length, li = el('li', x.key === state.page ? 'current' : ''), a = el('a', null, x.title); a.href = '#';
       a.addEventListener('click', function (e) { e.preventDefault(); $('#pagenav').open = false; show(x.key); });
-      li.append(a, el('span', 'nav-st ' + (k === xi.length ? 'ok' : 'todo'), k + ' of ' + xi.length));
+      li.append(a, el('span', 'nav-st ' + (k === xi.length ? 'ok' : 'todo'), k === xi.length ? 'done' : (xi.length - k) + ' to answer'));
       list.append(li);
     });
   }
